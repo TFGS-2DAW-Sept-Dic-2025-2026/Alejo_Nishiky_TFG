@@ -1,0 +1,210 @@
+<!-- header.component.html -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <!-- logo -->
+    <a routerLink="/" class="flex items-center gap-2">
+      <img src="/VecinoTech-logo2.svg" class="w-20 h-20" alt="VecinoTech">
+      <span class="font-extrabold text-lg">VecinoTech</span>
+    </a>
+
+    <!-- desktop nav -->
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a routerLink="/Comunidad" class="text-gray-700 hover:text-blue-700">Comunidad</a>
+      <a routerLink="/Contacto"  class="text-gray-700 hover:text-blue-700">Contacta con nosotros</a>
+    </nav>
+
+    <div class="hidden md:flex items-center gap-3">
+      <a routerLink="/Usuario/Login"
+          class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md w-max">
+        Inicia sesión
+      </a>
+    </div>
+
+    <!-- mobile -->
+    <button class="md:hidden p-2" (click)="toggleMobile()">
+      <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+  </div>
+
+  @if (mobileOpen()) {
+    <div class="md:hidden border-t border-gray-100 bg-white">
+      <nav class="px-4 py-3 flex flex-col gap-3 text-sm">
+        <a routerLink="/Comunidad" (click)="closeMobile()" class="text-gray-700">Comunidad</a>
+        <a routerLink="/Contacto"  (click)="closeMobile()" class="text-gray-700">Contacta con nosotros</a>
+        <hr class="my-2">
+        <a routerLink="/Usuario/Login" (click)="closeMobile()"
+            class="border border-gray-300 px-3 py-2 rounded-md w-max">Inicia sesión</a>
+      </nav>
+    </div>
+  }
+</header>
+
+
+
+<!-- registro.component.html actualizado estilo Flowbite -->
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-6xl bg-white rounded-xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+
+    <!-- Lado izquierdo: Formulario -->
+    <div class="p-10">
+      <h1 class="text-3xl font-extrabold mb-2">Crea tu cuenta </h1>
+      <p class="text-sm text-gray-500 mb-8">
+        Tu vecinoTech comienza aquí. ¿Ya tienes una cuenta?
+        <a routerLink="/Usuario/Login" class="text-blue-600 hover:underline">Ingresa Aquí.</a>
+      </p>
+
+      <form [formGroup]="formRegistro" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Correo -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tu correo</label>
+            <input
+                  formControlName="email"
+                  type="email"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  placeholder="name@company.com"
+            />
+            @if (formRegistro.controls['email'].invalid && formRegistro.controls['email'].touched) {
+              <p class="text-red-500 text-sm mt-1">Correo inválido</p>
+            }
+          </div>
+          <!-- Nombre y apellidos -->
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+            <input
+                  formControlName="nombreCompleto"
+                  type="text"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  placeholder="e.g. Bonnie Green" />
+            @if (formRegistro.controls['nombreCompleto'].invalid && formRegistro.controls['nombreCompleto'].touched) {
+              <p class="text-red-500 text-sm mt-1">Coloca Nombre y Apellido</p>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input
+                  formControlName="telefono"
+                  type="tel"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  placeholder="Your phone" />
+            @if (formRegistro.controls['telefono'].invalid && formRegistro.controls['telefono'].touched) {
+              <p class="text-red-500 text-sm mt-1">Telefono inválido</p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input
+                  formControlName="direccion"
+                  type="text"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  placeholder="Your address" />
+            @if (formRegistro.controls['direccion'].invalid && formRegistro.controls['direccion'].touched) {
+              <p class="text-red-500 text-sm mt-1">Dirección inválido</p>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+            <input
+                  formControlName="cp"
+                  type="text"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  placeholder="12345" />
+            @if (formRegistro.controls['cp'].invalid && formRegistro.controls['cp'].touched) {
+              <p class="text-red-500 text-sm mt-1">Código postal inválido</p>
+            }
+          </div>
+        </div>
+
+      <!-- Password -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+        <div class="relative">
+          <input
+          formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          />
+          <button
+            type="button"
+            class="absolute inset-y-0 right-3 flex items-center text-gray-500"
+            (click)="togglePassword()"
+          >
+            <i class="fas" [class.fa-eye-slash]="showPassword()" [class.fa-eye]="!showPassword()"></i>
+          </button>
+        </div>
+        @if (formRegistro.controls['password'].invalid && formRegistro.controls['password'].touched) {
+          <p class="text-red-500 text-sm mt-1">La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.</p>
+        }
+      </div>
+
+      <!-- Repeat Password -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Repite la contraseña</label>
+        <div class="relative">
+          <input
+          formControlName="repassword"
+            [type]="showRepeatPassword() ? 'text' : 'password'"
+            class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          />
+          <button
+            type="button"
+            class="absolute inset-y-0 right-3 flex items-center text-gray-500"
+            (click)="toggleRepeatPassword()"
+          >
+            <i class="fas" [class.fa-eye-slash]="showRepeatPassword()" [class.fa-eye]="!showRepeatPassword()"></i>
+          </button>
+        </div>
+          @if (!contrasenasIguales() && formRegistro.controls['repassword'].touched) {
+            <p class="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
+          }
+      </div>
+
+
+        <div class="flex items-center justify-between">
+          <hr class="w-full border-gray-300">
+          <span class="px-2 text-gray-500 text-sm">or</span>
+          <hr class="w-full border-gray-300">
+        </div>
+
+        <div class="space-y-3">
+          <button type="button" class="w-full border border-gray-300 text-gray-700 py-2 rounded-md font-medium flex items-center justify-center gap-2">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google"> Sign up with Google
+          </button>
+          <button type="button" class="w-full border border-gray-300 text-gray-700 py-2 rounded-md font-medium flex items-center justify-center gap-2">
+            <i class="fab fa-apple text-xl"></i> Sign up with Apple
+          </button>
+        </div>
+
+        <div class="flex items-start mt-4 space-x-2">
+          <input type="checkbox" class="mt-1" />
+          <p class="text-sm text-gray-600">
+            By signing up, you are creating an account, and you agree to our
+            <a href="#" class="text-blue-600 hover:underline">Terms of Use</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold disabled:opacity-50 transition-all duration-300 mt-4 flex items-center justify-center gap-2"
+          [disabled]="!formularioValido() || cargando()">
+          @if (cargando()) {
+            <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+          } @else {
+            Crear mi cuenta
+          }
+        </button>
+      </form>
+    </div>
+
+    <!-- Lado derecho: Imagen -->
+    <div class="hidden md:flex items-center justify-center bg-gray-100">
+      <img src="imagen_registro.jpg" alt="Signup Illustration" class="object-cover h-full w-full">
+    </div>
+  </div>
+</div>

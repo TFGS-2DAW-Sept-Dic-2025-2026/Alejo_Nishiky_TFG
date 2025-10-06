@@ -1,0 +1,46 @@
+<!-- header.component.html -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <!-- logo -->
+    <a routerLink="/" class="flex items-center gap-2">
+      <img src="/VecinoTech-logo2.svg" class="w-20 h-20" alt="VecinoTech">
+      <span class="font-extrabold text-lg">VecinoTech</span>
+    </a>
+
+    <!-- desktop nav -->
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a routerLink="/Comunidad" class="text-gray-700 hover:text-blue-700">Comunidad</a>
+      <a routerLink="/Contacto"  class="text-gray-700 hover:text-blue-700">Contacta con nosotros</a>
+    </nav>
+
+    <div class="hidden md:flex items-center gap-3">
+      <a routerLink="/Usuario/Registro"
+         class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm">
+        Regístrate
+      </a>
+      <a routerLink="/Usuario/Login"
+         class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:border-blue-600 hover:text-blue-700">
+        Inicia sesión
+      </a>
+    </div>
+
+    <!-- mobile -->
+    <button class="md:hidden p-2" (click)="toggleMobile()">
+      <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+  </div>
+
+  @if (mobileOpen()) {
+    <div class="md:hidden border-t border-gray-100 bg-white">
+      <nav class="px-4 py-3 flex flex-col gap-3 text-sm">
+        <a routerLink="/Comunidad" (click)="closeMobile()" class="text-gray-700">Comunidad</a>
+        <a routerLink="/Contacto"  (click)="closeMobile()" class="text-gray-700">Contacta con nosotros</a>
+        <hr class="my-2">
+        <a routerLink="/Usuario/Registro" (click)="closeMobile()"
+           class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md w-max">Regístrate</a>
+        <a routerLink="/Usuario/Login" (click)="closeMobile()"
+           class="border border-gray-300 px-3 py-2 rounded-md w-max">Inicia sesión</a>
+      </nav>
+    </div>
+  }
+</header>

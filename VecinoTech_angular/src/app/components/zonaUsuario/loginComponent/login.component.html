@@ -1,0 +1,183 @@
+<!-- header.component.html -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <!-- logo -->
+    <a routerLink="/" class="flex items-center gap-2">
+      <img src="/VecinoTech-logo2.svg" class="w-20 h-20" alt="VecinoTech">
+      <span class="font-extrabold text-lg">VecinoTech</span>
+    </a>
+
+    <!-- desktop nav -->
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a routerLink="/Comunidad" class="text-gray-700 hover:text-blue-700">Comunidad</a>
+      <a routerLink="/Contacto"  class="text-gray-700 hover:text-blue-700">Contacta con nosotros</a>
+    </nav>
+
+    <div class="hidden md:flex items-center gap-3">
+      <a routerLink="/Usuario/Registro"
+          class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm">
+        Regístrate
+      </a>
+    </div>
+
+    <!-- mobile -->
+    <button class="md:hidden p-2" (click)="toggleMobile()">
+      <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+  </div>
+
+  @if (mobileOpen()) {
+    <div class="md:hidden border-t border-gray-100 bg-white">
+      <nav class="px-4 py-3 flex flex-col gap-3 text-sm">
+        <a routerLink="/Comunidad" (click)="closeMobile()" class="text-gray-700">Comunidad</a>
+        <a routerLink="/Contacto"  (click)="closeMobile()" class="text-gray-700">Contacta con nosotros</a>
+        <hr class="my-2">
+        <a routerLink="/Usuario/Registro" (click)="closeMobile()"
+            class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md w-max">Regístrate</a>
+      </nav>
+    </div>
+  }
+</header>
+
+
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-[1fr_520px] gap-8">
+
+    <!-- Columna izquierda (features) -->
+    <section class="hidden md:flex flex-col justify-center gap-10 pr-6">
+      <div class="flex items-start gap-4">
+        <div class="mt-1 text-blue-600">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold">Empieza ahora</h3>
+          <p class="text-gray-600">Comunidad Tech dispuesta ayudar a los demás.</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="mt-1 text-blue-600">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold">Start up en crecimiento</h3>
+          <p class="text-gray-600">Cada vez que ayudas a una personas estas contribuyendo con el crecimiento continuo de nuestra start up.</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="mt-1 text-blue-600">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold">Vecinos y locales te lo agradecerán</h3>
+          <p class="text-gray-600">Tus conocimientos techy contribuyen a un mundo mejor.</p>
+        </div>
+      </div>
+
+      <div class="mt-8 hidden lg:flex gap-6 text-sm text-gray-600">
+        <a class="hover:underline" href="#">About</a>
+        <a class="hover:underline" href="#">Term &amp; Conditions</a>
+        <a class="hover:underline" href="#">Contact</a>
+      </div>
+    </section>
+
+    <!-- Tarjeta de login -->
+    <section class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+      <h1 class="text-3xl font-extrabold mb-6">Bienvenido</h1>
+
+      <!-- SSO -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button type="button"
+          class="inline-flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 px-4 text-gray-700">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google" />
+          Log in with Google
+        </button>
+        <button type="button"
+          class="inline-flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 px-4 text-gray-700">
+          <i class="fa-brands fa-apple text-xl"></i>
+          Log in with Apple
+        </button>
+      </div>
+
+      <!-- separador -->
+      <div class="flex items-center gap-3 my-6">
+        <hr class="flex-1 border-gray-200" /><span class="text-gray-500 text-sm">or</span><hr class="flex-1 border-gray-200" />
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="formLogin" (ngSubmit)="onSubmit()" class="space-y-5">
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            formControlName="email"
+            type="email"
+            placeholder="Enter your email"
+            class="w-full bg-white rounded-lg border text-base outline-none text-gray-700 py-2.5 px-3 transition-colors"
+            [class.border-gray-300]="!formLogin.controls['email'].invalid"
+            [class.border-red-500]="formLogin.controls['email'].invalid && formLogin.controls['email'].touched" />
+          @if (formLogin.controls['email'].invalid && formLogin.controls['email'].touched) {
+            <p class="text-red-500 text-sm mt-1">Introduce un correo válido.</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <div class="relative">
+            <input
+              formControlName="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="w-full bg-white rounded-lg border text-base outline-none text-gray-700 py-2.5 px-3 transition-colors"
+              [class.border-gray-300]="!formLogin.controls['password'].invalid"
+              [class.border-red-500]="formLogin.controls['password'].invalid && formLogin.controls['password'].touched" />
+            <button type="button" class="absolute inset-y-0 right-3 flex items-center text-gray-500"
+              (click)="togglePassword()">
+              <i class="fas" [class.fa-eye-slash]="showPassword()" [class.fa-eye]="!showPassword()"></i>
+            </button>
+          </div>
+          @if (formLogin.controls['password'].invalid && formLogin.controls['password'].touched) {
+            <p class="text-red-500 text-sm mt-1">Mínimo 6 caracteres.</p>
+          }
+        </div>
+
+        <!-- Options -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="inline-flex items-center gap-2 select-none">
+            <input type="checkbox" formControlName="remember" class="rounded border-gray-300" />
+            <span>Remember me</span>
+          </label>
+          <a routerLink="/Usuario/RecuperarPassword" class="text-blue-600 hover:underline">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-semibold disabled:opacity-50 transition"
+          [disabled]="formLogin.invalid || submitting()">
+          @if (submitting()) {
+            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+              </path>
+            </svg>
+            <span>Entrando…</span>
+          } @else {
+            <span>Sign in to your account</span>
+          }
+        </button>
+        <!-- Mensaje de error del servidor -->
+        @if (serverError()) {
+          <p class="text-red-600 text-sm text-center mt-1">{{ serverError() }}</p>
+        }
+
+        <p class="text-sm text-gray-600 text-center">
+          ¿Aún no tiene una cuenta?
+          <a routerLink="/Usuario/Registro" class="text-blue-600 hover:underline">Registrate aquí</a>
+        </p>
+      </form>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-white to-purple-100 px-4">
+  <div class="bg-white shadow-xl rounded-xl w-full max-w-lg p-8 text-center">
+
+    <!-- Icono superior -->
+    <div class="mb-6">
+      <img src="https://www.carrefour.es/nlogin/img/v3/otpMail.svg" class="mx-auto w-20 h-20" alt="Verificación" />
+    </div>
+
+    <!-- Título -->
+    <h1 class="text-2xl font-extrabold text-gray-800 mb-2">
+      @if (operacion() === 'Registro') {
+        Revisa tu Email
+      } @else {
+        Confirma tu código
+      }
+    </h1>
+
+    <!-- Texto de ayuda -->
+    <p class="text-gray-600 mb-2">
+      @if (operacion() === 'Registro') {
+        Para verificar tu cuenta introduce el código que te hemos enviado a:
+      } @else {
+        Por tu seguridad, introduce el código que te hemos enviado a:
+      }
+    </p>
+    <p class="font-semibold text-black mb-4">{{ email }}</p>
+
+    <!-- Código -->
+    <div class="flex justify-center gap-2 mb-4">
+      @for ( i of [0, 1, 2, 3, 4, 5]; track $index) {
+        <input
+          type="text"
+          maxlength="1"
+          class="w-12 h-12 text-xl text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [id]="'code' + (i + 1)"
+          [value]="codigoChars()[i]"
+          (input)="PushValue($event, i + 1)"
+        />
+      }
+    </div>
+
+    <!-- Info -->
+    <div class="bg-blue-50 text-blue-800 text-sm p-3 rounded-md mb-4 flex items-center gap-2">
+      <i class="fas fa-circle-info text-blue-500"></i>
+      <span>Revisa tu carpeta de spam si no encuentras el correo</span>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex flex-col gap-3">
+      <button type="button" class="text-blue-600 hover:underline text-sm">Reenviar código</button>
+      <button
+        type="button"
+        (click)="ValidarCodigo()"
+        [disabled]="!codigoCompleto()"
+        class="bg-blue-600 text-white py-2 rounded-md font-semibold disabled:opacity-50 transition"
+      >
+        Validar código
+      </button>
+    </div>
+  </div>
+</div>

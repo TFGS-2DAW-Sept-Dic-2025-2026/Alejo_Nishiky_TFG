@@ -1,0 +1,61 @@
+/* Action Buttons Custom Styles */
+.action-button {
+  @apply w-full p-6 rounded-lg border-2 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1;
+}
+
+.volunteer-button {
+  @apply border-green-300 bg-green-50 hover:bg-green-100 text-green-700 hover:border-green-400;
+}
+
+.help-button {
+  @apply border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:border-blue-400;
+}
+
+/* Carousel Animation */
+.carousel-container {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Custom Podium Animation */
+.podium-base {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Smooth hover effects for cards */
+.shadow-md {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.shadow-md:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom scrollbar for overflow areas */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .action-button {
+    @apply p-4;
+  }
+
+  .action-button div {
+    @apply text-sm;
+  }
+}

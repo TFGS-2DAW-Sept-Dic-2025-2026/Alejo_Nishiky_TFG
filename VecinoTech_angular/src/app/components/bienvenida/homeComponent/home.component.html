@@ -1,0 +1,81 @@
+<!-- home.component.html -->
+
+<!-- HERO con imagen/video de fondo difuminado -->
+<section class="relative">
+  <div class="absolute inset-0">
+    
+    <img src="/assets/home/vecino_tech_portada.jpg" class="w-full h-full object-cover" alt="">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-white">
+    <div class="max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+        Haciendo tecnología <span class="text-blue-300">cercana</span> y útil para todos
+      </h1>
+      <p class="mt-4 text-white/90">
+        Conecta con vecinos dispuestos a ayudarte y comparte tus superpoderes tech.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a routerLink="/Usuario/Registro" class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm text-center">Empieza gratis</a>
+        <a routerLink="/Usuario/Login" class="px-6 py-3 rounded-lg border border-white/60 text-white font-semibold text-sm text-center hover:bg-white/10">Inicia sesión</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISIÓN / VISIÓN con imágenes -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10 items-center">
+    <!-- Misión -->
+    <div>
+      <h2 class="text-2xl md:text-3xl font-extrabold mb-3">Nuestra misión</h2>
+      <p class="text-gray-600">En VecinoTech creemos que la tecnología no debería ser una barrera, sino un puente.
+          Nuestra misión es conectar a personas que necesitan ayuda con voluntarios dispuestos a compartir sus conocimientos y tiempo, creando una red solidaria que fomente la inclusión digital y el apoyo mutuo en cada comunidad.</p>
+    </div>
+    <div>
+      <img src="/assets/home/mision.jpg" class="rounded-2xl shadow-lg w-full object-cover aspect-[4/3]" alt="Misión">
+    </div>
+  </div>
+
+  <div class="mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10 items-center">
+    <div class="order-2 lg:order-1">
+      <img src="/assets/home/vision.jpg" class="rounded-2xl shadow-lg w-full object-cover aspect-[4/3]" alt="Visión">
+    </div>
+    <div class="order-1 lg:order-2">
+      <h2 class="text-2xl md:text-3xl font-extrabold mb-3">Nuestra visión</h2>
+      <p class="text-gray-600">Queremos construir un futuro donde nadie se sienta excluido por no entender la tecnología.
+        Aspiramos a ser la plataforma de referencia en apoyo tecnológico vecinal, empoderando a comunidades de todo el mundo para que crezcan juntas, más fuertes y más conectadas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTADORES -->
+<section class="py-16 bg-gray-50">
+  <h2 class="text-3xl font-extrabold text-center mb-12">Haciendo la diferencia donde se necesita</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+      <i class="fa-solid fa-people-group text-blue-600 text-4xl mb-4"></i>
+      <app-contador [end]="3000" [prefix]="'+'" [duration]="2" class ="text-3xl font-bold"></app-contador>
+      <p class="mt-2 text-gray-600">Vecinos que necesitan ayuda</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+      <i class="fa-solid fa-laptop-code text-blue-600 text-4xl mb-4"></i>
+      <app-contador [end]="1000" [prefix]="'+'" [duration]="2" class ="text-3xl font-bold"></app-contador>
+      <p class="mt-2 text-gray-600">Voluntarios Tech</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+      <i class="fa-solid fa-handshake text-blue-600 text-4xl mb-4"></i>
+      <app-contador [end]="400" [prefix]="'+'" [duration]="3" class ="text-3xl font-bold"></app-contador>
+      <p class="mt-2 text-gray-600">Ayudas concretadas</p>
+    </div>
+
+  </div>
+</section>
+
+

@@ -1,0 +1,177 @@
+<div class="flex min-h-screen flex-col bg-[#f6f7f8] dark:bg-[#101c22] font-sans">
+  <!-- Header -->
+  <header class="sticky top-0 z-10 bg-[#f6f7f8]/90 dark:bg-[#101c22]/80 backdrop-blur-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
+          <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM11 11V17H13V11H11ZM11 7V9H13V7H11Z" />
+          </svg>
+          <h1 class="text-xl font-bold">VecinoTech Comunidad</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+          @if (usuarioSig(); as u) {
+            <p class="hidden text-slate-800 dark:text-slate-200 sm:block">
+              Welcome, {{ u.nombre }}!
+            </p>
+          }
+          <button
+            (click)="logout()"
+            class="rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-800 transition-colors hover:bg-slate-300 dark:bg-slate-700/50 dark:text-slate-200 dark:hover:bg-slate-600/50">
+            Logout
+          </button>
+
+          <div class="h-10 w-10 rounded-full bg-cover bg-center"
+            [style.backgroundImage]="'url(' + ((usuarioSig()?.avatarUrl) || 'https://i.pravatar.cc/80') + ')'"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    <!-- Hero -->
+    <div class="relative h-96">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        [style.background-image]="'url(' + bannerUrl + ')'"
+      ></div>
+      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="relative flex h-full flex-col items-center justify-center p-4 text-center text-white">
+        <h2 class="mb-4 text-4xl font-extrabold md:text-5xl">Announcements</h2>
+        <p class="max-w-2xl">
+          Stay updated with the latest news and events in our community. Here's what's new!
+        </p>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-8 text-center md:grid-cols-2">
+        <div
+          class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22]">
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Ready to Help?</h3>
+          <p class="mb-6 text-slate-600 dark:text-slate-400">
+            Join our amazing team of volunteers and make a real impact in the community.
+          </p>
+          <button
+            (click)="onVolunteer()"
+            class="w-full rounded-lg bg-[#13a4ec] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90">
+            Volunteer
+          </button>
+        </div>
+
+        <div
+          class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22]">
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Need a Hand?</h3>
+          <p class="mb-6 text-slate-600 dark:text-slate-400">
+            Don't hesitate to ask for assistance. We're here to support you.
+          </p>
+          <button
+            (click)="onNeedHelp()"
+            class="w-full rounded-lg bg-slate-200 px-6 py-3 font-bold text-slate-800 transition-colors hover:bg-slate-300 dark:bg-slate-700/50 dark:text-slate-200 dark:hover:bg-slate-600/50">
+            Need Help
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="mt-16">
+        <h2 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Community Leaderboard
+        </h2>
+
+        <div class="rounded-xl bg-[#f6f7f8] p-6 shadow-lg dark:bg-[#101c22]">
+          @if (leaderboardR().codigo === 100) {
+            <div class="text-center text-slate-600 dark:text-slate-400">Cargando ranking...</div>
+          } @else if (!leaders().length) {
+            <div class="text-center text-slate-600 dark:text-slate-400">Aún no hay datos.</div>
+          } @else {
+            <div class="space-y-6">
+              @for (l of leaders(); track l.name; let i = $index) {
+                <div class="group" [style.--bar-width]="barWidth(l.points) + '%'">
+                  <div class="mb-1 flex items-center justify-between">
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ i + 1 }}. {{ l.name }}</span>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ l.points }} Points</span>
+                  </div>
+                  <div class="h-4 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div class="bar-fill h-4 w-0 rounded-full bg-[#13a4ec] transition-all duration-1000 ease-out group-hover:w-[var(--bar-width)]"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+      <div class="mt-16">
+        <h2 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Your Recent Activities
+        </h2>
+        @if (activitiesR().codigo === 100) {
+          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
+            Cargando actividades...
+          </div>
+        } @else if (!(activitiesR().datos?.length)) {
+          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
+            Aún no tienes actividades.
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (a of activitiesR().datos; track a.title) {
+              <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#101c22]">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[#13a4ec]/20">
+                  @if (a.icon === 'food') {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M220.2,100l-18-31.18a28,28,0,0,0-47.3-1.92L139.56,40.31a28,28,0,0,0-48.12-.63,28,28,0,0,0-43,34.78l3.34,5.79a28,28,0,0,0-22,41.92l38,65.82a87.46,87.46,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3A88,88,0,0,0,220.2,100Z"/></svg>
+                  } @else if (a.icon === 'tutor') {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Z"/></svg>
+                  } @else {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"/></svg>
+                  }
+                </div>
+                <div>
+                  <p class="font-semibold text-slate-900 dark:text-slate-100">{{ a.title }}</p>
+                  <p class="text-sm text-slate-600 dark:text-slate-400">{{ a.description }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      @if (activitiesR().codigo === 100) {
+          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
+            Cargando actividades...
+          </div>
+        } @else if (!(activitiesR().datos?.length)) {
+          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
+            Aún no tienes actividades.
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (a of activitiesR().datos; track a.title) {
+              <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#101c22]">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[#13a4ec]/20">
+                  @if (a.icon === 'food') {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M220.2,100l-18-31.18a28,28,0,0,0-47.3-1.92L139.56,40.31a28,28,0,0,0-48.12-.63,28,28,0,0,0-43,34.78l3.34,5.79a28,28,0,0,0-22,41.92l38,65.82a87.46,87.46,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3A88,88,0,0,0,220.2,100Z"/></svg>
+                  } @else if (a.icon === 'tutor') {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Z"/></svg>
+                  } @else {
+                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"/></svg>
+                  }
+                </div>
+                <div>
+                  <p class="font-semibold text-slate-900 dark:text-slate-100">{{ a.title }}</p>
+                  <p class="text-sm text-slate-600 dark:text-slate-400">{{ a.description }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </main>
+</div>
