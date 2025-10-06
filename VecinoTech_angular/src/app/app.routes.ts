@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { RegistroComponent } from './components/zonaUsuario/registroComponent/registro.component';
 import { LoginComponent } from './components/zonaUsuario/loginComponent/login.component';
-import { Verif2FacodeComponent } from './components/zonaUsuario/verificacion2FAComponent/verif2-facode.component';
 import { RecuPasswordComponent } from './components/zonaUsuario/recuPasswordComponent/recu-password.component';
 import { LayoutComponent } from './components/bienvenida/layOutComponent/layout.component';
 import { HomeComponent } from './components/bienvenida/homeComponent/home.component';
