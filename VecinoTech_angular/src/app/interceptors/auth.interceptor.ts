@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError(err => {
-      console.log('❌ Error capturado en interceptor:', err);
+      console.log('Error capturado en interceptor:', err);
 
       if (err.status === 401 && jwts.refreshToken) {
 
@@ -36,7 +36,7 @@ export const authInterceptor: HttpInterceptorFn = (
         return restCliente.RefrescarTokens(jwts.refreshToken).pipe(
           switchMap((resp: IRestMessage) => {
             if (resp.codigo === 0 && resp.datos) {
-              const payload = resp.datos as IAuthPayload; // casteo manual
+              const payload = resp.datos as IAuthPayload;
               storage.setSession(payload);
 
               const retry = req.clone({
