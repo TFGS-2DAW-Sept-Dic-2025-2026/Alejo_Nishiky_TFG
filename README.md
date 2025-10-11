@@ -20,3 +20,6 @@ El objetivo es fomentar la inclusión digital y el apoyo comunitario, especialme
 - **PostgreSQL**
 - **MapStruct** y **DTOs**
 - **Flyway** ---> para migraciones
+
+### Base de datos
+- ![Base de datos en PostgreSQL](images/db_view.png)
