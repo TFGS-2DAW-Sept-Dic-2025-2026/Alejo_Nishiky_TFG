@@ -7,6 +7,8 @@ import { HomeComponent } from './components/bienvenida/homeComponent/home.compon
 import { ActivarCuentaComponent } from './components/zonaUsuario/activar-cuenta/activar-cuenta.component';
 import { authGuard } from './guards/auth.guard';
 import { PortalComponent } from './components/zonaPortal/portal.component';
+import { VoluntarioComponent } from './components/zonaPortal/voluntarioComponent/voluntario.component';
+import { SolicitanteComponent } from './components/zonaPortal/solicitanteComponent/solicitante.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/VecinoTech/Home', pathMatch: 'full'},
@@ -30,6 +32,10 @@ export const routes: Routes = [
   {
     path: 'Portal',
     component: PortalComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    children: [
+      {path: 'Voluntario', component: VoluntarioComponent},
+      {path: 'Solicitante', component: SolicitanteComponent}
+    ]
   }
 ];
