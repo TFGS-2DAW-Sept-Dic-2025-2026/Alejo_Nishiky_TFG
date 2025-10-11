@@ -22,4 +22,4 @@ El objetivo es fomentar la inclusión digital y el apoyo comunitario, especialme
 - **Flyway** ---> para migraciones
 
 ### Base de datos
-- ![Base de datos en PostgreSQL](images/db_view.png)
+- ![Base de datos en PostgreSQL](Images/db_view.png)
