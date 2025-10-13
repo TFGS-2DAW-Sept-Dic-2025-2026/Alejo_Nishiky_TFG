@@ -26,8 +26,7 @@
           </button>
 
           <div class="h-10 w-10 rounded-full bg-cover bg-center"
-            [style.backgroundImage]="'url(' + ((usuarioSig()?.avatarUrl) || 'https://i.pravatar.cc/80') + ')'"
-          ></div>
+            [style.backgroundImage]="'url(' + avatarUrlSig() + ')'"></div>
         </div>
       </div>
     </div>
@@ -106,71 +105,6 @@
             </div>
           }
         </div>
-      </div>
-
-      <!-- Recent Activities -->
-      <div class="mt-16">
-        <h2 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Your Recent Activities
-        </h2>
-        @if (activitiesR().codigo === 100) {
-          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
-            Cargando actividades...
-          </div>
-        } @else if (!(activitiesR().datos?.length)) {
-          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
-            Aún no tienes actividades.
-          </div>
-        } @else {
-          <div class="space-y-4">
-            @for (a of activitiesR().datos; track a.title) {
-              <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#101c22]">
-                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[#13a4ec]/20">
-                  @if (a.icon === 'food') {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M220.2,100l-18-31.18a28,28,0,0,0-47.3-1.92L139.56,40.31a28,28,0,0,0-48.12-.63,28,28,0,0,0-43,34.78l3.34,5.79a28,28,0,0,0-22,41.92l38,65.82a87.46,87.46,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3A88,88,0,0,0,220.2,100Z"/></svg>
-                  } @else if (a.icon === 'tutor') {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Z"/></svg>
-                  } @else {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"/></svg>
-                  }
-                </div>
-                <div>
-                  <p class="font-semibold text-slate-900 dark:text-slate-100">{{ a.title }}</p>
-                  <p class="text-sm text-slate-600 dark:text-slate-400">{{ a.description }}</p>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      @if (activitiesR().codigo === 100) {
-          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
-            Cargando actividades...
-          </div>
-        } @else if (!(activitiesR().datos?.length)) {
-          <div class="rounded-xl bg-[#f6f7f8] p-4 text-center text-slate-600 shadow-lg dark:bg-[#101c22] dark:text-slate-400">
-            Aún no tienes actividades.
-          </div>
-        } @else {
-          <div class="space-y-4">
-            @for (a of activitiesR().datos; track a.title) {
-              <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#101c22]">
-                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[#13a4ec]/20">
-                  @if (a.icon === 'food') {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M220.2,100l-18-31.18a28,28,0,0,0-47.3-1.92L139.56,40.31a28,28,0,0,0-48.12-.63,28,28,0,0,0-43,34.78l3.34,5.79a28,28,0,0,0-22,41.92l38,65.82a87.46,87.46,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3A88,88,0,0,0,220.2,100Z"/></svg>
-                  } @else if (a.icon === 'tutor') {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Z"/></svg>
-                  } @else {
-                    <svg class="h-6 w-6 text-[#13a4ec]" viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"/></svg>
-                  }
-                </div>
-                <div>
-                  <p class="font-semibold text-slate-900 dark:text-slate-100">{{ a.title }}</p>
-                  <p class="text-sm text-slate-600 dark:text-slate-400">{{ a.description }}</p>
-                </div>
-              </div>
-            }
-          </div>
-        }
       </div>
     </div>
   </main>

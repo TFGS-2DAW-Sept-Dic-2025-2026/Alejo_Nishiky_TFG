@@ -30,21 +30,6 @@ export class RestPortalService {
     );
   }
 
-  public getRecentActivities() {
-    return toSignal(
-      this._http.get<IRestMessage>(`${this.base}/activities`)
-        .pipe(
-          catchError((e: HttpErrorResponse) => of<IRestMessage>({
-            codigo: e.status || 500,
-            mensaje: e.error?.mensaje || 'No se pudieron cargar actividades',
-            datos: []
-          })),
-          startWith({ codigo: 100, mensaje: 'Cargando actividades...', datos: [] })
-        ),
-      { injector: this._injector, requireSync: true }
-    );
-  }
-
   public postVolunteer() {
     return toSignal(
       this._http.post<IRestMessage>(
