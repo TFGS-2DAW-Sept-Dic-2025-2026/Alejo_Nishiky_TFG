@@ -1,5 +1,6 @@
 package es.daw.vecinotechbackend.mapper;
 
+import es.daw.vecinotechbackend.dto.UsuarioDTO;
 import es.daw.vecinotechbackend.dto.UsuarioDetalleDTO;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.UsuarioDetalle;
@@ -21,7 +22,8 @@ public interface UsuarioDetalleMapper {
             @Mapping(target = "ciudad", source = "ciudad"),
             @Mapping(target = "pais", source = "pais"),
             @Mapping(target = "codigoPostal", source = "codigoPostal"),
-            @Mapping(target = "bio", source = "bio")
+            @Mapping(target = "bio", source = "bio"),
+            @Mapping(target = "esVoluntario", source = "esVoluntario")
     })
     UsuarioDetalle toEntity(UsuarioDetalleDTO dto);
 
@@ -34,9 +36,10 @@ public interface UsuarioDetalleMapper {
             @Mapping(target = "ciudad", source = "ciudad"),
             @Mapping(target = "pais", source = "pais"),
             @Mapping(target = "codigoPostal", source = "codigoPostal"),
-            @Mapping(target = "bio", source = "bio")
+            @Mapping(target = "bio", source = "bio"),
+            @Mapping(target = "esVoluntario", source = "esVoluntario", defaultValue = "false")
     })
-    UsuarioDetalle fromUsuarioDTO(es.daw.vecinotechbackend.dto.UsuarioDTO dto);
+    UsuarioDetalle fromUsuarioDTO(UsuarioDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UsuarioDetalleDTO dto, @MappingTarget UsuarioDetalle entity);

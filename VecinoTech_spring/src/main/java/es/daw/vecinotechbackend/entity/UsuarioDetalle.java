@@ -35,4 +35,7 @@ public class UsuarioDetalle {
 
     @Column(length = 280)
     private String bio;
+
+    @Column(name = "es_voluntario", nullable = false)
+    private boolean esVoluntario = false; 
 }

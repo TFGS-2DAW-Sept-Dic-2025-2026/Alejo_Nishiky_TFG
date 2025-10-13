@@ -26,5 +26,7 @@ public class UsuarioDetalleDTO {
     @Size(max = 280)
     private String bio;
 
+    private boolean esVoluntario;
+
 }
 
