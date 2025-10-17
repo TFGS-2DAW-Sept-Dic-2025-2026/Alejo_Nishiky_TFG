@@ -54,7 +54,7 @@ export class PortalComponent {
     console.log('Has escogido voluntario!!!!');
     const r = this._portalService.postVolunteer();
   }
-  
+
   onNeedHelp() {
     console.log('Has escogido Ayuda!!!!!!!!!');
     const r = this._portalService.postNeedHelp();

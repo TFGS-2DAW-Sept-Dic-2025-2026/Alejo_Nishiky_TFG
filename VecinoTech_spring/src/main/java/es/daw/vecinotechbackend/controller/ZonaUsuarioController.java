@@ -104,6 +104,11 @@ public class ZonaUsuarioController {
         String destinoOk = frontBaseUrl + "/Usuario/Activar?status=ok";
         String destinoError = frontBaseUrl + "/Usuario/Activar?status=error";
 
+        //Peque chequeo para ver si el token no está vacio
+        if(token == null || token.isBlank()) {
+            return new RedirectView(destinoError);
+        }
+
         try {
             // Valida firma, issuer, exp y QUE sea de propósito 'account_activation'
             Claims claims = jwtUtils.validateAndRequirePurpose(token, "account_activation");
@@ -210,6 +215,11 @@ public class ZonaUsuarioController {
     // ========================= REFRESH TOKENS ==========================
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthPayload>> refresh(@RequestBody RefreshRequest body) {
+
+        if(body.refreshToken() == null || body.refreshToken().isEmpty()){
+            return ResponseEntity.status(401).body(ApiResponse.error(1, "Refresh token requerido"));
+        }
+
         Long userId = jwtUtils.validateRefreshAndGetUserId(body.refreshToken());
         if (userId == null) {
             return ResponseEntity.status(401).body(ApiResponse.error(1, "Refresh token inválido"));
@@ -222,7 +232,9 @@ public class ZonaUsuarioController {
 
         String newAccess = jwtUtils.createAccessToken(user.getId()); // ← sin rol
         var dto = usuarioMapper.toDTO(user);
-        var payload = new AuthPayload(newAccess, body.refreshToken(), dto);
+        //GENERO UN NUEVO REFRESH TOKEN
+        String newRefresh = jwtUtils.createRefreshToken(user.getId());
+        var payload = new AuthPayload(newAccess, newRefresh, dto);
         return ResponseEntity.ok(ApiResponse.ok("OK", payload));
     }
 
