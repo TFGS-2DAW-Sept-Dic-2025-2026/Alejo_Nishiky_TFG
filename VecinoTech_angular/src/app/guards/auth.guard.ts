@@ -1,18 +1,19 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { StorageGlobalService } from '../services/storage-global.service';
+import { Router, type CanActivateFn } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
-
-export const authGuard: CanActivateFn = () => {
-  const storage = inject(StorageGlobalService);
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
   const router = inject(Router);
 
-  const access = storage.getAccessToken();
-
-  if (!access) {
-    router.navigate(['/Usuario/Login']);
-    return false;
+  if (authService.isAuthenticated()) {
+    return true;
   }
 
-  return true;
+  const returnUrl = state.url;
+  router.navigate(['/Usuario/Login'], {
+    queryParams: { returnUrl }
+  });
+
+  return false;
 };

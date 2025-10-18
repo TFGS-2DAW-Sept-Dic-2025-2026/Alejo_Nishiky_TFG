@@ -6,6 +6,7 @@ import { IAuthPayload } from '../models/IAuthPayload';
   providedIn: 'root'
 })
 export class StorageGlobalService {
+
   // señales internas
   private _accessToken = signal<string | null>(null);
   private _refreshToken = signal<string | null>(null);

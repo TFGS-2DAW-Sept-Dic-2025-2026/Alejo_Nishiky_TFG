@@ -29,9 +29,7 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError(err => {
       console.log('Error capturado en interceptor:', err);
-
       if (err.status === 401 && jwts.refreshToken) {
-
         // Intentar refresh
         return restCliente.RefrescarTokens(jwts.refreshToken).pipe(
           switchMap((resp: IRestMessage) => {
@@ -48,10 +46,14 @@ export const authInterceptor: HttpInterceptorFn = (
               router.navigate(['/login']);
               return throwError(() => new Error('Fallo en refresh token'));
             }
+          }),
+          catchError(refreshErr => {
+            storage.clearSession();
+            router.navigate(['/Usuario/Login']);
+            return throwError( () => refreshErr);
           })
         );
       }
-
       return throwError(() => err);
     })
   );

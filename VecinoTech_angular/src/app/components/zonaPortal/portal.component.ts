@@ -38,8 +38,8 @@ export class PortalComponent {
   leaderboardR = this._portalService.getLeaderboard();
   leaders = computed( () => (this.leaderboardR().datos ?? []) as IPortalLeader[]);
   maxPoints = computed(() => {
-    const l = this.leaders();
-    return l.length ? Math.max(...l.map(x => x.points)) : 1;
+    const leader = this.leaders();
+    return leader.length ? Math.max(...leader.map(x => x.points)) : 1;
   });
   barWidth = (points: number) => Math.round((points / this.maxPoints()) * 100);
 
