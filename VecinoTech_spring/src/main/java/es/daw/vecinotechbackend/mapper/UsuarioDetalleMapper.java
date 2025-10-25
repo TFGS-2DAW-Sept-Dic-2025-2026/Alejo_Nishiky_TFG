@@ -37,7 +37,7 @@ public interface UsuarioDetalleMapper {
             @Mapping(target = "pais", source = "pais"),
             @Mapping(target = "codigoPostal", source = "codigoPostal"),
             @Mapping(target = "bio", source = "bio"),
-            @Mapping(target = "esVoluntario", source = "esVoluntario", defaultValue = "false")
+            @Mapping(target = "esVoluntario", constant = "false")
     })
     UsuarioDetalle fromUsuarioDTO(UsuarioDTO dto);
 

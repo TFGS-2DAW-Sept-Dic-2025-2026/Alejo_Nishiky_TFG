@@ -128,7 +128,10 @@ public class JwtUtils {
 
 
     // ===================== EXTRAS =====================
-    public String extractSubject(Claims claims) { return claims.getSubject(); }
+    public String extractSubject(Claims claims) {
+        return claims.getSubject();
+    }
+
     public Long extractUserId(Claims claims) { return claims.get("uid", Long.class); }
     @SuppressWarnings("unchecked")
     public List<String> extractAuthorities(Claims claims) {
@@ -137,6 +140,10 @@ public class JwtUtils {
                 ? col.stream().map(Object::toString).toList()
                 : List.of();
     }
-
+    // ===================== VALIDACIÓN (access) =====================
+    public Long validateAccessAndGetUserId(String token) {
+        Claims c = validateAndRequirePurpose(token, "access");
+        return Long.valueOf(c.getSubject());
+    }
 
 }
