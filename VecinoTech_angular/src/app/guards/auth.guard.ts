@@ -6,12 +6,15 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  //Verificar si está autenticando con computed signal
   if (authService.isAuthenticated()) {
     return true;
   }
 
+  //Guardar la URL a la que intentaba acceder.
   const returnUrl = state.url;
-  router.navigate(['/Usuario/Login'], {
+
+  router.navigate(['/usuario/login'], {
     queryParams: { returnUrl }
   });
 

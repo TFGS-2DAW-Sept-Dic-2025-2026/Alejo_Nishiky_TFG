@@ -1,3 +1,4 @@
+import { AuthService } from './../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +18,7 @@ export class LoginComponent {
   // Inyecciones
   private readonly router = inject(Router);
   private readonly storage = inject(StorageGlobalService);
+  private readonly AuthService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly rest = inject(RestClientService);
 
@@ -52,6 +54,12 @@ export class LoginComponent {
   readonly passwordControl = this.formLogin.get('password')!;
 
   constructor() {
+
+    if(this.AuthService.isAuthenticated()){
+      this.router.navigate(['/Portal']);
+      return;
+    }
+
     // Effect para manejar las respuestas del login
     effect(() => {
       const responseSignal = this.currentLoginResponse();
@@ -74,7 +82,7 @@ export class LoginComponent {
         this.handleLoginError(response);
       }
 
-      // Limpiar la respuesta después de procesarla
+      // Para limpiar la respuesta después de procesarla
       this.currentLoginResponse.set(null);
     });
 
@@ -134,7 +142,7 @@ export class LoginComponent {
     }
 
     // Navegar al portal
-    this.router.navigate(['/Portal']);
+    this.router.navigate(['/portal']);
   }
 
   private handleLoginError(response: IRestMessage) {

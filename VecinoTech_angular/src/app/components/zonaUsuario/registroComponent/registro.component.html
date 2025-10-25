@@ -14,7 +14,7 @@
     </nav>
 
     <div class="hidden md:flex items-center gap-3">
-      <a routerLink="/Usuario/Login"
+      <a routerLink="/usuario/login"
           class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md w-max">
         Inicia sesión
       </a>
@@ -50,7 +50,7 @@
       <h1 class="text-3xl font-extrabold mb-2">Crea tu cuenta </h1>
       <p class="text-sm text-gray-500 mb-8">
         Tu vecinoTech comienza aquí. ¿Ya tienes una cuenta?
-        <a routerLink="/Usuario/Login" class="text-blue-600 hover:underline">Ingresa Aquí.</a>
+        <a routerLink="/usuario/login" class="text-blue-600 hover:underline">Ingresa Aquí.</a>
       </p>
 
       <form [formGroup]="formRegistro" (ngSubmit)="onSubmit()" class="space-y-6">

@@ -43,13 +43,13 @@ export const authInterceptor: HttpInterceptorFn = (
               return next(retry);
             } else {
               storage.clearSession();
-              router.navigate(['/login']);
+              router.navigate(['/usuario/login']);
               return throwError(() => new Error('Fallo en refresh token'));
             }
           }),
           catchError(refreshErr => {
             storage.clearSession();
-            router.navigate(['/Usuario/Login']);
+            router.navigate(['/usuario/login']);
             return throwError( () => refreshErr);
           })
         );

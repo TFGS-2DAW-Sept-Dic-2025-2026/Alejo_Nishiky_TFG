@@ -11,31 +11,30 @@ import { VoluntarioComponent } from './components/zonaPortal/voluntarioComponent
 import { SolicitanteComponent } from './components/zonaPortal/solicitanteComponent/solicitante.component';
 
 export const routes: Routes = [
-  { path:'', redirectTo: '/VecinoTech/Home', pathMatch: 'full'},
+  { path:'', redirectTo: 'vecinotech/home', pathMatch: 'full'},
   {
-    path: 'VecinoTech',
+    path: 'vecinotech',
     component: LayoutComponent,
     children: [
-      {path: 'Home', component: HomeComponent}
+      {path: 'home', component: HomeComponent}
     ]
   },
   {
-    path: 'Usuario',
+    path: 'usuario',
     children: [
-      {path: 'Registro', component: RegistroComponent},
-      {path: 'Login', component: LoginComponent},
-      //{path: 'Verificar/:operacion', component:  Verif2FacodeComponent},
-      {path: 'RecuperarPassword', component: RecuPasswordComponent},
-      {path: 'Activar', component: ActivarCuentaComponent }
+      {path: 'registro', component: RegistroComponent},
+      {path: 'login', component: LoginComponent},
+      {path: 'recuperarPassword', component: RecuPasswordComponent},
+      {path: 'activar', component: ActivarCuentaComponent }
     ]
   },
   {
-    path: 'Portal',
+    path: 'portal',
     component: PortalComponent,
     canActivate: [authGuard],
     children: [
-      {path: 'Voluntario', component: VoluntarioComponent},
-      {path: 'Solicitante', component: SolicitanteComponent}
+      {path: 'voluntario', component: VoluntarioComponent},
+      {path: 'solicitante', component: SolicitanteComponent}
     ]
   }
 ];

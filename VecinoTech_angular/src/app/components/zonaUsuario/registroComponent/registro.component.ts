@@ -16,7 +16,7 @@ import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css'
 })
-export class RegistroComponent {
+export class  RegistroComponent {
 
   //Servicios
   private _router = inject(Router);
