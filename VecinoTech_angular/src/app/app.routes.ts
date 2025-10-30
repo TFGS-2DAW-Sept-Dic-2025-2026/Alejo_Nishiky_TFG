@@ -11,7 +11,7 @@ import { VoluntarioComponent } from './components/zonaPortal/voluntarioComponent
 import { SolicitanteComponent } from './components/zonaPortal/solicitanteComponent/solicitante.component';
 
 export const routes: Routes = [
-  { path:'', redirectTo: 'vecinotech/home', pathMatch: 'full'},
+  { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
   {
     path: 'vecinotech',
     component: LayoutComponent,
@@ -33,8 +33,13 @@ export const routes: Routes = [
     component: PortalComponent,
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'voluntario', pathMatch: 'full' },
       {path: 'voluntario', component: VoluntarioComponent},
       {path: 'solicitante', component: SolicitanteComponent}
     ]
+  },
+  {
+    path: '**',
+    redirectTo: '/vecinotech/home'
   }
 ];
