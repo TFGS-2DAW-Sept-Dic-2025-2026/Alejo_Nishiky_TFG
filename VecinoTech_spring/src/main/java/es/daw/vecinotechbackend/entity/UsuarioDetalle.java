@@ -3,6 +3,8 @@ package es.daw.vecinotechbackend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import org.locationtech.jts.geom.Point;
+
 
 @Entity
 @Table(name = "usuario_detalle")
@@ -37,5 +39,9 @@ public class UsuarioDetalle {
     private String bio;
 
     @Column(name = "es_voluntario", nullable = false)
-    private boolean esVoluntario = false; 
+    private boolean esVoluntario = false;
+
+    //Esto es para la ubicación geografica (WGS84)
+    @Column(columnDefinition = "geography(Point,4326)")
+    private Point ubicacion;
 }
