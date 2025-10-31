@@ -1,0 +1,2 @@
+ALTER TABLE usuario_detalle
+    ADD COLUMN IF NOT EXISTS es_voluntario BOOLEAN DEFAULT FALSE;

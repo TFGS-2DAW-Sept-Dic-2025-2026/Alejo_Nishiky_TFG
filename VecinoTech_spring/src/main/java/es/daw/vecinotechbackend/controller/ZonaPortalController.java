@@ -1,0 +1,212 @@
+package es.daw.vecinotechbackend.controller;
+
+import es.daw.vecinotechbackend.api.ApiResponse;
+import es.daw.vecinotechbackend.dto.LeaderDTO;
+import es.daw.vecinotechbackend.dto.NeedHelpRequest;
+import es.daw.vecinotechbackend.dto.SolicitudDTO;
+import es.daw.vecinotechbackend.dto.TicketResponse;
+import es.daw.vecinotechbackend.entity.Solicitud;
+import es.daw.vecinotechbackend.mapper.SolicitudMapper;
+import es.daw.vecinotechbackend.service.PortalService;
+import es.daw.vecinotechbackend.utils.JwtUtils;
+import org.locationtech.jts.geom.Point;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/portal")
+public class ZonaPortalController {
+
+    private final PortalService portalService;
+    private final SolicitudMapper solicitudMapper;
+
+    public ZonaPortalController(PortalService portalService, SolicitudMapper solicitudMapper) {
+        this.portalService = portalService;
+        this.solicitudMapper = solicitudMapper;
+
+    }
+
+    @PostMapping("/volunteer")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> toggleVolunteer() {
+        Long userId = getCurrentUserId();
+        boolean activo = portalService.toggleVoluntarioEnDetalle(userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("Voluntariado " + (activo ? "activado" : "desactivado"),
+                        Map.of("ok", true, "role", activo ? "VOLUNTARIO" : "NINGUNO"))
+        );
+    }
+
+    @PostMapping("/need-help")
+    public ResponseEntity<ApiResponse<TicketResponse>> needHelp(
+            @RequestBody(required = false) NeedHelpRequest req) {
+        Long userId = getCurrentUserId();
+        TicketResponse ticket = portalService.crearSolicitud(userId, req);
+        return ResponseEntity.ok(ApiResponse.ok("Solicitud creada", ticket));
+    }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<ApiResponse<List<LeaderDTO>>> leaderboard() {
+        List<LeaderDTO> leaders = portalService.getLeaderboard();
+        return ResponseEntity.ok(ApiResponse.ok(leaders));
+    }
+
+    // ================ METODO DE AYUDA ============
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (Long) auth.getPrincipal();
+    }
+
+    // ============= NUEVOS ENDPOINTS DE GEOLOCALIZACIÓN =============
+
+    /**
+     * Obtiene solicitudes cercanas a la ubicación del usuario
+     * @param radius Radio de búsqueda en kilómetros (por defecto 5km)
+     */
+    @GetMapping("/solicitudes/cercanas")
+    public ResponseEntity<ApiResponse<List<SolicitudDTO>>> solicitudesCercanas(
+            @RequestParam(defaultValue = "5") int radius) {
+
+        try {
+            Long userId = getCurrentUserId();
+
+            // Validar radio (máximo 20km como indicaste)
+            if (radius < 1) radius = 1;
+            if (radius > 20) radius = 20;
+
+            List<Solicitud> solicitudes = portalService.obtenerSolicitudesCercanas(userId, radius);
+
+            List<SolicitudDTO> dtos = solicitudes.stream()
+                    .map(solicitudMapper::toDTO)
+                    .toList();
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok(
+                            String.format("Encontradas %d solicitudes en un radio de %d km",
+                                    dtos.size(), radius),
+                            dtos
+                    )
+            );
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        }
+    }
+
+    /**
+     * Cuenta solicitudes en el área del usuario
+     */
+    @GetMapping("/solicitudes/contar-cercanas")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> contarSolicitudesCercanas(
+            @RequestParam(defaultValue = "5") int radius) {
+
+        Long userId = getCurrentUserId();
+        long count = portalService.contarSolicitudesCercanas(userId, radius);
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "Solicitudes contadas",
+                        Map.of(
+                                "count", count,
+                                "radius_km", radius
+                        )
+                )
+        );
+    }
+
+    /**
+     * Obtiene TODAS las solicitudes abiertas (para pintar en mapa)
+     * Sin filtro de distancia - muestra todo
+     */
+    @GetMapping("/solicitudes/mapa")
+    public ResponseEntity<ApiResponse<List<SolicitudDTO>>> solicitudesParaMapa() {
+        List<Solicitud> solicitudes = portalService.obtenerTodasSolicitudesAbiertas();
+
+        List<SolicitudDTO> dtos = solicitudes.stream()
+                .map(solicitudMapper::toDTO)
+                .toList();
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        String.format("Mostrando %d solicitudes abiertas", dtos.size()),
+                        dtos
+                )
+        );
+    }
+
+    /**
+     * Actualiza la ubicación del usuario geocodificando su dirección
+     */
+    @PostMapping("/ubicacion/actualizar")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> actualizarUbicacion() {
+        try {
+            Long userId = getCurrentUserId();
+            Point ubicacion = portalService.actualizarUbicacionUsuario(userId);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok(
+                            "Ubicación actualizada correctamente",
+                            Map.of(
+                                    "latitud", ubicacion.getY(),
+                                    "longitud", ubicacion.getX()
+                            )
+                    )
+            );
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        }
+    }
+
+    /**
+     * Acepta una solicitud como voluntario
+     */
+    @PostMapping("/solicitudes/{id}/aceptar")
+    public ResponseEntity<ApiResponse<SolicitudDTO>> aceptarSolicitud(
+            @PathVariable Long id) {
+
+        try {
+            Long userId = getCurrentUserId();
+            Solicitud solicitud = portalService.aceptarSolicitud(id, userId);
+            SolicitudDTO dto = solicitudMapper.toDTO(solicitud);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok("Solicitud aceptada. ¡Prepárate para ayudar!", dto)
+            );
+
+        } catch (IllegalStateException | SecurityException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        }
+    }
+
+    /**
+     * Marca una solicitud como completada
+     */
+    @PostMapping("/solicitudes/{id}/completar")
+    public ResponseEntity<ApiResponse<SolicitudDTO>> completarSolicitud(
+            @PathVariable Long id) {
+
+        try {
+            Long userId = getCurrentUserId();
+            Solicitud solicitud = portalService.completarSolicitud(id, userId);
+            SolicitudDTO dto = solicitudMapper.toDTO(solicitud);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok("¡Solicitud completada! Gracias por ayudar.", dto)
+            );
+
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403)
+                    .body(ApiResponse.error(403, e.getMessage()));
+        }
+    }
+
+}

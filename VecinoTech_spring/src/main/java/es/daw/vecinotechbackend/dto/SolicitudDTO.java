@@ -3,36 +3,38 @@ package es.daw.vecinotechbackend.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class SolicitudDTO {
     private Long id;
-
-    @NotNull
     private Long solicitanteId;
-
-    // Puede ser null si la solicitud está abierta
+    private String solicitanteNombre;
     private Long voluntarioId;
+    private String voluntarioNombre;
 
-    @NotBlank @Size(max = 120)
     private String titulo;
-
-    @NotBlank @Size(max = 1000)
     private String descripcion;
-
-    @NotBlank @Size(max = 40)
     private String categoria;
+    private String estado; // ABIERTA, EN_PROCESO, CERRADA
 
-    @NotBlank @Size(max = 20)
-    // Valores esperados: "ABIERTA", "EN_PROCESO", "CERRADA"
-    private String estado;
+    private Instant fechaCreacion;
 
-    // Geo: lat/lon en WGS84
-    // (Usaremos lon/lat en el mapper para crear Point(x=lon, y=lat))
-    @DecimalMin(value = "-90.0") @DecimalMax(value = "90.0")
-    private Double lat;
+    // Ubicación en formato simple para el frontend
+    private UbicacionDTO ubicacion;
 
-    @DecimalMin(value = "-180.0") @DecimalMax(value = "180.0")
-    private Double lon;
+    @Data
+    public static class UbicacionDTO {
+        private Double latitud;
+        private Double longitud;
+
+        public UbicacionDTO() {}
+
+        public UbicacionDTO(Double latitud, Double longitud) {
+            this.latitud = latitud;
+            this.longitud = longitud;
+        }
+    }
 
 }
 

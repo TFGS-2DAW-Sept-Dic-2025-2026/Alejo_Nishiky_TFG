@@ -22,9 +22,9 @@ public class ApiResponse<T> {
     }
 
     // Métodos de fábrica
-//    public static <T> ApiResponse<T> ok(T datos) {
-//        return new ApiResponse<>(0, "OK", datos);
-//    }
+    public static <T> ApiResponse<T> ok(T datos) {
+        return new ApiResponse<>(0, "OK", datos);
+    }
 
     public static <T> ApiResponse<T> ok(String mensaje, T datos) {
         return new ApiResponse<>(0, mensaje, datos);

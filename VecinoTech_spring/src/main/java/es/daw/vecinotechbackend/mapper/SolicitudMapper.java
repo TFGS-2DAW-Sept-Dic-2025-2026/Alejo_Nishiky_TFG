@@ -7,44 +7,54 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = GeoMapper.class)
+@Mapper(componentModel = "spring")
 public interface SolicitudMapper {
 
-    // Entity -> DTO (Point -> lat/lon)
-    @Mappings({
-            @Mapping(target = "solicitanteId", source = "solicitante.id"),
-            @Mapping(target = "voluntarioId", source = "voluntario.id"),
-            @Mapping(target = "lat", source = "ubicacion", qualifiedByName = "toLat"),
-            @Mapping(target = "lon", source = "ubicacion", qualifiedByName = "toLon")
-    })
+    @Mapping(source = "solicitante.id", target = "solicitanteId")
+    @Mapping(source = "solicitante.nombre", target = "solicitanteNombre")
+    @Mapping(source = "voluntario.id", target = "voluntarioId")
+    @Mapping(source = "voluntario.nombre", target = "voluntarioNombre")
+    @Mapping(source = "ubicacion", target = "ubicacion", qualifiedByName = "pointToUbicacionDTO")
     SolicitudDTO toDTO(Solicitud entity);
 
-    // DTO -> Entity (ids -> refs, lat/lon -> Point)
-    @Mappings({
-            @Mapping(target = "id", source = "id"),
-            @Mapping(target = "solicitante", source = "solicitanteId", qualifiedByName = "userRef"),
-            @Mapping(target = "voluntario", source = "voluntarioId", qualifiedByName = "userRef"),
-            @Mapping(target = "titulo", source = "titulo"),
-            @Mapping(target = "descripcion", source = "descripcion"),
-            @Mapping(target = "categoria", source = "categoria"),
-            @Mapping(target = "estado", source = "estado"),
-            @Mapping(target = "ubicacion", expression = "java(toPoint(dto.getLat(), dto.getLon(), geometryFactory))")
-    })
-    Solicitud toEntity(SolicitudDTO dto, @Context GeometryFactory geometryFactory);
+    @Mapping(target = "solicitante", ignore = true)
+    @Mapping(target = "voluntario", ignore = true)
+    @Mapping(source = "ubicacion", target = "ubicacion", qualifiedByName = "ubicacionDTOToPoint")
+    Solicitud toEntity(SolicitudDTO dto);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(SolicitudDTO dto, @MappingTarget Solicitud entity, @Context GeometryFactory geometryFactory);
-
-    // Helpers
-    @Named("userRef")
-    default Usuario toUsuarioRef(Long id) {
-        if (id == null) return null;
-        Usuario u = new Usuario();
-        u.setId(id);
-        return u;
+    /**
+     * Convierte Point de JTS a DTO simple
+     */
+    @Named("pointToUbicacionDTO")
+    default SolicitudDTO.UbicacionDTO pointToUbicacionDTO(Point point) {
+        if (point == null) {
+            return null;
+        }
+        return new SolicitudDTO.UbicacionDTO(
+                point.getY(), // latitud
+                point.getX()  // longitud
+        );
     }
 
-    default Point toPoint(Double lat, Double lon, GeometryFactory geometryFactory) {
-        return new GeoMapper().toPoint(lat, lon, geometryFactory);
+    /**
+     * Convierte DTO a Point de JTS
+     */
+    @Named("ubicacionDTOToPoint")
+    default Point ubicacionDTOToPoint(SolicitudDTO.UbicacionDTO dto) {
+        if (dto == null || dto.getLatitud() == null || dto.getLongitud() == null) {
+            return null;
+        }
+
+        var factory = new org.locationtech.jts.geom.GeometryFactory(
+                new org.locationtech.jts.geom.PrecisionModel(),
+                4326
+        );
+
+        return factory.createPoint(
+                new org.locationtech.jts.geom.Coordinate(
+                        dto.getLongitud(), // X = longitud
+                        dto.getLatitud()   // Y = latitud
+                )
+        );
     }
 }

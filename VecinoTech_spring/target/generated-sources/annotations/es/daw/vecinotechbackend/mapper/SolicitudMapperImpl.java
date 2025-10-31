@@ -4,20 +4,15 @@ import es.daw.vecinotechbackend.dto.SolicitudDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
 import javax.annotation.processing.Generated;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-25T19:12:56+0200",
+    date = "2025-10-31T13:20:48+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class SolicitudMapperImpl implements SolicitudMapper {
-
-    @Autowired
-    private GeoMapper geoMapper;
 
     @Override
     public SolicitudDTO toDTO(Solicitud entity) {
@@ -28,12 +23,14 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         SolicitudDTO solicitudDTO = new SolicitudDTO();
 
         solicitudDTO.setSolicitanteId( entitySolicitanteId( entity ) );
+        solicitudDTO.setSolicitanteNombre( entitySolicitanteNombre( entity ) );
         solicitudDTO.setVoluntarioId( entityVoluntarioId( entity ) );
-        solicitudDTO.setLat( geoMapper.toLat( entity.getUbicacion() ) );
-        solicitudDTO.setLon( geoMapper.toLon( entity.getUbicacion() ) );
+        solicitudDTO.setVoluntarioNombre( entityVoluntarioNombre( entity ) );
+        solicitudDTO.setUbicacion( pointToUbicacionDTO( entity.getUbicacion() ) );
         solicitudDTO.setCategoria( entity.getCategoria() );
         solicitudDTO.setDescripcion( entity.getDescripcion() );
         solicitudDTO.setEstado( entity.getEstado() );
+        solicitudDTO.setFechaCreacion( entity.getFechaCreacion() );
         solicitudDTO.setId( entity.getId() );
         solicitudDTO.setTitulo( entity.getTitulo() );
 
@@ -41,47 +38,22 @@ public class SolicitudMapperImpl implements SolicitudMapper {
     }
 
     @Override
-    public Solicitud toEntity(SolicitudDTO dto, GeometryFactory geometryFactory) {
+    public Solicitud toEntity(SolicitudDTO dto) {
         if ( dto == null ) {
             return null;
         }
 
         Solicitud solicitud = new Solicitud();
 
-        solicitud.setId( dto.getId() );
-        solicitud.setSolicitante( toUsuarioRef( dto.getSolicitanteId() ) );
-        solicitud.setVoluntario( toUsuarioRef( dto.getVoluntarioId() ) );
-        solicitud.setTitulo( dto.getTitulo() );
-        solicitud.setDescripcion( dto.getDescripcion() );
+        solicitud.setUbicacion( ubicacionDTOToPoint( dto.getUbicacion() ) );
         solicitud.setCategoria( dto.getCategoria() );
+        solicitud.setDescripcion( dto.getDescripcion() );
         solicitud.setEstado( dto.getEstado() );
-
-        solicitud.setUbicacion( toPoint(dto.getLat(), dto.getLon(), geometryFactory) );
+        solicitud.setFechaCreacion( dto.getFechaCreacion() );
+        solicitud.setId( dto.getId() );
+        solicitud.setTitulo( dto.getTitulo() );
 
         return solicitud;
-    }
-
-    @Override
-    public void updateEntityFromDto(SolicitudDTO dto, Solicitud entity, GeometryFactory geometryFactory) {
-        if ( dto == null ) {
-            return;
-        }
-
-        if ( dto.getCategoria() != null ) {
-            entity.setCategoria( dto.getCategoria() );
-        }
-        if ( dto.getDescripcion() != null ) {
-            entity.setDescripcion( dto.getDescripcion() );
-        }
-        if ( dto.getEstado() != null ) {
-            entity.setEstado( dto.getEstado() );
-        }
-        if ( dto.getId() != null ) {
-            entity.setId( dto.getId() );
-        }
-        if ( dto.getTitulo() != null ) {
-            entity.setTitulo( dto.getTitulo() );
-        }
     }
 
     private Long entitySolicitanteId(Solicitud solicitud) {
@@ -99,6 +71,21 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         return id;
     }
 
+    private String entitySolicitanteNombre(Solicitud solicitud) {
+        if ( solicitud == null ) {
+            return null;
+        }
+        Usuario solicitante = solicitud.getSolicitante();
+        if ( solicitante == null ) {
+            return null;
+        }
+        String nombre = solicitante.getNombre();
+        if ( nombre == null ) {
+            return null;
+        }
+        return nombre;
+    }
+
     private Long entityVoluntarioId(Solicitud solicitud) {
         if ( solicitud == null ) {
             return null;
@@ -112,5 +99,20 @@ public class SolicitudMapperImpl implements SolicitudMapper {
             return null;
         }
         return id;
+    }
+
+    private String entityVoluntarioNombre(Solicitud solicitud) {
+        if ( solicitud == null ) {
+            return null;
+        }
+        Usuario voluntario = solicitud.getVoluntario();
+        if ( voluntario == null ) {
+            return null;
+        }
+        String nombre = voluntario.getNombre();
+        if ( nombre == null ) {
+            return null;
+        }
+        return nombre;
     }
 }
