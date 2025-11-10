@@ -33,13 +33,12 @@ A continuación se listan algunos endpoints utilizados para pruebas locales con 
 **URL**: localhost:8080/api/zonaUsuario/login
 
 **Body (JSON):**
-{
-  
-  "email": "matrix_reload@gmail.com",
-  
-  "password": "Morfeo12345!"
 
+{
+  "email": "matrix_reload@gmail.com",
+  "password": "Morfeo12345!"
 }
+
 
 ### Actualizar Geolocalización 
 **URL**: localhost:8080/api/portal/ubicacion/actualizar
@@ -48,18 +47,13 @@ A continuación se listan algunos endpoints utilizados para pruebas locales con 
 
 **Respuesta esperada**
 
+
 {
 
     "codigo": 0,
-
     "mensaje": "Ubicación actualizada correctamente",
-
     "datos": {
-
         "latitud": 40.4726896,
-
         "longitud": -3.3745243
-
     }
-
 }
