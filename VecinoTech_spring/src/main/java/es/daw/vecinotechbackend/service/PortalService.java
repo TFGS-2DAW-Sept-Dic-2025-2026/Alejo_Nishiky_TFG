@@ -73,6 +73,41 @@ public class PortalService {
         s.setCategoria(req != null && req.categoria() != null ? req.categoria() : "GENERAL");
         s.setEstado("ABIERTA"); // tu modelo: ABIERTA / EN_PROCESO / CERRADA
 
+        // GEOCODIFICAMOS LA SOLICITUD
+        UsuarioDetalle detalle = solicitante.getDetalle();
+        Point ubicacion = null;
+
+        if(detalle != null){
+            //Intenta usar ubicacion ya guardada del usuario
+            ubicacion = detalle.getUbicacion();
+            System.out.println("Ubicacion del usuario " + ubicacion.getY() + " - " +  ubicacion.getX());
+
+            // Si no tiene ubicación, geocodificar AHORA
+            if (ubicacion == null) {
+                System.out.println("Usuario sin ubicación, geocodificando desde dirección...");
+                ubicacion = geocodeService.geocodificar(
+                        detalle.getDireccion(),
+                        detalle.getCiudad(),
+                        detalle.getCodigoPostal(),
+                        detalle.getPais()
+                );
+
+                // Guardar ubicación en el usuario para futuras solicitudes
+                if (ubicacion != null) {
+                    detalle.setUbicacion(ubicacion);
+                    usuarioDetalleRepository.save(detalle);
+                    System.out.println("Ubicación geocodificada y guardada en usuario");
+                }
+            }
+        }
+        // 3. Asignar ubicación a la solicitud
+        if (ubicacion != null) {
+            s.setUbicacion(ubicacion);
+            System.out.println("✅ Solicitud creada con ubicación");
+        } else {
+            System.out.println("⚠️ ADVERTENCIA: Solicitud creada SIN ubicación - no aparecerá en el mapa");
+        }
+
         solicitudRepository.save(s);
 
         String ticket = "VT-" + s.getId();
