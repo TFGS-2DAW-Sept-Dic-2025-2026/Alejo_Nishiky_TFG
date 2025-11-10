@@ -36,8 +36,9 @@ A continuación se listan algunos endpoints utilizados para pruebas locales con 
 
 
 {
-    
+
   "email": "matrix_reload@gmail.com",
+  
   "password": "Morfeo12345!"
 
 }
