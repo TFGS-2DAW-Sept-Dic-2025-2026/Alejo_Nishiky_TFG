@@ -34,9 +34,12 @@ A continuación se listan algunos endpoints utilizados para pruebas locales con 
 
 **Body (JSON):**
 
+
 {
+    
   "email": "matrix_reload@gmail.com",
   "password": "Morfeo12345!"
+
 }
 
 
