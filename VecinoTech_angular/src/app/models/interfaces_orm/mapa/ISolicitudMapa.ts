@@ -10,4 +10,5 @@ export default interface ISolicitudMapa {
   estado: string;
   ubicacion: IUbicacion;
   solicitante: ISolicitante;
+  fecha_creacion: string;
 }

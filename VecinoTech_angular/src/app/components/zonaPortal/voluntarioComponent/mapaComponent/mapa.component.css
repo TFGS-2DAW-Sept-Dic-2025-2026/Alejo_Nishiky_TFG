@@ -1,0 +1,12 @@
+/* mapa.component.css */
+:host ::ng-deep .leaflet-pane {
+  z-index: 1;
+}
+
+:host ::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+}
+
+:host ::ng-deep .leaflet-popup-content {
+  margin: 0;
+}

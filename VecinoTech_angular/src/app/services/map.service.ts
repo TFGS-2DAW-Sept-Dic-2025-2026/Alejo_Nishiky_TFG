@@ -27,7 +27,7 @@ export class MapService {
    * * Obtiene todas las solicitudes abiertas para el mapa *
    * !Endpoint: GET /api/portal/solicitudes/mapa
    */
-  private getSolicitudesMapa(): Observable<IRestMessage> {
+  getSolicitudesMapa(): Observable<IRestMessage> {
     return this.http.get<IRestMessage>(
       `${this.API_URL}/solicitudes/mapa`,
       { headers: this.getAuthHeaders() }
@@ -39,7 +39,7 @@ export class MapService {
    * !Endpoint: GET /api/portal/solicitudes/cercanas?radius={km}
    * @param radiusKm Radio de búsqueda en kilómetros (default: 5)
    */
-  private getSolicitudesCercanas(radiusKm: number = 5): Observable<IRestMessage> {
+  getSolicitudesCercanas(radiusKm: number = 5): Observable<IRestMessage> {
     return this.http.get<IRestMessage>(
       `${this.API_URL}/solicitudes/cercanas?radius=${radiusKm}`,
       { headers: this.getAuthHeaders() }
@@ -55,7 +55,7 @@ export class MapService {
    * 2. Geocodifica usando Nominatim
    * 3. Guarda las coordenadas en PostGIS
    */
-  private actualizarUbicacion(): Observable<IRestMessage> {
+  actualizarUbicacion(): Observable<IRestMessage> {
     return this.http.post<IRestMessage>(
       `${this.API_URL}/ubicacion/actualizar`,
       {},
@@ -68,7 +68,7 @@ export class MapService {
    * !Endpoint: POST /api/portal/solicitudes/{id}/aceptar
    * @param solicitudId ID de la solicitud a aceptar
    */
-  private aceptarSolicitud(solicitudId: number): Observable<IRestMessage> {
+  aceptarSolicitud(solicitudId: number): Observable<IRestMessage> {
     return this.http.post<IRestMessage>(
       `${this.API_URL}/solicitudes/${solicitudId}/aceptar`,
       {},
@@ -81,7 +81,7 @@ export class MapService {
    * !Endpoint: POST /api/portal/solicitudes/{id}/completar
    * @param solicitudId ID de la solicitud a completar
    */
-  private completarSolicitud(solicitudId: number): Observable<IRestMessage> {
+  completarSolicitud(solicitudId: number): Observable<IRestMessage> {
     return this.http.post<IRestMessage>(
       `${this.API_URL}/solicitudes/${solicitudId}/completar`,
       {},
@@ -94,7 +94,7 @@ export class MapService {
    * Crea un icono personalizado de Leaflet según la categoría
    * @param categoria Categoría de la solicitud (GENERAL, MOVIL, etc.)
    */
-  private crearIcono(categoria: string): L.Icon {
+  crearIcono(categoria: string): L.Icon {
     const colores: Record<string, string> = {
       'GENERAL': 'blue',
       'MOVIL': 'green',
@@ -117,7 +117,7 @@ export class MapService {
   /**
    * Crea un icono para la ubicación del usuario
    */
-  private crearIconoUsuario(): L.Icon {
+  crearIconoUsuario(): L.Icon {
     return L.icon({
       iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
       shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',

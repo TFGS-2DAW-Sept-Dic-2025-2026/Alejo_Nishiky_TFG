@@ -1,1 +1,222 @@
-<p>voluntario works!</p>
+<!-- Contenedor principal -->
+<div class="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- ✅ AÑADIR botón volver -->
+      <button
+        (click)="volverPortal()"
+        class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </svg>
+        <span class="hidden sm:inline">Volver al Portal</span>
+      </button>
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"/>
+          </svg>
+          <h1 class="text-xl font-bold text-gray-900 dark:text-white">VecinoTech</h1>
+        </div>
+
+        <!-- User Info + Logout -->
+        <div class="flex items-center gap-4">
+          <span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
+            John Doe
+          </span>
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
+            JD
+          </div>
+          <button
+            (click)="logout()"
+            class="px-4 py-2 text-sm font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="space-y-8">
+
+      <!-- Título Principal -->
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Volunteer Help Finder
+      </h2>
+
+      <!-- ==================== COMPONENTE HIJO: MAPA ==================== -->
+      <app-mapa
+        [solicitudes]="solicitudesFiltradas()"
+        [busquedaLocation]="busquedaLocation()"
+        (solicitudClick)="onSolicitudClickMapa($event)"
+        (errorMapa)="onErrorMapa($event)"
+      >
+        <!-- Content Projection: Barra de búsqueda -->
+        <div search-bar class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          </svg>
+          <input
+            type="search"
+            placeholder="Search location"
+            [value]="busquedaLocation()"
+            (input)="buscarLocation($any($event.target).value)"
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      </app-mapa>
+
+      <!-- Loading Overlay Global -->
+      @if (loading()) {
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-2xl text-center">
+            <div class="inline-block w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-700 dark:text-gray-300 font-medium">Procesando...</p>
+          </div>
+        </div>
+      }
+
+      <!-- Error Global -->
+      @if (error() && !loading()) {
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚠️</span>
+            <p class="text-red-700 dark:text-red-400 font-medium">{{ error() }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- ==================== GRID: SOLICITUDES + SIDEBAR ==================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- ==================== TOP HELP REQUESTS ==================== -->
+        <div class="lg:col-span-2 space-y-6">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Top Help Requests
+          </h3>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md divide-y divide-gray-200 dark:divide-gray-700">
+            @if (topSolicitudes().length > 0) {
+              @for (solicitud of topSolicitudes(); track solicitud.id) {
+                <div
+                  class="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer"
+                  (click)="aceptarSolicitud(solicitud.id)"
+                >
+                  <!-- Avatar -->
+                  <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    {{ obtenerIniciales(solicitud.solicitante.nombre) }}
+                  </div>
+
+                  <!-- Información -->
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-800 dark:text-gray-200 truncate">
+                      {{ solicitud.solicitante.nombre }}
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {{ solicitud.titulo }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      {{ solicitud.categoria }}
+                    </p>
+                  </div>
+
+                  <!-- Tiempo -->
+                  <div class="text-right flex-shrink-0">
+                    <p class="text-sm text-gray-400 dark:text-gray-500">
+                      {{ calcularTiempoTranscurrido(solicitud.fecha_creacion) }}
+                    </p>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="p-8 text-center">
+                <span class="text-5xl mb-3 block">📋</span>
+                <p class="text-gray-500 dark:text-gray-400">
+                  No hay solicitudes disponibles
+                </p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <div class="space-y-8">
+
+          <!-- Set a Reminder -->
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Set a Reminder
+            </h3>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-4">
+              <select
+                [value]="reminderSubject()"
+                (change)="setReminderSubject($any($event.target).value)"
+                class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select a subject</option>
+                @for (subject of reminderSubjects; track subject) {
+                  <option [value]="subject">{{ subject }}</option>
+                }
+              </select>
+
+              <select
+                [value]="reminderTime()"
+                (change)="setReminderTime($any($event.target).value)"
+                class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select a time</option>
+                @for (time of reminderTimes; track time) {
+                  <option [value]="time">{{ time }}</option>
+                }
+              </select>
+
+              <button
+                (click)="setReminder()"
+                class="w-full px-4 py-3 text-sm font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+              >
+                Set Reminder
+              </button>
+            </div>
+          </div>
+
+          <!-- Volunteer Guidelines -->
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Volunteer Guidelines
+            </h3>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-3 text-gray-700 dark:text-gray-300 text-sm">
+              <p class="leading-relaxed">
+                <span class="font-semibold text-gray-900 dark:text-white">1.</span> Be respectful and patient with students.
+              </p>
+              <p class="leading-relaxed">
+                <span class="font-semibold text-gray-900 dark:text-white">2.</span> Maintain a positive and encouraging attitude.
+              </p>
+              <p class="leading-relaxed">
+                <span class="font-semibold text-gray-900 dark:text-white">3.</span> Adhere to scheduled sessions and notify in advance if you can't make it.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+      <p>© 2023 VecinoTech</p>
+    </div>
+  </footer>
+
+</div>

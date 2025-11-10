@@ -52,11 +52,13 @@ export class PortalComponent {
 
   onVolunteer() {
     console.log('Has escogido voluntario!!!!');
-    const r = this._portalService.postVolunteer();
+    //const r = this._portalService.postVolunteer(); <<---- por si necesito registar en el backend que el usuario necesita ayuda
+    this._router.navigate(['/portal/voluntario']);
   }
 
   onNeedHelp() {
     console.log('Has escogido Ayuda!!!!!!!!!');
-    const r = this._portalService.postNeedHelp();
+    //const r = this._portalService.postNeedHelp();
+    this._router.navigate(['/portal/solicitante']);
   }
 }

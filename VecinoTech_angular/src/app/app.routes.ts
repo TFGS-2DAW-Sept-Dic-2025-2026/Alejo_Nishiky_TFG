@@ -32,11 +32,17 @@ export const routes: Routes = [
     path: 'portal',
     component: PortalComponent,
     canActivate: [authGuard],
-    children: [
-      { path: '', redirectTo: 'voluntario', pathMatch: 'full' },
-      {path: 'voluntario', component: VoluntarioComponent},
-      {path: 'solicitante', component: SolicitanteComponent}
-    ]
+
+  },
+  {
+    path: 'portal/voluntario',
+    component: VoluntarioComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'portal/solicitante',
+    component: SolicitanteComponent,
+    canActivate: [authGuard]
   },
   {
     path: '**',

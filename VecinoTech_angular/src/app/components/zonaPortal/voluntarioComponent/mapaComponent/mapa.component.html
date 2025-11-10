@@ -1,0 +1,60 @@
+<!-- Contenedor del mapa -->
+<div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+
+  <!-- ==================== BÚSQUEDA (SLOT) ==================== -->
+  <div class="absolute top-4 left-4 z-10 w-full max-w-sm">
+    <ng-content select="[search-bar]"></ng-content>
+  </div>
+
+  <!-- ==================== CONTROLES DE ZOOM ==================== -->
+  <div class="absolute right-4 bottom-1/2 transform translate-y-1/2 z-10 flex flex-col gap-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
+    <button
+      (click)="zoomIn()"
+      class="p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg transition"
+      title="Zoom In"
+    >
+      <svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>
+      </svg>
+    </button>
+    <button
+      (click)="zoomOut()"
+      class="p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg border-t border-gray-200 dark:border-gray-700 transition"
+      title="Zoom Out"
+    >
+      <svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ==================== BOTÓN MI UBICACIÓN ==================== -->
+  <button
+    (click)="centrarEnMiUbicacion()"
+    class="absolute right-4 bottom-4 z-10 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+    title="Mi ubicación"
+  >
+    <svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M229.33,98.21,53.41,33l-.16-.05A16,16,0,0,0,32.9,53.25a1,1,0,0,0,.05.16L98.21,229.33A15.77,15.77,0,0,0,113.28,240h.3a15.77,15.77,0,0,0,15-11.29l23.56-76.56,76.56-23.56a16,16,0,0,0,.62-30.38Z"/>
+    </svg>
+  </button>
+
+  <!-- ==================== MAPA DE LEAFLET ==================== -->
+  <div id="volunteer-map" class="w-full h-[400px] lg:h-[500px]"></div>
+
+  <!-- ==================== SIN SOLICITUDES ==================== -->
+  @if (!haySolicitudes()) {
+    <div class="absolute inset-0 bg-white/95 dark:bg-gray-800/95 flex items-center justify-center">
+      <div class="text-center px-4">
+        <span class="text-6xl mb-4 block">🗺️</span>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+          No hay solicitudes disponibles
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400">
+          Las solicitudes de ayuda aparecerán aquí
+        </p>
+      </div>
+    </div>
+  }
+
+</div>
