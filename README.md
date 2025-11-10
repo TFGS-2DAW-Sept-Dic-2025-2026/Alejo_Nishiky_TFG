@@ -23,3 +23,22 @@ El objetivo es fomentar la inclusión digital y el apoyo comunitario, especialme
 
 ### Base de datos
 ![Base de datos en PostgreSQL](Images/db_view.png)
+
+
+### EndPoints (con Postman)
+
+A continuación se listan algunos endpoints utilizados para pruebas locales con **Postman**.
+
+### Login
+**URL**: localhost:8080/api/zonaUsuario/login
+**Body (JSON):**
+{
+  "email": "matrix_reload@gmail.com",
+  "password": "Morfeo12345!"
+}
+
+### Actualizar Geolocalización 
+**URL**: localhost:8080/api/portal/ubicacion/actualizar
+**con Bearer Token**
+
+
