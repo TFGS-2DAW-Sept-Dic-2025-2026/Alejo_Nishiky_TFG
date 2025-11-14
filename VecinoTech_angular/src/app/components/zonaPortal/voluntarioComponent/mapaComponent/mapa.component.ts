@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import * as L from 'leaflet';
@@ -261,4 +261,27 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.setView([40.4168, -3.7038], 12);
     }
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Solo actualizar si:
+    // 1. Cambió el input 'solicitudes'
+    // 2. No es el primer cambio (primera carga)
+    // 3. El mapa ya está inicializado
+    if (changes['solicitudes'] && !changes['solicitudes'].firstChange && this.map) {
+      console.log('🔄 Solicitudes actualizadas, recargando marcadores...', this.solicitudes.length);
+      this.limpiarMarcadores();
+      this.agregarMarcadores();
+    }
+  }
+
+  /**
+ * Limpia todos los marcadores del mapa
+ */
+private limpiarMarcadores(): void {
+  this.markers.forEach(marker => {
+    marker.remove();
+  });
+  this.markers = [];
+  console.log('🗑️ Marcadores eliminados');
+}
 }
