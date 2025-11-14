@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'portal',
     component: PortalComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard]
 
   },
   {
