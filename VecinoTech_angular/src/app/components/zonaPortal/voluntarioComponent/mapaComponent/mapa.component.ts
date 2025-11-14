@@ -100,12 +100,10 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map = L.map('volunteer-map', {
         center: [40.4168, -3.7038],
         zoom: 12,
-        zoomControl: false
+        zoomControl: false,
+        dragging: true,
+        scrollWheelZoom: true,
       });
-
-      L.control.zoom({
-        position: 'bottomright'
-      }).addTo(this.map);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,

@@ -10,3 +10,21 @@
 :host ::ng-deep .leaflet-popup-content {
   margin: 0;
 }
+
+#volunteer-map {
+  cursor: grab;
+}
+
+#volunteer-map:active {
+  cursor: grabbing;
+}
+
+/* Asegurar que el mapa sea interactivo */
+:host ::ng-deep .leaflet-container {
+  cursor: grab;
+}
+
+:host ::ng-deep .leaflet-container:active {
+  cursor: grabbing;
+}
+

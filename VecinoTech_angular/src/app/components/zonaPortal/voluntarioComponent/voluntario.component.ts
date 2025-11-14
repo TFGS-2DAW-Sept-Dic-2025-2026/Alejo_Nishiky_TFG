@@ -34,7 +34,6 @@ export class VoluntarioComponent implements OnInit {
 
   // ==================== SIGNALS - UI ====================
 
-  private readonly _busquedaLocation = signal<string>('');
   private readonly _reminderSubject = signal<string>('');
   private readonly _reminderTime = signal<string>('');
 
@@ -51,22 +50,10 @@ export class VoluntarioComponent implements OnInit {
    * Solicitudes filtradas por búsqueda (para el mapa)
    */
   readonly solicitudesFiltradas = computed(() => {
-    const busqueda = this._busquedaLocation().toLowerCase();
-    const todas = this._solicitudes();
-
-    if (!busqueda) {
-      return todas;
-    }
-
-    return todas.filter(s =>
-      s.solicitante.nombre.toLowerCase().includes(busqueda) ||
-      s.titulo.toLowerCase().includes(busqueda) ||
-      s.descripcion.toLowerCase().includes(busqueda)
-    );
+    return this._solicitudes();
   });
 
   // ✅ Computed públicos para el template
-  readonly busquedaLocation = computed(() => this._busquedaLocation());
   readonly reminderSubject = computed(() => this._reminderSubject());
   readonly reminderTime = computed(() => this._reminderTime());
 
@@ -127,9 +114,9 @@ export class VoluntarioComponent implements OnInit {
   /**
    * Actualiza búsqueda de ubicación
    */
-  buscarLocation(query: string): void {
-    this._busquedaLocation.set(query);
-  }
+  // buscarLocation(query: string): void {
+  //   this._busquedaLocation.set(query);
+  // }
 
   // ==================== MÉTODOS PÚBLICOS - SOLICITUDES ====================
 

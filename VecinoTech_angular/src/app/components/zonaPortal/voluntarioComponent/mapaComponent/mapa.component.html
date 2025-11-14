@@ -44,17 +44,17 @@
 
   <!-- ==================== SIN SOLICITUDES ==================== -->
   @if (!haySolicitudes()) {
-    <div class="absolute inset-0 bg-white/95 dark:bg-gray-800/95 flex items-center justify-center">
-      <div class="text-center px-4">
-        <span class="text-6xl mb-4 block">🗺️</span>
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
-          No hay solicitudes disponibles
-        </h3>
-        <p class="text-gray-600 dark:text-gray-400">
-          Las solicitudes de ayuda aparecerán aquí
-        </p>
-      </div>
+  <div class="absolute inset-0 bg-white/95 dark:bg-gray-800/95 flex items-center justify-center pointer-events-none">
+    <div class="text-center px-4">
+      <span class="text-6xl mb-4 block">🗺️</span>
+      <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+        No hay solicitudes disponibles
+      </h3>
+      <p class="text-gray-600 dark:text-gray-400">
+        Las solicitudes de ayuda aparecerán aquí
+      </p>
     </div>
+  </div>
   }
 
 </div>

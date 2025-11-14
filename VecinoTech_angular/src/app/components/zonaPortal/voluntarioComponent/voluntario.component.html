@@ -56,23 +56,9 @@
       <!-- ==================== COMPONENTE HIJO: MAPA ==================== -->
       <app-mapa
         [solicitudes]="solicitudesFiltradas()"
-        [busquedaLocation]="busquedaLocation()"
         (solicitudClick)="onSolicitudClickMapa($event)"
         (errorMapa)="onErrorMapa($event)"
       >
-        <!-- Content Projection: Barra de búsqueda -->
-        <div search-bar class="relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-          </svg>
-          <input
-            type="search"
-            placeholder="Search location"
-            [value]="busquedaLocation()"
-            (input)="buscarLocation($any($event.target).value)"
-            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
       </app-mapa>
 
       <!-- Loading Overlay Global -->
