@@ -308,4 +308,18 @@ public class PortalService {
 
         return dto;
     }
+
+    /**
+     * Obtiene todas las solicitudes creadas por un usuario
+     */
+    public List<Solicitud> obtenerSolicitudesDelUsuario(Long userId) {
+        return solicitudRepository.findBySolicitanteId(userId);
+    }
+
+    /**
+     * Obtiene las solicitudes donde el usuario es voluntario
+     */
+    public List<Solicitud> obtenerSolicitudesComoVoluntario(Long userId) {
+        return solicitudRepository.findByVoluntarioId(userId);
+    }
 }

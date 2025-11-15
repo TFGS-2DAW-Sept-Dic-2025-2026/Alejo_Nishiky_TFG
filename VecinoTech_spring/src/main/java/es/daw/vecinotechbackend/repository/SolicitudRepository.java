@@ -123,8 +123,61 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
     @Query("""
         SELECT s FROM Solicitud s
         WHERE s.voluntario.id = :usuarioId
-        ORDER BY s.fechaCreacion DESC
-    """)
+        ORDER BY s.fechaCreacion DESC""")
     List<Solicitud> findByVoluntarioId(@Param("usuarioId") Long usuarioId);
+
+    /**
+     * Busca solicitudes por estado y solicitante
+     */
+    @Query("""
+    SELECT s FROM Solicitud s
+    WHERE s.solicitante.id = :usuarioId
+      AND s.estado = :estado
+    ORDER BY s.fechaCreacion DESC""")
+    List<Solicitud> findBySolicitanteIdAndEstado(
+            @Param("usuarioId") Long usuarioId,
+            @Param("estado") String estado
+    );
+
+    /**
+     * Busca solicitudes donde el usuario es voluntario y por estado
+     */
+    @Query("""
+    SELECT s FROM Solicitud s
+    WHERE s.voluntario.id = :usuarioId
+      AND s.estado = :estado
+    ORDER BY s.fechaCreacion DESC""")
+    List<Solicitud> findByVoluntarioIdAndEstado(
+            @Param("usuarioId") Long usuarioId,
+            @Param("estado") String estado
+    );
+
+    /**
+     * Cuenta solicitudes activas de un solicitante
+     */
+    @Query("""
+    SELECT COUNT(s) FROM Solicitud s
+    WHERE s.solicitante.id = :usuarioId
+      AND s.estado IN ('ABIERTA', 'EN_PROCESO')""")
+    long countSolicitudesActivas(@Param("usuarioId") Long usuarioId);
+
+    /**
+     * Cuenta solicitudes completadas de un solicitante
+     */
+    @Query("""
+    SELECT COUNT(s) FROM Solicitud s
+    WHERE s.solicitante.id = :usuarioId
+      AND s.estado = 'CERRADA'""")
+    long countSolicitudesCompletadas(@Param("usuarioId") Long usuarioId);
+
+    /**
+     * Cuenta solicitudes que un usuario ha ayudado como voluntario
+     */
+    @Query("""
+    SELECT COUNT(s) FROM Solicitud s
+    WHERE s.voluntario.id = :usuarioId
+      AND s.estado = 'CERRADA'""")
+    long countSolicitudesAyudadas(@Param("usuarioId") Long usuarioId);
+
 
 }

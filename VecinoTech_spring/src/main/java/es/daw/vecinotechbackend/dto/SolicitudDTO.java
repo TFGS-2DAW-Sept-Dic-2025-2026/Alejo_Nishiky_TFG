@@ -3,7 +3,7 @@ package es.daw.vecinotechbackend.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 public class SolicitudDTO {
@@ -18,7 +18,7 @@ public class SolicitudDTO {
     private String categoria;
     private String estado; // ABIERTA, EN_PROCESO, CERRADA
 
-    private Instant fechaCreacion;
+    private LocalDateTime fechaCreacion;
 
     // Ubicación en formato simple para el frontend
     private UbicacionDTO ubicacion;

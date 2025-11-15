@@ -206,4 +206,75 @@ public class ZonaPortalController {
         }
     }
 
+    /**
+     * Obtiene las solicitudes creadas por el usuario autenticado
+     * GET /api/portal/mis-solicitudes
+     */
+    @GetMapping("/mis-solicitudes")
+    public ResponseEntity<ApiResponse<List<ISolicitudMapaDTO>>> getMisSolicitudes() {
+        try {
+            Long userId = getCurrentUserId();
+
+            // Buscar solicitudes del usuario ordenadas por fecha descendente
+            List<Solicitud> solicitudes = portalService.obtenerSolicitudesDelUsuario(userId);
+
+            // Mapear a DTO
+            List<ISolicitudMapaDTO> solicitudesDTO = solicitudes.stream()
+                    .map(solicitudMapper::toMapaDTO)
+                    .toList();
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok(
+                            String.format("Mostrando %d solicitudes tuyas", solicitudesDTO.size()),
+                            solicitudesDTO
+                    )
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, "Error al obtener tus solicitudes: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtiene las solicitudes donde el usuario autenticado es el voluntario
+     * GET /api/portal/solicitudes/voluntario
+     */
+    @GetMapping("/solicitudes/voluntario")
+    public ResponseEntity<ApiResponse<List<ISolicitudMapaDTO>>> getSolicitudesComoVoluntario() {
+        try {
+            Long userId = getCurrentUserId();
+
+            // Buscar solicitudes donde el usuario es voluntario
+            List<Solicitud> solicitudes = portalService.obtenerSolicitudesComoVoluntario(userId);
+
+            // Mapear a DTO
+            List<ISolicitudMapaDTO> solicitudesDTO = solicitudes.stream()
+                    .map(solicitudMapper::toMapaDTO)
+                    .toList();
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok(
+                            String.format("Mostrando %d solicitudes que has aceptado", solicitudesDTO.size()),
+                            solicitudesDTO
+                    )
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, "Error al obtener solicitudes: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Completa/cierra una solicitud (cambio de POST a PUT)
+     * PUT /api/portal/solicitudes/{id}/completar
+     */
+    @PutMapping("/solicitudes/{id}/completar")
+    public ResponseEntity<ApiResponse<SolicitudDTO>> completarSolicitudPUT(
+            @PathVariable Long id) {
+        // Reutiliza el método existente
+        return completarSolicitud(id);
+    }
+
 }

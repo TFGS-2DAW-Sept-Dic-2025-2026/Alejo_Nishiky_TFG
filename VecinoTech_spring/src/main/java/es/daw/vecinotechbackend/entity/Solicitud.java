@@ -1,11 +1,9 @@
 package es.daw.vecinotechbackend.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import org.locationtech.jts.geom.Point;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "solicitud")
@@ -17,8 +15,8 @@ public class Solicitud {
     private Long id;
 
     // Quien pide la ayuda
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "solicitante_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "solicitante_id",nullable = false)
     private Usuario solicitante;
 
     // Quien acepta y ayuda (puede ser null si está abierta)
@@ -38,10 +36,20 @@ public class Solicitud {
     @Column(nullable = false, length = 20)
     private String estado; // ABIERTA / EN_PROCESO / CERRADA
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false, insertable = false)
-    private Instant fechaCreacion;
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
     // GEOGRAPHY(Point,4326) → requiere hibernate-spatial + JTS
     @Column(columnDefinition = "geography(Point,4326)")
     private Point ubicacion;
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+        if (estado == null) {
+            estado = "ABIERTA";
+        }
+    }
 }
