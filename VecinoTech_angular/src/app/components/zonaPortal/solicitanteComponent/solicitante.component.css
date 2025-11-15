@@ -1,0 +1,86 @@
+/* ==================== ANIMACIONES ==================== */
+
+.layout-content-container {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== SCROLL HORIZONTAL ==================== */
+
+.overflow-x-auto {
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* ==================== HOVER EFFECTS ==================== */
+
+.hover\:shadow-lg:hover {
+  transition: box-shadow 0.3s ease;
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+/* ==================== LINE CLAMP ==================== */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==================== LOADING SPINNER ==================== */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ==================== BADGE ESTADOS ==================== */
+
+.px-2 {
+  white-space: nowrap;
+}
+
+/* ==================== RESPONSIVE CARDS ==================== */
+
+@media (max-width: 640px) {
+  .min-w-72 {
+    min-width: 16rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .min-w-72 {
+    min-width: 18rem;
+  }
+}
+
+/* ==================== SMOOTH TRANSITIONS ==================== */
+
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

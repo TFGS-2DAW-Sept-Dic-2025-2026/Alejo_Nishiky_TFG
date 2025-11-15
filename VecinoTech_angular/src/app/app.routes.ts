@@ -9,6 +9,7 @@ import { authGuard } from './guards/auth.guard';
 import { PortalComponent } from './components/zonaPortal/portal.component';
 import { VoluntarioComponent } from './components/zonaPortal/voluntarioComponent/voluntario.component';
 import { SolicitanteComponent } from './components/zonaPortal/solicitanteComponent/solicitante.component';
+import { DetalleSolicitudComponent } from './components/zonaPortal/solicitanteComponent/detalle-solicitud/detalle-solicitud.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -45,7 +46,13 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+  path: 'portal/solicitud/:id',
+  component: DetalleSolicitudComponent,
+  canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: '/vecinotech/home'
-  }
+  },
+
 ];

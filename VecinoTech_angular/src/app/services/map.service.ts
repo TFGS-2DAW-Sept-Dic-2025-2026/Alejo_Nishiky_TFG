@@ -142,4 +142,28 @@ export class MapService {
   private isAuthenticated(): boolean {
     return this.storage.getAccessToken() !== null;
   }
+
+  /**
+ * Obtiene las solicitudes creadas por el usuario autenticado
+ * Endpoint: GET /api/portal/mis-solicitudes
+ */
+  getMisSolicitudes(): Observable<IRestMessage> {
+    return this.http.get<IRestMessage>(
+      `${this.API_URL}/mis-solicitudes`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /**
+   * Obtiene las solicitudes donde el usuario es voluntario
+   * Endpoint: GET /api/portal/solicitudes/voluntario
+   */
+  getSolicitudesComoVoluntario(): Observable<IRestMessage> {
+    return this.http.get<IRestMessage>(
+      `${this.API_URL}/solicitudes/voluntario`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+
 }

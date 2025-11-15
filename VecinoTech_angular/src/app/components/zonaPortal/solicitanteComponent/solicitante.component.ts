@@ -73,23 +73,22 @@ export class SolicitanteComponent implements OnInit {
     this._loading.set(true);
     this._error.set('');
 
-    // TODO: Cambiar a endpoint que traiga solo MIS solicitudes
-    // Por ahora usa el endpoint general
-    this.mapService.getSolicitudesMapa().subscribe({
-      next: (response) => {
-        if (response.codigo === 0) {
-          this._solicitudes.set(response.datos as ISolicitudMapa[]);
-        } else {
-          this._error.set(response.mensaje || 'Error al cargar solicitudes');
-        }
-        this._loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error cargando solicitudes:', err);
-        this._error.set('No se pudieron cargar tus solicitudes');
-        this._loading.set(false);
+    // Usamos el endpoint getMisSolicitudes
+    this.mapService.getMisSolicitudes().subscribe({
+    next: (response) => {
+      if (response.codigo === 0) {
+        this._solicitudes.set(response.datos as ISolicitudMapa[]);
+      } else {
+        this._error.set(response.mensaje || 'Error al cargar solicitudes');
       }
-    });
+      this._loading.set(false);
+    },
+    error: (err) => {
+      console.error('Error cargando solicitudes:', err);
+      this._error.set('No se pudieron cargar tus solicitudes');
+      this._loading.set(false);
+    }
+  });
   }
 
   // ==================== MÉTODOS PÚBLICOS ====================
@@ -110,6 +109,7 @@ export class SolicitanteComponent implements OnInit {
 
   /**
    * Completar una solicitud (marcar como cerrada)
+   * De momento solo el solicitante puede completar su solicitud
    */
   completarSolicitud(solicitudId: number): void {
     if (!confirm('¿Marcar esta solicitud como completada?')) {
@@ -118,13 +118,25 @@ export class SolicitanteComponent implements OnInit {
 
     this._loading.set(true);
 
-    // TODO: Implementar endpoint de completar solicitud
     console.log('Completar solicitud:', solicitudId);
+    // ✅ Llamar al endpoint real
+    this.mapService.completarSolicitud(solicitudId).subscribe({
+      next: (response) => {
+        this._loading.set(false);
 
-    setTimeout(() => {
-      alert('✅ Solicitud completada');
-      this.cargarMisSolicitudes();
-    }, 500);
+        if (response.codigo === 0) {
+          alert('✅ Solicitud completada exitosamente');
+          this.cargarMisSolicitudes(); // Recargar lista
+        } else {
+          alert(`❌ ${response.mensaje}`);
+        }
+      },
+      error: (err) => {
+        this._loading.set(false);
+        console.error('Error completando solicitud:', err);
+        alert('❌ Error al completar la solicitud');
+      }
+    });
   }
 
   /**
