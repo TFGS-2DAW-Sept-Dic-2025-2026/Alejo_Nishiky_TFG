@@ -1,5 +1,6 @@
 package es.daw.vecinotechbackend.service;
 
+import es.daw.vecinotechbackend.dto.ISolicitudMapaDTO;
 import es.daw.vecinotechbackend.dto.LeaderDTO;
 import es.daw.vecinotechbackend.dto.NeedHelpRequest;
 import es.daw.vecinotechbackend.dto.TicketResponse;
@@ -258,5 +259,53 @@ public class PortalService {
 
         solicitud.setEstado("CERRADA");
         return solicitudRepository.save(solicitud);
+    }
+
+    // ============== MÉTODOS PARA EL MAPA (FRONTEND) ====================
+
+    /**
+     * Obtiene solicitudes para el mapa en formato DTO
+     */
+    public List<ISolicitudMapaDTO> getSolicitudesParaMapa() {
+        List<Solicitud> solicitudes = solicitudRepository.findAllAbiertasConUbicacion();
+
+        return solicitudes.stream()
+                .map(this::convertirSolicitudAMapaDTO)
+                .toList();
+    }
+
+    /**
+     * Convierte una entidad Solicitud a DTO para el mapa
+     */
+    private ISolicitudMapaDTO convertirSolicitudAMapaDTO(Solicitud s) {
+        ISolicitudMapaDTO dto = new ISolicitudMapaDTO();
+        dto.setId(s.getId());
+        dto.setTitulo(s.getTitulo());
+        dto.setDescripcion(s.getDescripcion());
+        dto.setCategoria(s.getCategoria());
+        dto.setEstado(s.getEstado());
+
+        // Fecha en formato ISO 8601
+        if (s.getFechaCreacion() != null) {
+            dto.setFechaCreacion(s.getFechaCreacion().toString());
+        }
+
+        // Ubicación
+        if (s.getUbicacion() != null) {
+            ISolicitudMapaDTO.UbicacionDTO ubicacion = new ISolicitudMapaDTO.UbicacionDTO();
+            ubicacion.setLatitud(s.getUbicacion().getY());  // Y = Latitud
+            ubicacion.setLongitud(s.getUbicacion().getX()); // X = Longitud
+            dto.setUbicacion(ubicacion);
+        }
+
+        // Solicitante
+        if (s.getSolicitante() != null) {
+            ISolicitudMapaDTO.SolicitanteDTO solicitante = new ISolicitudMapaDTO.SolicitanteDTO();
+            solicitante.setId(s.getSolicitante().getId());
+            solicitante.setNombre(s.getSolicitante().getNombre());
+            dto.setSolicitante(solicitante);
+        }
+
+        return dto;
     }
 }

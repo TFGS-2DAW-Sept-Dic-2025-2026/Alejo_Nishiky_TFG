@@ -1,10 +1,7 @@
 package es.daw.vecinotechbackend.controller;
 
 import es.daw.vecinotechbackend.api.ApiResponse;
-import es.daw.vecinotechbackend.dto.LeaderDTO;
-import es.daw.vecinotechbackend.dto.NeedHelpRequest;
-import es.daw.vecinotechbackend.dto.SolicitudDTO;
-import es.daw.vecinotechbackend.dto.TicketResponse;
+import es.daw.vecinotechbackend.dto.*;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.mapper.SolicitudMapper;
 import es.daw.vecinotechbackend.service.PortalService;
@@ -125,11 +122,11 @@ public class ZonaPortalController {
      * Sin filtro de distancia - muestra todo
      */
     @GetMapping("/solicitudes/mapa")
-    public ResponseEntity<ApiResponse<List<SolicitudDTO>>> solicitudesParaMapa() {
+    public ResponseEntity<ApiResponse<List<ISolicitudMapaDTO>>> solicitudesParaMapa() {
         List<Solicitud> solicitudes = portalService.obtenerTodasSolicitudesAbiertas();
 
-        List<SolicitudDTO> dtos = solicitudes.stream()
-                .map(solicitudMapper::toDTO)
+        List<ISolicitudMapaDTO> dtos = solicitudes.stream()
+                .map(solicitudMapper::toMapaDTO)
                 .toList();
 
         return ResponseEntity.ok(
