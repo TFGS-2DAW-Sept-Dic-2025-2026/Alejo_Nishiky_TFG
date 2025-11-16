@@ -165,5 +165,18 @@ export class MapService {
     );
   }
 
+    /**
+   * Crea una nueva solicitud de ayuda
+   * Endpoint: POST /api/portal/need-help
+   * @param solicitud Datos de la solicitud (titulo, descripcion, categoria)
+   */
+  crearSolicitud(solicitud: { titulo: string; descripcion: string; categoria: string }): Observable<IRestMessage> {
+    return this.http.post<IRestMessage>(
+      `${this.API_URL}/need-help`,
+      solicitud,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
 
 }

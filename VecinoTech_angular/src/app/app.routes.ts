@@ -10,6 +10,7 @@ import { PortalComponent } from './components/zonaPortal/portal.component';
 import { VoluntarioComponent } from './components/zonaPortal/voluntarioComponent/voluntario.component';
 import { SolicitanteComponent } from './components/zonaPortal/solicitanteComponent/solicitante.component';
 import { DetalleSolicitudComponent } from './components/zonaPortal/solicitanteComponent/detalle-solicitud/detalle-solicitud.component';
+import { CrearSolicitudComponent } from './components/zonaPortal/solicitanteComponent/crear-solicitud/crear-solicitud.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -48,6 +49,11 @@ export const routes: Routes = [
   {
   path: 'portal/solicitud/:id',
   component: DetalleSolicitudComponent,
+  canActivate: [authGuard]
+  },
+  {
+  path: 'portal/crear-solicitud',
+  component: CrearSolicitudComponent,
   canActivate: [authGuard]
   },
   {
