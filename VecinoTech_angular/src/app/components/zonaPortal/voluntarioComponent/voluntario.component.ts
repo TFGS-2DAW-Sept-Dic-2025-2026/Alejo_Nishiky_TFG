@@ -239,6 +239,13 @@ export class VoluntarioComponent implements OnInit {
       .substring(0, 2);
   }
 
+    /**
+   * Navega a mis voluntariados
+   */
+  irAMisVoluntariados(): void {
+    this._router.navigate(['/portal/mis-voluntariados']);
+  }
+
   /**
    * Logout
    */
