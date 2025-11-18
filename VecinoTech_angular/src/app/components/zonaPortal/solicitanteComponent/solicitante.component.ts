@@ -19,7 +19,7 @@ export class SolicitanteComponent implements OnInit {
   // ==================== DEPENDENCY INJECTION ====================
 
   private readonly mapService = inject(MapService);
-  private readonly router = inject(Router);
+  private readonly _router = inject(Router);
 
   // ==================== SIGNALS ====================
 
@@ -97,14 +97,14 @@ export class SolicitanteComponent implements OnInit {
    * Navega a la página para crear una nueva solicitud
    */
   crearNuevaSolicitud(): void {
-    this.router.navigate(['/portal/crear-solicitud']);
+    this._router.navigate(['/portal/crear-solicitud']);
   }
 
   /**
    * Ver detalles de una solicitud
    */
   verDetalles(solicitudId: number): void {
-    this.router.navigate(['/portal/solicitud', solicitudId]);
+    this._router.navigate(['/portal/solicitud', solicitudId]);
   }
 
   /**
@@ -209,7 +209,19 @@ export class SolicitanteComponent implements OnInit {
    * Volver al portal
    */
   volverPortal(): void {
-    this.router.navigate(['/portal']);
+    this._router.navigate(['/portal']);
+  }
+
+  irAHistorial(): void {
+    this._router.navigate(['/portal/historial']);
+  }
+
+  irAMisVoluntariados(): void {
+    this._router.navigate(['/portal/mis-voluntariados']);
+  }
+
+  irAVoluntario(): void{
+    this._router.navigate(['/portal/voluntario'])
   }
 
   /**

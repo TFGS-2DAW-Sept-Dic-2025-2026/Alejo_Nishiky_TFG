@@ -61,4 +61,18 @@ export class PortalComponent {
     //const r = this._portalService.postNeedHelp();
     this._router.navigate(['/portal/solicitante']);
   }
+
+    /**
+   * Navega a mis voluntariados
+   */
+  irAMisVoluntariados(): void {
+    this._router.navigate(['/portal/mis-voluntariados']);
+  }
+
+  /**
+   * Navega al historial
+   */
+  irAHistorial(): void {
+    this._router.navigate(['/portal/historial']);
+}
 }

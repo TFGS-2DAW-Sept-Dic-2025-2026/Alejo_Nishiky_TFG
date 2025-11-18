@@ -246,6 +246,13 @@ export class VoluntarioComponent implements OnInit {
     this._router.navigate(['/portal/mis-voluntariados']);
   }
 
+    /**
+   * Navega al historial
+   */
+  irAHistorial(): void {
+    this._router.navigate(['/portal/historial']);
+  }
+
   /**
    * Logout
    */

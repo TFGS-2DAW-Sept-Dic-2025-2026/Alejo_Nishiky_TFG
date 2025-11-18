@@ -12,6 +12,7 @@ import { SolicitanteComponent } from './components/zonaPortal/solicitanteCompone
 import { DetalleSolicitudComponent } from './components/zonaPortal/solicitanteComponent/detalle-solicitud/detalle-solicitud.component';
 import { CrearSolicitudComponent } from './components/zonaPortal/solicitanteComponent/crear-solicitud/crear-solicitud.component';
 import { MisVoluntariadosComponent } from './components/zonaPortal/voluntarioComponent/mis-voluntariados/mis-voluntariados.component';
+import { HistorialComponent } from './components/zonaPortal/historial/historial.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -61,6 +62,12 @@ export const routes: Routes = [
   path: 'portal/mis-voluntariados',
   component: MisVoluntariadosComponent,
   canActivate: [authGuard]
+  },
+
+  {
+    path: 'portal/historial',
+    component: HistorialComponent,
+    canActivate: [authGuard]
   },
   {
     path: '**',
