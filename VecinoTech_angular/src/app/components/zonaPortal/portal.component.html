@@ -16,7 +16,7 @@
         <div class="flex items-center gap-4">
           @if (usuarioSig(); as u) {
             <p class="hidden text-slate-800 dark:text-slate-200 sm:block">
-              Welcome, {{ u.nombre }}!
+              Bienvenido, {{ u.nombre }}!
             </p>
           }
           <button
@@ -41,103 +41,231 @@
       ></div>
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative flex h-full flex-col items-center justify-center p-4 text-center text-white">
-        <h2 class="mb-4 text-4xl font-extrabold md:text-5xl">Announcements</h2>
+        <h2 class="mb-4 text-4xl font-extrabold md:text-5xl">Panel de Control</h2>
         <p class="max-w-2xl">
-          Stay updated with the latest news and events in our community. Here's what's new!
+          Gestiona tus solicitudes, ayuda a tu comunidad y mantente conectado
         </p>
       </div>
     </div>
 
     <!-- CTAs -->
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 gap-8 text-center md:grid-cols-2">
+      <div class="grid grid-cols-1 gap-8 text-center md:grid-cols-2 lg:grid-cols-4">
+        <!-- Ready to Help -->
         <div
-          class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22]">
-          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Ready to Help?</h3>
+          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+          (click)="onVolunteer()"
+        >
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <svg class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+          </div>
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Listo para Ayudar?</h3>
           <p class="mb-6 text-slate-600 dark:text-slate-400">
-            Join our amazing team of volunteers and make a real impact in the community.
+            Únete a nuestro equipo de voluntarios y ayuda a tu comunidad
           </p>
-          <button
-            (click)="onVolunteer()"
-            class="w-full rounded-lg bg-[#13a4ec] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90">
-            Volunteer
-          </button>
         </div>
 
+        <!-- Need a Hand -->
         <div
-          class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22]">
-          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Need a Hand?</h3>
+          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+          (click)="onNeedHelp()"
+        >
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+            <svg class="h-8 w-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Necesitas Ayuda?</h3>
           <p class="mb-6 text-slate-600 dark:text-slate-400">
-            Don't hesitate to ask for assistance. We're here to support you.
+            No dudes en pedir asistencia. Estamos aquí para apoyarte
           </p>
-          <button
-            (click)="onNeedHelp()"
-            class="w-full rounded-lg bg-slate-200 px-6 py-3 font-bold text-slate-800 transition-colors hover:bg-slate-300 dark:bg-slate-700/50 dark:text-slate-200 dark:hover:bg-slate-600/50">
-            Need Help
-          </button>
         </div>
-        <!-- Después de "Ready to Help?" y "Need a Hand?" -->
-        <div class="grid grid-cols-1 gap-8 text-center md:grid-cols-2 lg:grid-cols-3 mt-8">
-          <!-- Tarjeta 1: Mis Voluntariados -->
-          <div
-            class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22] cursor-pointer"
-            (click)="irAMisVoluntariados()"
-          >
-            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-              <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-            </div>
-            <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Mis Voluntariados</h3>
-            <p class="text-slate-600 dark:text-slate-400">
-              Ver solicitudes que estoy ayudando como voluntario
-            </p>
-          </div>
 
-          <!-- Tarjeta 2: Historial -->
-          <div
-            class="transform rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#101c22] cursor-pointer"
-            (click)="irAHistorial()"
-          >
-            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
-              <svg class="h-8 w-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Historial</h3>
-            <p class="text-slate-600 dark:text-slate-400">
-              Ver todas las solicitudes completadas
-            </p>
+        <!-- Mis Voluntariados -->
+        <div
+          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+          (click)="irAMisVoluntariados()"
+        >
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+            <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
           </div>
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Mis Voluntariados</h3>
+          <p class="mb-6 text-slate-600 dark:text-slate-400">
+            Ver solicitudes que estoy ayudando como voluntario
+          </p>
+        </div>
+
+        <!-- Historial -->
+        <div
+          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+          (click)="irAHistorial()"
+        >
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <svg class="h-8 w-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Historial</h3>
+          <p class="mb-6 text-slate-600 dark:text-slate-400">
+            Ver todas las solicitudes completadas
+          </p>
         </div>
       </div>
 
-      <!-- Leaderboard -->
+      <!-- Leaderboard con Top 3 -->
       <div class="mt-16">
-        <h2 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Community Leaderboard
+        <h2 class="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Top 3 Mejores Voluntarios
         </h2>
 
-        <div class="rounded-xl bg-[#f6f7f8] p-6 shadow-lg dark:bg-[#101c22]">
+        <div class="rounded-xl bg-[#f6f7f8] p-6 sm:p-8 shadow-lg dark:bg-[#1a2830]">
           @if (leaderboardR().codigo === 100) {
-            <div class="text-center text-slate-600 dark:text-slate-400">Cargando ranking...</div>
+            <div class="text-center text-slate-600 dark:text-slate-400 py-8">Cargando ranking...</div>
           } @else if (!leaders().length) {
-            <div class="text-center text-slate-600 dark:text-slate-400">Aún no hay datos.</div>
+            <div class="text-center text-slate-600 dark:text-slate-400 py-8">Aún no hay datos.</div>
           } @else {
-            <div class="space-y-6">
-              @for (l of leaders(); track l.name; let i = $index) {
-                <div class="group" [style.--bar-width]="barWidth(l.points) + '%'">
-                  <div class="mb-1 flex items-center justify-between">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ i + 1 }}. {{ l.name }}</span>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ l.points }} Points</span>
+            <!-- Top 3 con columnas -->
+            <div class="flex justify-around items-end h-72 text-center text-slate-800 dark:text-slate-200 mb-8">
+              <!-- 2do Lugar -->
+              @if (leaders()[1]; as second) {
+                <div class="flex flex-col items-center w-1/3 group">
+                  <img
+                    [src]="'https://ui-avatars.com/api/?name=' + second.name + '&background=random&size=80'"
+                    [alt]="second.name"
+                    class="w-20 h-20 rounded-full border-4 border-slate-300 dark:border-slate-600 object-cover mb-3"
+                  />
+                  <span class="font-semibold text-lg">{{ second.name }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ second.points }} pts</span>
+                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                    <div
+                      class="bg-[#13a4ec]/70 group-hover:bg-[#13a4ec] transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
+                      style="--bar-height: 75%; animation-delay: 200ms; height: 75%;"
+                    >
+                      <span class="text-2xl font-bold text-white">2</span>
+                    </div>
                   </div>
-                  <div class="h-4 w-full rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div class="bar-fill h-4 w-0 rounded-full bg-[#13a4ec] transition-all duration-1000 ease-out group-hover:w-[var(--bar-width)]"></div>
+                </div>
+              }
+
+              <!-- 1er Lugar -->
+              @if (leaders()[0]; as first) {
+                <div class="flex flex-col items-center w-1/3 group -mt-4">
+                  <img
+                    [src]="'https://ui-avatars.com/api/?name=' + first.name + '&background=random&size=96'"
+                    [alt]="first.name"
+                    class="w-24 h-24 rounded-full border-4 border-yellow-400 dark:border-yellow-500 object-cover mb-3"
+                  />
+                  <span class="font-semibold text-xl">{{ first.name }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ first.points }} pts</span>
+                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                    <div
+                      class="bg-[#13a4ec] group-hover:opacity-80 transition-opacity rounded-t-lg flex items-center justify-center animate-bar-up"
+                      style="--bar-height: 100%; height: 100%;"
+                    >
+                      <span class="text-3xl font-bold text-white">1</span>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- 3er Lugar -->
+              @if (leaders()[2]; as third) {
+                <div class="flex flex-col items-center w-1/3 group">
+                  <img
+                    [src]="'https://ui-avatars.com/api/?name=' + third.name + '&background=random&size=80'"
+                    [alt]="third.name"
+                    class="w-20 h-20 rounded-full border-4 border-orange-400 dark:border-orange-500 object-cover mb-3"
+                  />
+                  <span class="font-semibold text-lg">{{ third.name }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ third.points }} pts</span>
+                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                    <div
+                      class="bg-[#13a4ec]/50 group-hover:bg-[#13a4ec]/80 transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
+                      style="--bar-height: 60%; animation-delay: 400ms; height: 60%;"
+                    >
+                      <span class="text-2xl font-bold text-white">3</span>
+                    </div>
                   </div>
                 </div>
               }
             </div>
+
+            <!-- Lista completa (opcional, resto del ranking) -->
+            @if (leaders().length > 3) {
+              <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Resto del Ranking</h3>
+                <div class="space-y-4">
+                  @for (l of leaders().slice(3); track l.name; let i = $index) {
+                    <div class="group">
+                      <div class="mb-1 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-300">
+                            {{ i + 4 }}
+                          </span>
+                          <span class="font-semibold text-slate-800 dark:text-slate-200">{{ l.name }}</span>
+                        </div>
+                        <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ l.points }} Puntos</span>
+                      </div>
+                      <div class="h-3 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div
+                          class="h-3 rounded-full bg-slate-400 dark:bg-slate-500 transition-all duration-1000 ease-out"
+                          [style.width]="barWidth(l.points) + '%'"
+                        ></div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           }
+        </div>
+      </div>
+
+      <!-- Actividades Recientes (Opcional) -->
+      <div class="mt-16">
+        <h2 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Actividades Recientes
+        </h2>
+        <div class="space-y-4">
+          <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#1a2830]">
+            <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/20 dark:bg-primary/30">
+              <svg class="text-primary" fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                <path d="M220.2,100l-18-31.18a28,28,0,0,0-47.3-1.92L139.56,40.31a28,28,0,0,0-48.12-.63,28,28,0,0,0-43,34.78l3.34,5.79a28,28,0,0,0-22,41.92l38,65.82a87.46,87.46,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3A88,88,0,0,0,220.2,100Z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100">Ayuda completada</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Asistencia con ordenador</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#1a2830]">
+            <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/20 dark:bg-primary/30">
+              <svg class="text-primary" fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                <path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100">Nueva solicitud</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Configurar Smart TV</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 rounded-xl bg-[#f6f7f8] p-4 shadow-lg dark:bg-[#1a2830]">
+            <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/20 dark:bg-primary/30">
+              <svg class="text-primary" fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100">Voluntario aceptado</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Juan ayudará con tu solicitud</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

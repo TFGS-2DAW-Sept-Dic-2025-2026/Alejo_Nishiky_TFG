@@ -59,3 +59,16 @@
     @apply text-sm;
   }
 }
+
+@keyframes bar-up {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: var(--bar-height);
+  }
+}
+
+.animate-bar-up {
+  animation: bar-up 1s ease-out forwards;
+}
