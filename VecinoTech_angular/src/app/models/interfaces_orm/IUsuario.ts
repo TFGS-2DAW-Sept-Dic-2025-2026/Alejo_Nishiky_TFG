@@ -7,7 +7,6 @@ export interface IUsuario {
   codigoPostal?: string;
   rol?: 'USER' | 'ADMIN';
   activo: boolean;
-  
   fechaCreacion?: string; // ISO (opcional)
   avatarUrl?: string
 }

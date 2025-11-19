@@ -67,3 +67,4 @@ A continuación se listan algunos endpoints utilizados para pruebas locales con 
 ![Vista en modo Voluntario](Images/voluntario_vista.jpg)
 ![Vista móvil del Portal](Images/portal_vistaMovil.jpg)
 ![Vista móvil del Login](Images/login_vistaMovil.jpg)
+![Vista móvil del Login](Images/portal_perfil.png)

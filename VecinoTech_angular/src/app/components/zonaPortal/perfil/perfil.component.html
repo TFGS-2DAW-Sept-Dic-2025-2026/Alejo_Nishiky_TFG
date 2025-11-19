@@ -1,0 +1,292 @@
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-200">
+  <div class="layout-container flex h-full grow flex-col">
+    <div class="px-4 sm:px-8 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+      <div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-8">
+
+        <!-- TopNavBar -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-700 px-4 sm:px-10 py-3">
+          <div class="flex items-center gap-4 text-slate-900 dark:text-white">
+            <!-- Logo SVG -->
+            <div class="size-6">
+              <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z"></path>
+                <path clip-rule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fill-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">VecinoTech</h2>
+          </div>
+
+          <div class="flex flex-1 justify-end gap-4 items-center">
+            <span class="text-sm font-medium hidden sm:inline">{{ perfil()?.nombre }}</span>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gradient-to-br from-blue-500 to-purple-500"></div>
+            <button
+              (click)="logout()"
+              class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:opacity-80 transition"
+            >
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <main class="flex flex-col gap-8">
+          <!-- Botón Volver -->
+          <div class="px-4">
+            <button
+              (click)="volverPortal()"
+              class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Volver al Portal
+            </button>
+          </div>
+
+          <!-- Page Heading -->
+          <div class="flex flex-wrap justify-between gap-3 p-4">
+            <div class="flex min-w-72 flex-col gap-3">
+              <p class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                Mi Perfil
+              </p>
+              <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">
+                Información personal y estadísticas
+              </p>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          @if (loading()) {
+            <div class="flex justify-center items-center py-12">
+              <div class="animate-spin rounded-full size-12 border-b-2 border-blue-500"></div>
+            </div>
+          }
+
+          <!-- Error State -->
+          @if (error()) {
+            <div class="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl p-4 mx-4">
+              <p class="text-red-800 dark:text-red-400">{{ error() }}</p>
+            </div>
+          }
+
+          <!-- Perfil Content -->
+          @if (!loading() && !error() && perfil(); as user) {
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
+
+              <!-- Columna Izquierda: Info Personal -->
+              <div class="lg:col-span-1 space-y-6">
+                <!-- Card Avatar y Nombre -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                  <div class="flex flex-col items-center text-center">
+                    <!-- Avatar -->
+                    <div class="relative mb-4">
+                      <img
+                        [src]="avatarUrl()"
+                        [alt]="user.nombre"
+                        class="size-32 rounded-full border-4 border-slate-200 dark:border-slate-700 object-cover"
+                      />
+                      <div class="absolute bottom-0 right-0 size-10 rounded-full bg-green-500 border-4 border-white dark:border-slate-800"></div>
+                    </div>
+
+                    <!-- Nombre -->
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                      {{ user.nombre }}
+                    </h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                      {{ user.email }}
+                    </p>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex flex-col w-full gap-2">
+                      <button
+                        (click)="editarPerfil()"
+                        class="w-full px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
+                      >
+                        ✏️ Editar Perfil
+                      </button>
+                      <button
+                        (click)="cambiarContrasena()"
+                        class="w-full px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        🔒 Cambiar Contraseña
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card Info Adicional -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 space-y-4">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Información</h3>
+
+                  <div class="flex items-start gap-3">
+                    <svg class="size-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Email</p>
+                      <p class="text-slate-900 dark:text-white">{{ user.email }}</p>
+                    </div>
+                  </div>
+
+                  @if (user.telefono) {
+                    <div class="flex items-start gap-3">
+                      <svg class="size-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                      </svg>
+                      <div>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Teléfono</p>
+                        <p class="text-slate-900 dark:text-white">{{ user.telefono }}</p>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="flex items-start gap-3">
+                    <svg class="size-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Dirección</p>
+                      <p class="text-slate-900 dark:text-white">{{ user.direccion || 'No especificada' }}</p>
+                      @if (user.codigoPostal) {
+                        <p class="text-sm text-slate-500 dark:text-slate-400">CP: {{ user.codigoPostal }}</p>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <svg class="size-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <div>
+                      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Miembro desde</p>
+                      <p class="text-slate-900 dark:text-white">{{ fechaRegistroFormateada() }}</p>
+                    </div>
+                  </div>
+
+                  @if (user.rol) {
+                    <div class="flex items-start gap-3">
+                      <svg class="size-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                      </svg>
+                      <div>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Rol</p>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                          'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400': user.rol === 'USER',
+                          'bg-purple-100 text-purple-800 dark:bg-purple-950/30 dark:text-purple-400': user.rol === 'ADMIN'
+                        }">
+                          {{ user.rol }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Columna Derecha: Estadísticas -->
+              <div class="lg:col-span-2 space-y-6">
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Estadísticas</h3>
+
+                <!-- Grid de Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Solicitudes Creadas -->
+                  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center justify-center size-12 rounded-full bg-blue-100 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400">
+                        <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ estadisticas().solicitudes_creadas }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Solicitudes Creadas</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Solicitudes Completadas -->
+                  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center justify-center size-12 rounded-full bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400">
+                        <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ estadisticas().solicitudes_completadas }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Completadas</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Ayudas Realizadas -->
+                  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center justify-center size-12 rounded-full bg-purple-100 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400">
+                        <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ estadisticas().ayudas_realizadas }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Ayudas Realizadas</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tasa de Éxito -->
+                  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                    <div class="flex items-center gap-4">
+                      <div class="flex items-center justify-center size-12 rounded-full bg-yellow-100 dark:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400">
+                        <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ estadisticas().tasa_exito }}%</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Tasa de Éxito</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gráfico de Progreso (Opcional) -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+                  <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Actividad Reciente</h4>
+                  <div class="space-y-3">
+                    <div>
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-600 dark:text-slate-400">Solicitudes Completadas</span>
+                        <span class="font-semibold text-slate-900 dark:text-white">{{ estadisticas().solicitudes_completadas }}/{{ estadisticas().solicitudes_creadas }}</span>
+                      </div>
+                      <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          class="h-full bg-green-500 rounded-full transition-all duration-500"
+                          [style.width]="(estadisticas().solicitudes_completadas / estadisticas().solicitudes_creadas * 100) + '%'"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-600 dark:text-slate-400">Ayudas como Voluntario</span>
+                        <span class="font-semibold text-slate-900 dark:text-white">{{ estadisticas().ayudas_realizadas }}</span>
+                      </div>
+                      <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          class="h-full bg-purple-500 rounded-full transition-all duration-500"
+                          [style.width]="(estadisticas().ayudas_realizadas / 20 * 100) + '%'"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </main>
+      </div>
+    </div>
+  </div>
+</div>

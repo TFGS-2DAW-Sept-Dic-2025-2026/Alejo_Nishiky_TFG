@@ -74,5 +74,12 @@ export class PortalComponent {
    */
   irAHistorial(): void {
     this._router.navigate(['/portal/historial']);
-}
+  }
+
+  /**
+ * Navega al perfil del usuario
+ */
+  irAPerfil(): void {
+    this._router.navigate(['/portal/perfil']);
+  }
 }

@@ -1,0 +1,177 @@
+<!-- Modal Overlay -->
+@if (isOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+    (click)="onBackdropClick($event)"
+  >
+    <!-- Modal Content -->
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+          Editar Perfil
+        </h2>
+        <button
+          (click)="onClose()"
+          class="size-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+        >
+          <svg class="size-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      @if (error()) {
+        <div class="mx-6 mt-6 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p class="text-red-800 dark:text-red-400">{{ error() }}</p>
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="perfilForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+
+        <!-- Nombre -->
+        <div>
+          <label for="nombre" class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+            Nombre Completo *
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Juan Pérez"
+            class="w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            [class.border-red-500]="hasError('nombre', 'required') || hasError('nombre', 'minlength')"
+            [class.border-slate-300]="!(hasError('nombre', 'required') || hasError('nombre', 'minlength'))"
+          />
+          @if (getErrorMessage('nombre')) {
+            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+              {{ getErrorMessage('nombre') }}
+            </p>
+          }
+        </div>
+
+        <!-- Email (solo lectura) -->
+        <div>
+          <label for="email" class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 cursor-not-allowed"
+          />
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            El email no se puede modificar
+          </p>
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label for="telefono" class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+            Teléfono
+          </label>
+          <input
+            id="telefono"
+            type="tel"
+            formControlName="telefono"
+            placeholder="612345678"
+            class="w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            [class.border-red-500]="hasError('telefono', 'pattern')"
+            [class.border-slate-300]="!hasError('telefono', 'pattern')"
+          />
+          @if (getErrorMessage('telefono')) {
+            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+              {{ getErrorMessage('telefono') }}
+            </p>
+          } @else {
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              9 dígitos sin espacios
+            </p>
+          }
+        </div>
+
+        <!-- Dirección -->
+        <div>
+          <label for="direccion" class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+            Dirección
+          </label>
+          <input
+            id="direccion"
+            type="text"
+            formControlName="direccion"
+            placeholder="Calle Mayor, 123"
+            class="w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            [class.border-red-500]="hasError('direccion', 'minlength')"
+            [class.border-slate-300]="!hasError('direccion', 'minlength')"
+          />
+          @if (getErrorMessage('direccion')) {
+            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+              {{ getErrorMessage('direccion') }}
+            </p>
+          }
+        </div>
+
+        <!-- Código Postal -->
+        <div>
+          <label for="codigoPostal" class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+            Código Postal
+          </label>
+          <input
+            id="codigoPostal"
+            type="text"
+            formControlName="codigoPostal"
+            placeholder="28001"
+            maxlength="5"
+            class="w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            [class.border-red-500]="hasError('codigoPostal', 'pattern')"
+            [class.border-slate-300]="!hasError('codigoPostal', 'pattern')"
+          />
+          @if (getErrorMessage('codigoPostal')) {
+            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+              {{ getErrorMessage('codigoPostal') }}
+            </p>
+          } @else {
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              5 dígitos
+            </p>
+          }
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            (click)="onClose()"
+            [disabled]="loading()"
+            class="flex-1 px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="loading() || perfilForm.invalid"
+            class="flex-1 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            @if (loading()) {
+              <div class="animate-spin rounded-full size-5 border-b-2 border-white"></div>
+              <span>Guardando...</span>
+            } @else {
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Guardar Cambios</span>
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}
