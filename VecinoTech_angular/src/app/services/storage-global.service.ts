@@ -55,4 +55,17 @@ export class StorageGlobalService {
   }
 
   //#endregion ===========================================================
+
+  /**
+ * Actualiza parcialmente los datos del usuario
+ */
+  actualizarUsuario(datos: Partial<IUsuario>): void {
+  const usuarioActual = this._usuario();
+  if (usuarioActual) {
+    this._usuario.set({
+      ...usuarioActual,
+      ...datos
+    });
+  }
+}
 }

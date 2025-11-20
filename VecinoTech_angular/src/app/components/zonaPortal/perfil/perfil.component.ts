@@ -4,6 +4,11 @@ import { Router } from '@angular/router';
 
 // Servicios
 import { AuthService } from '../../../services/auth.service';
+import { RestPortalService } from '../../../services/rest-portal.service';
+import { StorageGlobalService } from '../../../services/storage-global.service';
+
+// Componentes
+import { ModalEditarComponent } from './modal-editar/modal-editar.component';
 
 // Interfaces
 import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
@@ -18,7 +23,7 @@ interface EstadisticasUsuario {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalEditarComponent],  // ✅ Importar el modal
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
 })
@@ -28,6 +33,8 @@ export class PerfilComponent {
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly restPortal = inject(RestPortalService);
+  private readonly storage = inject(StorageGlobalService);
 
   // ==================== SIGNALS ====================
 
@@ -40,6 +47,9 @@ export class PerfilComponent {
   });
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
+
+  // ✅ Signal para controlar el modal
+  readonly mostrarModal = signal<boolean>(false);
 
   // ==================== COMPUTED SIGNALS ====================
 
@@ -54,6 +64,18 @@ export class PerfilComponent {
   readonly avatarUrl = computed(() => {
     const perfil = this._perfil();
     if (!perfil) return 'https://ui-avatars.com/api/?name=Usuario&background=random&size=128';
+
+    // Si tiene avatarUrl personalizado
+    if (perfil.avatarUrl) {
+      // Si es una URL relativa (/avatars/...), añadir el backend
+      if (perfil.avatarUrl.startsWith('/avatars/')) {
+        return `http://localhost:8080${perfil.avatarUrl}`;
+      }
+      // Si es URL completa (http://...), usarla tal cual
+      return perfil.avatarUrl;
+    }
+
+    // Si no tiene avatar, generar uno con iniciales
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(perfil.nombre)}&background=random&size=128`;
   });
 
@@ -100,10 +122,7 @@ export class PerfilComponent {
     const usuario = this.authService.currentUser();
 
     if (usuario) {
-      // Usar directamente el objeto IUsuario
       this._perfil.set(usuario);
-
-      // Cargar estadísticas (temporal con datos de ejemplo)
       this.cargarEstadisticas();
     } else {
       this._error.set('No se pudo cargar el perfil');
@@ -117,7 +136,6 @@ export class PerfilComponent {
    */
   private cargarEstadisticas(): void {
     // TODO: Implementar endpoint real para estadísticas
-    // Por ahora usamos datos de ejemplo
     this._estadisticas.set({
       solicitudes_creadas: 12,
       solicitudes_completadas: 8,
@@ -129,18 +147,57 @@ export class PerfilComponent {
   // ==================== MÉTODOS PÚBLICOS ====================
 
   /**
-   * Navega a editar perfil
+   * Abre el modal de edición
    */
   editarPerfil(): void {
-    this.router.navigate(['/portal/perfil/editar']);
+    this.mostrarModal.set(true);
   }
 
   /**
-   * Abre modal o página para cambiar contraseña
+   * Cierra el modal
+   */
+  cerrarModal(): void {
+    this.mostrarModal.set(false);
+  }
+
+  /**
+   * Guarda los cambios del perfil
+   */
+  guardarPerfil(datos: Partial<IUsuario>): void {
+  console.log('📤 Guardando perfil:', datos);
+
+  // Si hay archivo seleccionado, subirlo primero
+  const modal = // obtener referencia al modal si es necesario
+
+  this.restPortal.putActualizarPerfil({
+    nombre: datos.nombre!,
+    avatarUrl: datos.avatarUrl,
+    telefono: datos.telefono,
+    direccion: datos.direccion,
+    codigoPostal: datos.codigoPostal
+    }).subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          this.storage.actualizarUsuario(datos);
+          this._perfil.set(this.authService.currentUser());
+          this.mostrarModal.set(false);
+          alert('✅ Perfil actualizado correctamente');
+        } else {
+          alert('❌ ' + response.mensaje);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error:', error);
+        alert('❌ Error al actualizar el perfil');
+      }
+    });
+  }
+
+  /**
+   * Cambiar contraseña
    */
   cambiarContrasena(): void {
-    // TODO: Implementar cambio de contraseña
-    alert('Funcionalidad de cambiar contraseña en desarrollo');
+    alert('🔒 Funcionalidad en desarrollo');
   }
 
   /**
@@ -156,7 +213,6 @@ export class PerfilComponent {
   logout(): void {
     if (confirm('¿Deseas cerrar sesión?')) {
       this.authService.logout();
-      this.router.navigate(['/usuario/login']);
     }
   }
 }

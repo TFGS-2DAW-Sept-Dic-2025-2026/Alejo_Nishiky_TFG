@@ -63,4 +63,22 @@ export class RestPortalService {
       { injector: this._injector, requireSync: true }
     );
   }
+
+  /**
+ * Actualiza el perfil del usuario autenticado
+ * PUT /api/portal/perfil
+ */
+  public putActualizarPerfil(datos: {
+  nombre: string;
+  avatarUrl?: string;
+  telefono?: string;
+  direccion?: string;
+  codigoPostal?: string;
+}) {
+  return this._http.put<IRestMessage>(
+    `${this.base}/perfil`,
+    datos,
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  );
+}
 }

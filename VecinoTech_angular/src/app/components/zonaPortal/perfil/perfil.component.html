@@ -289,4 +289,11 @@
       </div>
     </div>
   </div>
+  <!-- ✅ MODAL DE EDITAR PERFIL -->
+  <app-modal-editar
+    [isOpen]="mostrarModal()"
+    [usuario]="perfil()!"
+    (close)="cerrarModal()"
+    (save)="guardarPerfil($event)"
+  />
 </div>
