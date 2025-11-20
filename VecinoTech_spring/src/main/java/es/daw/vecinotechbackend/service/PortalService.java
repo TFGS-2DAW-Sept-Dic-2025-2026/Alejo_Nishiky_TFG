@@ -1,12 +1,10 @@
 package es.daw.vecinotechbackend.service;
 
-import es.daw.vecinotechbackend.dto.ISolicitudMapaDTO;
-import es.daw.vecinotechbackend.dto.LeaderDTO;
-import es.daw.vecinotechbackend.dto.NeedHelpRequest;
-import es.daw.vecinotechbackend.dto.TicketResponse;
+import es.daw.vecinotechbackend.dto.*;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.UsuarioDetalle;
+import es.daw.vecinotechbackend.mapper.UsuarioDetalleMapper;
 import es.daw.vecinotechbackend.repository.SolicitudRepository;
 import es.daw.vecinotechbackend.repository.UsuarioDetalleRepository;
 import es.daw.vecinotechbackend.repository.UsuarioRepository;
@@ -31,16 +29,17 @@ public class PortalService {
     private final SolicitudRepository solicitudRepository;
     private final UsuarioDetalleRepository usuarioDetalleRepository;
     private final GeocodeService geocodeService;
+    private final UsuarioDetalleMapper usuarioDetalleMapper;
 
     public PortalService(UsuarioRepository usuarioRepository,
                          UsuarioDetalleRepository usuarioDetalleRepository,
                          SolicitudRepository solicitudRepository,
-                         GeocodeService geocodeService) {
+                         GeocodeService geocodeService, UsuarioDetalleMapper usuarioDetalleMapper) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioDetalleRepository = usuarioDetalleRepository;
         this.solicitudRepository = solicitudRepository;
         this.geocodeService = geocodeService;
-
+        this.usuarioDetalleMapper = usuarioDetalleMapper;
     }
 
     @Transactional
@@ -321,5 +320,82 @@ public class PortalService {
      */
     public List<Solicitud> obtenerSolicitudesComoVoluntario(Long userId) {
         return solicitudRepository.findByVoluntarioId(userId);
+    }
+
+    /**
+     * Actualiza los datos del perfil del usuario
+     */
+    @Transactional
+    public UsuarioDetalleDTO actualizarPerfil(Long userId, ActualizarPerfilRequest request) {
+
+        // Buscar usuario
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+
+        // ========== ACTUALIZAR TABLA USUARIO ==========
+        usuario.setNombre(request.getNombre());
+
+        // Solo actualizar avatar si viene en el request (puede ser null)
+        if (request.getAvatarUrl() != null) {
+            usuario.setAvatarUrl(request.getAvatarUrl());
+        }
+
+        // ========== ACTUALIZAR TABLA USUARIO_DETALLE ==========
+        UsuarioDetalle detalle = usuario.getDetalle();
+        if (detalle == null) {
+            // Crear detalle si no existe (primera vez)
+            detalle = new UsuarioDetalle();
+            detalle.setUsuario(usuario);
+            usuario.setDetalle(detalle);
+        }
+        // Guardar la dirección anterior para comparar
+        String direccionAnterior = detalle.getDireccion();
+        String codigoPostalAnterior = detalle.getCodigoPostal();
+
+        // Actualizar campos de detalle (pueden ser null/vacíos)
+        detalle.setTelefono(request.getTelefono());
+        detalle.setDireccion(request.getDireccion());
+        detalle.setCodigoPostal(request.getCodigoPostal());
+
+        // ========== GEOCODIFICAR SI CAMBIÓ LA DIRECCIÓN ==========
+        boolean direccionCambio = false;
+
+        // Verificar si cambió la dirección o código postal
+        if (request.getDireccion() != null && !request.getDireccion().isBlank()) {
+            if (!request.getDireccion().equals(direccionAnterior) ||
+                    !request.getCodigoPostal().equals(codigoPostalAnterior)) {
+                direccionCambio = true;
+            }
+        }
+
+        // Guardar cambios primero
+        usuarioRepository.save(usuario);
+
+        // Si cambió la dirección, geocodificar en segundo plano
+        if (direccionCambio) {
+            try {
+                // Reutilizar el método que ya tienes
+                actualizarUbicacionUsuario(userId);
+                System.out.println("✅ Ubicación geocodificada automáticamente para usuario: " + userId);
+            } catch (Exception e) {
+                // No fallar la actualización del perfil si falla la geocodificación
+                System.err.println("⚠️ No se pudo geocodificar la dirección: " + e.getMessage());
+                // Opcional: podrías lanzar una advertencia al frontend
+            }
+        }
+        // Retornar DTO actualizado
+        return usuarioDetalleMapper.toDTO(detalle);
+    }
+
+    /**
+     * Actualiza solo el avatar del usuario
+     */
+    @Transactional
+    public void actualizarAvatar(Long userId, String avatarUrl) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+
+        usuario.setAvatarUrl(avatarUrl);
+        usuarioRepository.save(usuario);
     }
 }
