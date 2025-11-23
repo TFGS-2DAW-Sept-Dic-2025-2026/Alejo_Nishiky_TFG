@@ -1,0 +1,46 @@
+/* Estilos personalizados para el scroll del chat */
+.chat-messages {
+  scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode */
+:host-context(.dark) .chat-messages::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+:host-context(.dark) .chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Animación de entrada para mensajes */
+.chat-messages > div > div {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

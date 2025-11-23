@@ -1,0 +1,201 @@
+<div class="relative flex h-screen w-full flex-col bg-slate-50 dark:bg-slate-900">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="flex items-center gap-4">
+      <!-- Botón Volver -->
+      <button
+        (click)="volver()"
+        class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        title="Volver"
+      >
+        <svg class="size-6 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </button>
+
+      <!-- Título -->
+      <div>
+        <h1 class="text-xl font-bold text-slate-900 dark:text-white">
+          Chat de Ayuda
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          @if (usuarioConectado()) {
+            <span class="flex items-center gap-2">
+              <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+              {{ usuarioConectado() }} está en línea
+            </span>
+          } @else {
+            <span class="flex items-center gap-2">
+              <span class="size-2 rounded-full bg-yellow-500"></span>
+              Esperando conexión...
+            </span>
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- Estado de conexión WebSocket -->
+    <div class="flex items-center gap-2">
+      @if (conectado()) {
+        <span class="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+          <span class="size-2 rounded-full bg-green-500"></span>
+          Conectado
+        </span>
+      } @else {
+        <span class="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+          <span class="size-2 rounded-full bg-red-500"></span>
+          Desconectado
+        </span>
+      }
+    </div>
+  </header>
+
+  <!-- ==================== LOADING STATE ==================== -->
+  @if (loading()) {
+    <div class="flex-1 flex items-center justify-center">
+      <div class="text-center">
+        <div class="animate-spin rounded-full size-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-slate-600 dark:text-slate-400">Cargando chat...</p>
+      </div>
+    </div>
+  }
+
+  <!-- ==================== ERROR STATE ==================== -->
+  @if (error() && !loading()) {
+    <div class="flex-1 flex items-center justify-center p-6">
+      <div class="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md">
+        <h2 class="text-lg font-bold text-red-800 dark:text-red-400 mb-2">Error</h2>
+        <p class="text-red-600 dark:text-red-400">{{ error() }}</p>
+        <button
+          (click)="volver()"
+          class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          Volver
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ==================== CHAT CONTENT ==================== -->
+  @if (!loading() && !error()) {
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+      <!-- Área de mensajes -->
+      <div class="flex-1 overflow-y-auto px-6 py-4 chat-messages">
+        <div class="max-w-4xl mx-auto space-y-4">
+
+          <!-- Empty State -->
+          @if (mensajes().length === 0) {
+            <div class="text-center py-12">
+              <div class="size-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <svg class="size-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                No hay mensajes aún
+              </h3>
+              <p class="text-slate-500 dark:text-slate-400">
+                Sé el primero en enviar un mensaje
+              </p>
+            </div>
+          }
+
+          <!-- Mensajes -->
+          @for (mensaje of mensajes(); track mensaje.id) {
+            <div
+              class="flex"
+              [class.justify-end]="esMensajePropio(mensaje)"
+              [class.justify-start]="!esMensajePropio(mensaje)"
+            >
+              <div
+                class="max-w-[70%] rounded-2xl px-4 py-3 shadow-sm"
+                [class.bg-blue-500]="esMensajePropio(mensaje)"
+                [class.text-white]="esMensajePropio(mensaje)"
+                [class.bg-white]="!esMensajePropio(mensaje)"
+                [class.dark:bg-slate-800]="!esMensajePropio(mensaje)"
+                [class.text-slate-900]="!esMensajePropio(mensaje)"
+                [class.dark:text-white]="!esMensajePropio(mensaje)"
+              >
+                <!-- Nombre del remitente (solo si no es mensaje propio) -->
+                @if (!esMensajePropio(mensaje)) {
+                  <p class="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    {{ mensaje.remitenteNombre }}
+                  </p>
+                }
+
+                <!-- Contenido -->
+                <p class="text-sm leading-relaxed break-words">
+                  {{ mensaje.contenido }}
+                </p>
+
+                <!-- Hora -->
+                <p
+                  class="text-xs mt-1"
+                  [class.text-blue-100]="esMensajePropio(mensaje)"
+                  [class.text-slate-500]="!esMensajePropio(mensaje)"
+                  [class.dark:text-slate-500]="!esMensajePropio(mensaje)"
+                >
+                  {{ formatearFecha(mensaje.fechaEnvio) }}
+                  @if (esMensajePropio(mensaje) && mensaje.leido) {
+                    <span class="ml-1">✓✓</span>
+                  }
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ==================== INPUT AREA ==================== -->
+      <div class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-4">
+        <div class="max-w-4xl mx-auto">
+          <div class="flex items-end gap-3">
+
+            <!-- Textarea -->
+            <div class="flex-1 relative">
+              <textarea
+                [value]="nuevoMensaje()"
+                (input)="actualizarMensaje($event)"
+                (keydown.enter)="manejarEnter($event)"
+                rows="1"
+                placeholder="Escribe un mensaje..."
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
+                [disabled]="enviando() || !conectado()"
+                maxlength="1000"
+              ></textarea>
+
+              <!-- Contador de caracteres -->
+              <span class="absolute bottom-2 right-3 text-xs text-slate-400">
+                {{ nuevoMensaje().length }}/1000
+              </span>
+            </div>
+
+            <!-- Botón Enviar -->
+            <button
+              (click)="enviarMensaje()"
+              [disabled]="!nuevoMensaje().trim() || enviando() || !conectado()"
+              class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+            >
+              @if (enviando()) {
+                <div class="animate-spin rounded-full size-5 border-b-2 border-white"></div>
+                <span>Enviando...</span>
+              } @else {
+                <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+                <span>Enviar</span>
+              }
+            </button>
+          </div>
+
+          <!-- Ayuda -->
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+            Presiona Enter para enviar, Shift + Enter para nueva línea
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

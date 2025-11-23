@@ -137,6 +137,7 @@ export class VoluntarioComponent implements OnInit {
         if (response.codigo === 0) {
           alert('✅ Solicitud aceptada correctamente');
           this.cargarSolicitudes(); // Recargar lista
+          this._router.navigate(['/portal/chat', solicitudId]);
         } else {
           alert(`❌ ${response.mensaje}`);
         }

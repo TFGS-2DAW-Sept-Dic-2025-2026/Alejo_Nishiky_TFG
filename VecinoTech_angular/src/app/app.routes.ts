@@ -14,6 +14,7 @@ import { CrearSolicitudComponent } from './components/zonaPortal/solicitanteComp
 import { MisVoluntariadosComponent } from './components/zonaPortal/voluntarioComponent/mis-voluntariados/mis-voluntariados.component';
 import { HistorialComponent } from './components/zonaPortal/historial/historial.component';
 import { PerfilComponent } from './components/zonaPortal/perfil/perfil.component';
+import { ChatComponent } from './components/zonaPortal/chat/chat.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -73,6 +74,11 @@ export const routes: Routes = [
   {
     path: 'portal/perfil',
     component: PerfilComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'portal/chat/:id',
+    component: ChatComponent,
     canActivate: [authGuard]
   },
   {
