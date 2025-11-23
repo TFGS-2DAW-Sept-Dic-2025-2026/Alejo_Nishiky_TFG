@@ -135,7 +135,11 @@
             <version>0.12.6</version>
             <scope>compile</scope>
         </dependency>
-
+        <!-- Para el sistema de chat -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
