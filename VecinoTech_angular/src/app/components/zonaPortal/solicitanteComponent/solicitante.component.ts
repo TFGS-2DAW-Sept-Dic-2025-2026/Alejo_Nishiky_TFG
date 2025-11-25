@@ -1,12 +1,14 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
+import { ChatService } from '../../../services/chat.service'; // ✅ AÑADIR
 
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
+import { IChatNotificacion } from '../../../models/interfaces_orm/chat/IChatNotificacion';
 
 @Component({
   selector: 'app-solicitante',
@@ -14,11 +16,12 @@ import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
   templateUrl: './solicitante.component.html',
   styleUrls: ['./solicitante.component.css']
 })
-export class SolicitanteComponent implements OnInit {
+export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDestroy
 
   // ==================== DEPENDENCY INJECTION ====================
 
   private readonly mapService = inject(MapService);
+  private readonly chatService = inject(ChatService); // ✅ AÑADIR
   private readonly _router = inject(Router);
 
   // ==================== SIGNALS ====================
@@ -26,91 +29,112 @@ export class SolicitanteComponent implements OnInit {
   private readonly _solicitudes = signal<ISolicitudMapa[]>([]);
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
+  private readonly _notificacionActiva = signal<IChatNotificacion | null>(null); // ✅ Ya lo tienes
 
   // ==================== COMPUTED SIGNALS ====================
 
-  /**
-   * Solicitudes activas (ABIERTA o EN_PROCESO)
-   */
   readonly solicitudesActivas = computed(() => {
     return this._solicitudes().filter(s =>
       s.estado === 'ABIERTA' || s.estado === 'EN_PROCESO'
     );
   });
 
-  /**
-   * Solicitudes cerradas
-   */
   readonly solicitudesCerradas = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'CERRADA');
   });
 
-  /**
-   * Total de solicitudes activas
-   */
   readonly totalActivas = computed(() => this.solicitudesActivas().length);
-
-  /**
-   * Total de solicitudes completadas
-   */
   readonly totalCompletadas = computed(() => this.solicitudesCerradas().length);
 
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
+  readonly notificacionActiva = computed(() => this._notificacionActiva());
+
+  // ==================== CONSTRUCTOR ==================== ✅ AÑADIR ESTO
+
+  constructor() {
+    this.cargarMisSolicitudes();
+    this.inicializarNotificaciones(); // ✅ Inicializar WebSocket
+  }
 
   // ==================== LIFECYCLE ====================
 
-  ngOnInit(): void {
-    this.cargarMisSolicitudes();
+  ngOnDestroy(): void {
+    // Desconectar WebSocket al salir
+    this.chatService.desconectarWebSocket();
   }
 
   // ==================== MÉTODOS PRIVADOS ====================
 
-  /**
-   * Carga las solicitudes del usuario actual
-   */
   private cargarMisSolicitudes(): void {
     this._loading.set(true);
     this._error.set('');
 
-    // Usamos el endpoint getMisSolicitudes
     this.mapService.getMisSolicitudes().subscribe({
-    next: (response) => {
-      if (response.codigo === 0) {
-        this._solicitudes.set(response.datos as ISolicitudMapa[]);
-      } else {
-        this._error.set(response.mensaje || 'Error al cargar solicitudes');
+      next: (response) => {
+        if (response.codigo === 0) {
+          this._solicitudes.set(response.datos as ISolicitudMapa[]);
+        } else {
+          this._error.set(response.mensaje || 'Error al cargar solicitudes');
+        }
+        this._loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando solicitudes:', err);
+        this._error.set('No se pudieron cargar tus solicitudes');
+        this._loading.set(false);
       }
-      this._loading.set(false);
-    },
-    error: (err) => {
-      console.error('Error cargando solicitudes:', err);
-      this._error.set('No se pudieron cargar tus solicitudes');
-      this._loading.set(false);
-    }
-  });
+    });
+  }
+
+  // ✅ AÑADIR: Métodos de notificaciones
+
+  /**
+   * Inicializa el sistema de notificaciones WebSocket
+   */
+  private inicializarNotificaciones(): void {
+    console.log('🔔 Inicializando notificaciones...');
+
+    // Conectar WebSocket
+    this.chatService.conectarWebSocket();
+
+    // Esperar a que se conecte y luego suscribirse
+    setTimeout(() => {
+      this.chatService.suscribirseANotificaciones();
+      this.escucharNotificaciones();
+    }, 1000);
+  }
+
+  /**
+   * Escucha las notificaciones
+   */
+  private escucharNotificaciones(): void {
+    const notificaciones = this.chatService.notificaciones;
+
+    // Polling simple para detectar nuevas notificaciones
+    setInterval(() => {
+      const notifs = notificaciones();
+      if (notifs.length > 0) {
+        const ultimaNotif = notifs[notifs.length - 1];
+
+        if (ultimaNotif.tipo === 'solicitud-aceptada') {
+          console.log('🔔 Notificación recibida:', ultimaNotif);
+          this._notificacionActiva.set(ultimaNotif);
+        }
+      }
+    }, 500);
   }
 
   // ==================== MÉTODOS PÚBLICOS ====================
 
-  /**
-   * Navega a la página para crear una nueva solicitud
-   */
   crearNuevaSolicitud(): void {
     this._router.navigate(['/portal/crear-solicitud']);
   }
 
-  /**
-   * Ver detalles de una solicitud
-   */
   verDetalles(solicitudId: number): void {
     this._router.navigate(['/portal/solicitud', solicitudId]);
   }
 
-  /**
-   * Completar una solicitud (marcar como cerrada)
-   * De momento solo el solicitante puede completar su solicitud
-   */
   completarSolicitud(solicitudId: number): void {
     if (!confirm('¿Marcar esta solicitud como completada?')) {
       return;
@@ -118,15 +142,13 @@ export class SolicitanteComponent implements OnInit {
 
     this._loading.set(true);
 
-    console.log('Completar solicitud:', solicitudId);
-    // ✅ Llamar al endpoint real
     this.mapService.completarSolicitud(solicitudId).subscribe({
       next: (response) => {
         this._loading.set(false);
 
         if (response.codigo === 0) {
           alert('✅ Solicitud completada exitosamente');
-          this.cargarMisSolicitudes(); // Recargar lista
+          this.cargarMisSolicitudes();
         } else {
           alert(`❌ ${response.mensaje}`);
         }
@@ -139,9 +161,27 @@ export class SolicitanteComponent implements OnInit {
     });
   }
 
+  // ✅ AÑADIR: Métodos del modal de notificación
+
   /**
-   * Obtiene el color del badge según el estado
+   * Ir al chat desde la notificación
    */
+  irAlChat(solicitudId: number): void {
+    this.chatService.eliminarNotificacion(solicitudId);
+    this._notificacionActiva.set(null);
+    this._router.navigate(['/portal/chat', solicitudId]);
+  }
+
+  /**
+   * Cerrar notificación sin ir al chat
+   */
+  cerrarNotificacion(solicitudId: number): void {
+    this.chatService.eliminarNotificacion(solicitudId);
+    this._notificacionActiva.set(null);
+  }
+
+  // ==================== HELPERS ====================
+
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -155,25 +195,15 @@ export class SolicitanteComponent implements OnInit {
     }
   }
 
-  /**
-   * Obtiene el texto del estado en español
-   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
-      case 'ABIERTA':
-        return 'Pendiente';
-      case 'EN_PROCESO':
-        return 'En Progreso';
-      case 'CERRADA':
-        return 'Completada';
-      default:
-        return estado;
+      case 'ABIERTA': return 'Pendiente';
+      case 'EN_PROCESO': return 'En Progreso';
+      case 'CERRADA': return 'Completada';
+      default: return estado;
     }
   }
 
-  /**
-   * Obtiene la imagen por categoría
-   */
   getImagenCategoria(categoria: string): string {
     const imagenes: Record<string, string> = {
       'ORDENADOR': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
@@ -185,9 +215,6 @@ export class SolicitanteComponent implements OnInit {
     return imagenes[categoria] || imagenes['GENERAL'];
   }
 
-  /**
-   * Calcula tiempo transcurrido
-   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -205,9 +232,6 @@ export class SolicitanteComponent implements OnInit {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
-  /**
-   * Volver al portal
-   */
   volverPortal(): void {
     this._router.navigate(['/portal']);
   }
@@ -220,16 +244,12 @@ export class SolicitanteComponent implements OnInit {
     this._router.navigate(['/portal/mis-voluntariados']);
   }
 
-  irAVoluntario(): void{
-    this._router.navigate(['/portal/voluntario'])
+  irAVoluntario(): void {
+    this._router.navigate(['/portal/voluntario']);
   }
 
-  /**
-   * Logout
-   */
   logout(): void {
     if (confirm('¿Deseas cerrar sesión?')) {
-      // TODO: Implementar logout
       console.log('Logout');
     }
   }

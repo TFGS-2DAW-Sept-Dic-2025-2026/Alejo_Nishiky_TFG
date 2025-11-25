@@ -1,7 +1,7 @@
 import { IMensaje } from './IMensaje';
 
 export interface IChatNotificacion {
-  tipo: 'solicitud-aceptada' | 'usuario-conectado' | 'nuevo-mensaje';
+  tipo: 'solicitud-aceptada' | 'usuario-conectado' | 'nuevo-mensaje' | 'usuario-desconectado';
   solicitudId: number;
   usuarioId: number;
   usuarioNombre: string;

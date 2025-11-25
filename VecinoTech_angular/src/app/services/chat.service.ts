@@ -35,13 +35,14 @@ export class ChatService {
   private readonly _conectado = signal<boolean>(false);
   private readonly _usuarioConectado = signal<string>('');
   private readonly _notificaciones = signal<IChatNotificacion[]>([]);
+  private readonly _usuariosEnLinea = signal<number[]>([]);
 
   // Signals readonly
   readonly mensajes = this._mensajes.asReadonly();
   readonly conectado = this._conectado.asReadonly();
   readonly usuarioConectado = this._usuarioConectado.asReadonly();
   readonly notificaciones = this._notificaciones.asReadonly();
-
+  readonly usuariosEnLinea = this._usuariosEnLinea.asReadonly();
   // ==================== COMPUTED ====================
 
   readonly cantidadMensajes = computed(() => this._mensajes().length);
@@ -133,7 +134,21 @@ export class ChatService {
 
           case 'usuario-conectado':
             this._usuarioConectado.set(notificacion.usuarioNombre);
+            // ✅ AÑADIR: Agregar usuario a la lista de usuarios en línea
+            this._usuariosEnLinea.update(usuarios => {
+              if (!usuarios.includes(notificacion.usuarioId)) {
+                return [...usuarios, notificacion.usuarioId];
+              }
+              return usuarios;
+            });
             console.log(`👤 ${notificacion.usuarioNombre} se conectó al chat`);
+            break;
+
+            case 'usuario-desconectado': // ✅ AÑADIR NUEVO CASO
+            this._usuariosEnLinea.update(usuarios =>
+              usuarios.filter(id => id !== notificacion.usuarioId)
+            );
+            console.log(`👤 ${notificacion.usuarioNombre} se desconectó del chat`);
             break;
         }
       }
@@ -184,6 +199,27 @@ export class ChatService {
       destination: `/app/chat/${solicitudId}/conectar`,
       body: JSON.stringify({})
     });
+  }
+
+    /**
+   * Notifica que el usuario se desconecto del chat
+   */
+  notificarDesconexion(solicitudId: number): void {
+    if (!this.stompClient?.connected) return;
+
+    this.stompClient.publish({
+      destination: `/app/chat/${solicitudId}/desconectar`,
+      body: JSON.stringify({})
+    });
+  }
+
+  /**
+   * Limpia el estado del chat
+   */
+  limpiarChat(): void {
+    this._mensajes.set([]);
+    this._usuarioConectado.set('');
+    this._usuariosEnLinea.set([]);
   }
 
   // ==================== HTTP METHODS ====================

@@ -17,18 +17,18 @@
       <!-- Título -->
       <div>
         <h1 class="text-xl font-bold text-slate-900 dark:text-white">
-          Chat de Ayuda
+          VecinoTech Chat
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-          @if (usuarioConectado()) {
+          @if (otroUsuarioEnLinea()) {
             <span class="flex items-center gap-2">
               <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
-              {{ usuarioConectado() }} está en línea
+              {{ textoEstado() }}
             </span>
           } @else {
             <span class="flex items-center gap-2">
               <span class="size-2 rounded-full bg-yellow-500"></span>
-              Esperando conexión...
+              {{ textoEstado() }}
             </span>
           }
         </p>
@@ -157,7 +157,7 @@
             <div class="flex-1 relative">
               <textarea
                 [value]="nuevoMensaje()"
-                (input)="actualizarMensaje($event)"
+                (input)="actualizarMensaje($event); ajustarAltura($event)"
                 (keydown.enter)="manejarEnter($event)"
                 rows="1"
                 placeholder="Escribe un mensaje..."

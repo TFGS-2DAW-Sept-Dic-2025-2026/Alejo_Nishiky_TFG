@@ -227,4 +227,55 @@
       </div>
     </div>
   </div>
+  <!-- ✅ MODAL DE NOTIFICACIÓN -->
+  @if (notificacionActiva(); as notif) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slideUp">
+
+        <!-- Icono y título -->
+        <div class="flex items-center gap-4 mb-4">
+          <div class="flex items-center justify-center size-14 rounded-full bg-green-100 dark:bg-green-900/30">
+            <svg class="size-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+              ¡Solicitud Aceptada!
+            </h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              Un voluntario está listo para ayudarte
+            </p>
+          </div>
+        </div>
+
+        <!-- Mensaje -->
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-6">
+          <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+            <span class="font-semibold text-slate-900 dark:text-white">{{ notif.usuarioNombre }}</span>
+            ha aceptado tu solicitud. ¿Quieres conectarte al chat ahora?
+          </p>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3">
+          <button
+            (click)="cerrarNotificacion(notif.solicitudId)"
+            class="flex-1 px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+          >
+            Más tarde
+          </button>
+          <button
+            (click)="irAlChat(notif.solicitudId)"
+            class="flex-1 px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
+          >
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            Ir al Chat
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

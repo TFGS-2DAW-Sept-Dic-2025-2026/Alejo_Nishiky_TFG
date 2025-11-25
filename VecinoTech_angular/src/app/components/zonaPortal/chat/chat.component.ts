@@ -26,6 +26,7 @@ export class ChatComponent {
   private readonly _error = signal<string>('');
   readonly nuevoMensaje = signal<string>('');
   readonly enviando = signal<boolean>(false);
+  readonly alturaTextarea = signal<number>(48);
 
   // ==================== COMPUTED ====================
 
@@ -35,6 +36,7 @@ export class ChatComponent {
   readonly mensajes = this.chatService.mensajes;
   readonly conectado = this.chatService.conectado;
   readonly usuarioConectado = this.chatService.usuarioConectado;
+  readonly usuariosEnLinea = this.chatService.usuariosEnLinea;
   readonly usuarioActual = this.storage.usuarioSig;
 
   // ==================== CONSTRUCTOR ====================
@@ -64,6 +66,7 @@ export class ChatComponent {
   // ==================== LIFECYCLE ====================
 
   ngOnDestroy(): void {
+    this.chatService.notificarDesconexion(this._solicitudId());
     this.chatService.limpiarMensajes();
   }
 
@@ -152,6 +155,20 @@ export class ChatComponent {
     return usuario ? mensaje.remitenteId === usuario.id : false;
   }
 
+    /**
+   * Ajusta la altura del textarea automáticamente
+   */
+  ajustarAltura(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+
+    // Resetear altura para calcular correctamente
+    textarea.style.height = 'auto';
+
+    // Calcular nueva altura (máximo 200px = ~8 líneas)
+    const nuevaAltura = Math.min(textarea.scrollHeight, 200);
+    this.alturaTextarea.set(nuevaAltura);
+  }
+
   /**
    * Formatea la fecha del mensaje
    */
@@ -198,6 +215,26 @@ export class ChatComponent {
     }
     // Si es Shift + Enter, permite el salto de línea (comportamiento por defecto)
   }
+
+  // ✅ AÑADIR: Computed para saber si el otro usuario está en línea
+  readonly otroUsuarioEnLinea = computed(() => {
+    const usuario = this.usuarioActual();
+    const enLinea = this.usuariosEnLinea();
+    if (!usuario) return false;
+
+    // Verificar si hay alguien más en línea aparte del usuario actual
+    return enLinea.some(id => id !== usuario.id);
+  });
+
+  // ✅ AÑADIR: Texto del estado
+  readonly textoEstado = computed(() => {
+    if (!this.otroUsuarioEnLinea()) {
+      return 'Esperando conexión...';
+    }
+
+    const nombreOtro = this.usuarioConectado();
+    return nombreOtro ? `${nombreOtro} está en línea` : 'Conectado';
+  });
 
   /**
    * Volver atrás
