@@ -4,6 +4,8 @@ import { StorageGlobalService } from '../../../services/storage-global.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IMensaje } from '../../../models/interfaces_orm/chat/IMensaje';
 import { CommonModule } from '@angular/common';
+import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
+import { MapService } from '../../../services/map.service';
 
 @Component({
   selector: 'app-chat',
@@ -18,21 +20,25 @@ export class ChatComponent {
   private readonly storage = inject(StorageGlobalService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly mapService = inject(MapService);
 
   // ==================== SIGNALS ====================
 
   private readonly _solicitudId = signal<number>(0);
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
+  private readonly _solicitud = signal<ISolicitudMapa | null>(null);
   readonly nuevoMensaje = signal<string>('');
   readonly enviando = signal<boolean>(false);
   readonly alturaTextarea = signal<number>(48);
+  readonly mostrarModalFinalizado = signal<boolean>(false);
 
   // ==================== COMPUTED ====================
 
   readonly solicitudId = computed(() => this._solicitudId());
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
+  readonly solicitud = computed(() => this._solicitud());
   readonly mensajes = this.chatService.mensajes;
   readonly conectado = this.chatService.conectado;
   readonly usuarioConectado = this.chatService.usuarioConectado;
@@ -78,10 +84,14 @@ export class ChatComponent {
   private inicializarChat(): void {
     this._loading.set(true);
 
-    // 1. Conectar WebSocket
+    // 1. Cargar datos de la solicitud primero
+    this.cargarDatosSolicitud();
+
+
+    // 2. Conectar WebSocket
     this.chatService.conectarWebSocket();
 
-    // 2. Cargar historial
+    // 3. Cargar historial
     this.chatService.cargarHistorial(this._solicitudId()).subscribe({
       next: (response) => {
         if (response.codigo === 0) {
@@ -92,6 +102,7 @@ export class ChatComponent {
           // 3. Suscribirse al chat
           setTimeout(() => {
             this.chatService.suscribirseAlChat(this._solicitudId());
+            this.escucharNotificacionesFinalizado();
             this._loading.set(false);
           }, 500);
 
@@ -216,6 +227,15 @@ export class ChatComponent {
     // Si es Shift + Enter, permite el salto de línea (comportamiento por defecto)
   }
 
+  readonly esSolicitante = computed(() => {
+    const solicitud = this._solicitud();
+    const usuario = this.usuarioActual();
+
+    if (!solicitud || !usuario) return false;
+
+    return solicitud.solicitante.id === usuario.id;
+  });
+
   // ✅ AÑADIR: Computed para saber si el otro usuario está en línea
   readonly otroUsuarioEnLinea = computed(() => {
     const usuario = this.usuarioActual();
@@ -235,6 +255,83 @@ export class ChatComponent {
     const nombreOtro = this.usuarioConectado();
     return nombreOtro ? `${nombreOtro} está en línea` : 'Conectado';
   });
+
+  /**
+ * ✅ NUEVO: Carga los datos de la solicitud
+ */
+  private cargarDatosSolicitud(): void {
+    this.mapService.getMisSolicitudes().subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          const solicitudes = response.datos as ISolicitudMapa[];
+          const solicitud = solicitudes.find(s => s.id === this._solicitudId());
+
+          if (solicitud) {
+            this._solicitud.set(solicitud);
+          }
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error cargando solicitud:', err);
+      }
+    });
+  }
+
+  /**
+ * ✅ NUEVO: Escucha notificaciones de chat finalizado
+ */
+  private escucharNotificacionesFinalizado(): void {
+    const notificaciones = this.chatService.notificaciones;
+
+    setInterval(() => {
+      const notifs = notificaciones();
+      if (notifs.length > 0) {
+        const ultimaNotif = notifs[notifs.length - 1];
+
+        if (ultimaNotif.tipo === 'chat-finalizado') {
+          console.log('🔔 Chat finalizado por el solicitante');
+          this.mostrarModalFinalizado.set(true);
+        }
+      }
+    }, 500);
+  }
+
+  /**
+ * ✅ NUEVO: Finalizar el chat (solo solicitante)
+ */
+  finalizarChat(): void {
+    if (!confirm('¿Finalizar este chat?\n\nAl finalizar, confirmas que has recibido la asistencia satisfactoriamente.')) {
+      return;
+    }
+
+    this.enviando.set(true);
+
+    this.mapService.completarSolicitud(this._solicitudId()).subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          console.log('✅ Chat finalizado');
+          alert('✅ ¡Chat finalizado! Gracias por usar VecinoTech.');
+          this.router.navigate(['/portal/solicitante']);
+        } else {
+          alert('❌ ' + response.mensaje);
+        }
+        this.enviando.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error finalizando chat:', err);
+        alert('❌ Error al finalizar el chat');
+        this.enviando.set(false);
+      }
+    });
+  }
+
+  /**
+   * ✅ NUEVO: Cerrar modal de chat finalizado (voluntario)
+   */
+  cerrarModalFinalizado(): void {
+    this.mostrarModalFinalizado.set(false);
+    this.router.navigate(['/portal/voluntario']);
+  }
 
   /**
    * Volver atrás

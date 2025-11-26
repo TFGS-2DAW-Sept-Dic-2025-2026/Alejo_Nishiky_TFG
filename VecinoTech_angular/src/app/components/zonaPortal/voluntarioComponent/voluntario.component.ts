@@ -240,6 +240,13 @@ export class VoluntarioComponent implements OnInit {
       .substring(0, 2);
   }
 
+  /**
+ * ✅ NUEVO: Continuar conversación en el chat
+ **/
+  continuarChat(solicitudId: number): void {
+    this._router.navigate(['/portal/chat', solicitudId]);
+  }
+
     /**
    * Navega a mis voluntariados
    */
