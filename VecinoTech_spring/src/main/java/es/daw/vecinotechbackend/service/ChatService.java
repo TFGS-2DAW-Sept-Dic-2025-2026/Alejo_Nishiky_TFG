@@ -169,4 +169,54 @@ public class ChatService {
                 notificacion
         );
     }
+
+    /**
+     * Notifica que un usuario se desconectó del chat
+     */
+    public void notificarDesconexion(Long solicitudId, Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+
+        ChatNotificacionDTO notificacion = new ChatNotificacionDTO();
+        notificacion.setTipo("usuario-desconectado");
+        notificacion.setSolicitudId(solicitudId);
+        notificacion.setUsuarioId(usuarioId);
+        notificacion.setUsuarioNombre(usuario.getNombre());
+
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + solicitudId,
+                notificacion
+        );
+    }
+
+    /**
+     * Notifica al voluntario que el chat fue finalizado
+     */
+    public void notificarChatFinalizado(Long solicitudId, Long solicitanteId) {
+        Solicitud solicitud = solicitudRepository.findById(solicitudId)
+                .orElseThrow(() -> new IllegalStateException("Solicitud no encontrada"));
+
+        // Obtener voluntario
+        if (solicitud.getVoluntario() == null) {
+            System.out.println("⚠️ No hay voluntario asignado para notificar");
+            return;
+        }
+
+        Usuario solicitante = usuarioRepository.findById(solicitanteId)
+                .orElseThrow(() -> new IllegalStateException("Solicitante no encontrado"));
+
+        ChatNotificacionDTO notificacion = new ChatNotificacionDTO();
+        notificacion.setTipo("chat-finalizado");
+        notificacion.setSolicitudId(solicitudId);
+        notificacion.setUsuarioId(solicitanteId);
+        notificacion.setUsuarioNombre(solicitante.getNombre());
+
+        // Notificar al voluntario
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + solicitudId,
+                notificacion
+        );
+
+        System.out.println("✅ Notificación de chat finalizado enviada al voluntario");
+    }
 }

@@ -109,6 +109,18 @@ public class ChatController {
         chatService.notificarConexion(solicitudId, userId);
     }
 
+    /**
+     * Notifica desconexión del chat vía WebSocket
+     * Cliente envía a: /app/chat/{solicitudId}/desconectar
+     * Se reenvía a: /topic/chat/{solicitudId}
+     */
+    @MessageMapping("/chat/{solicitudId}/desconectar")
+    @SendTo("/topic/chat/{solicitudId}")
+    public void notificarDesconexion(@DestinationVariable Long solicitudId) {
+        Long userId = getCurrentUserId();
+        chatService.notificarDesconexion(solicitudId, userId);
+    }
+
     // ==================== HELPER ====================
 
     private Long getCurrentUserId() {

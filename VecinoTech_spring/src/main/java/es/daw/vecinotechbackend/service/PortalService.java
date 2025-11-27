@@ -30,16 +30,20 @@ public class PortalService {
     private final UsuarioDetalleRepository usuarioDetalleRepository;
     private final GeocodeService geocodeService;
     private final UsuarioDetalleMapper usuarioDetalleMapper;
+    private final ChatService chatService;
 
     public PortalService(UsuarioRepository usuarioRepository,
                          UsuarioDetalleRepository usuarioDetalleRepository,
                          SolicitudRepository solicitudRepository,
-                         GeocodeService geocodeService, UsuarioDetalleMapper usuarioDetalleMapper) {
+                         GeocodeService geocodeService,
+                         UsuarioDetalleMapper usuarioDetalleMapper,
+                         ChatService chatService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioDetalleRepository = usuarioDetalleRepository;
         this.solicitudRepository = solicitudRepository;
         this.geocodeService = geocodeService;
         this.usuarioDetalleMapper = usuarioDetalleMapper;
+        this.chatService = chatService;
     }
 
     @Transactional
@@ -211,32 +215,34 @@ public class PortalService {
      */
     @Transactional
     public Solicitud aceptarSolicitud(Long solicitudId, Long voluntarioId) {
+        // Buscar solicitud
         Solicitud solicitud = solicitudRepository.findById(solicitudId)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(() -> new IllegalStateException("Solicitud no encontrada"));
 
-        // Verificar que esté abierta
-        if (!solicitud.getEstado().equals("ABIERTA")) {
-            throw new IllegalStateException("Esta solicitud ya no está disponible");
+        // Validar que esté abierta
+        if (!"ABIERTA".equals(solicitud.getEstado())) {
+            throw new IllegalStateException("Esta solicitud ya fue aceptada o está cerrada");
         }
 
-        // Verificar que no tenga voluntario ya
-        if (solicitud.getVoluntario() != null) {
-            throw new IllegalStateException("Esta solicitud ya fue aceptada por otro voluntario");
-        }
-
+        // Buscar voluntario
         Usuario voluntario = usuarioRepository.findById(voluntarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new IllegalStateException("Voluntario no encontrado"));
 
-        // Verificar que sea voluntario activo
-        UsuarioDetalle detalle = voluntario.getDetalle();
-        if (detalle == null || !detalle.isEsVoluntario()) {
-            throw new IllegalStateException("Debes activar el modo voluntario primero");
+        // Validar que no sea el mismo solicitante
+        if (solicitud.getSolicitante().getId().equals(voluntarioId)) {
+            throw new SecurityException("No puedes aceptar tu propia solicitud");
         }
 
+        // Asignar voluntario y cambiar estado
         solicitud.setVoluntario(voluntario);
         solicitud.setEstado("EN_PROCESO");
 
-        return solicitudRepository.save(solicitud);
+        solicitud = solicitudRepository.save(solicitud);
+
+        // NUEVO: Notificar al solicitante por WebSocket
+        chatService.notificarSolicitudAceptada(solicitudId, voluntarioId);
+
+        return solicitud;
     }
 
     /**
@@ -257,7 +263,13 @@ public class PortalService {
         }
 
         solicitud.setEstado("CERRADA");
-        return solicitudRepository.save(solicitud);
+        solicitud = solicitudRepository.save(solicitud);
+
+        if (solicitud.getSolicitante().getId().equals(userId)) {
+            chatService.notificarChatFinalizado(solicitudId, userId);
+        }
+
+        return solicitud;
     }
 
     // ============== MÉTODOS PARA EL MAPA (FRONTEND) ====================

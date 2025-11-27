@@ -4,13 +4,16 @@ import es.daw.vecinotechbackend.api.ApiResponse;
 import es.daw.vecinotechbackend.dto.*;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.mapper.SolicitudMapper;
+import es.daw.vecinotechbackend.service.FileStorageService;
 import es.daw.vecinotechbackend.service.PortalService;
 import es.daw.vecinotechbackend.utils.JwtUtils;
+import jakarta.validation.Valid;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -21,11 +24,12 @@ public class ZonaPortalController {
 
     private final PortalService portalService;
     private final SolicitudMapper solicitudMapper;
+    private final FileStorageService fileStorageService;
 
-    public ZonaPortalController(PortalService portalService, SolicitudMapper solicitudMapper) {
+    public ZonaPortalController(PortalService portalService, SolicitudMapper solicitudMapper, FileStorageService fileStorageService) {
         this.portalService = portalService;
         this.solicitudMapper = solicitudMapper;
-
+        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping("/volunteer")
@@ -275,6 +279,61 @@ public class ZonaPortalController {
             @PathVariable Long id) {
         // Reutiliza el método existente
         return completarSolicitud(id);
+    }
+
+    /**
+     * Actualiza el perfil del usuario autenticado
+     * PUT /api/portal/perfil
+     */
+    @PutMapping("/perfil")
+    public ResponseEntity<ApiResponse<UsuarioDetalleDTO>> actualizarPerfil(
+            @Valid @RequestBody ActualizarPerfilRequest request) {
+
+        try {
+            Long userId = getCurrentUserId();
+            UsuarioDetalleDTO detalle = portalService.actualizarPerfil(userId, request);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok("Perfil actualizado correctamente", detalle)
+            );
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        }
+    }
+
+    /**
+     * Sube una imagen de avatar
+     * POST /api/portal/perfil/avatar
+     */
+    @PostMapping("/perfil/avatar")
+    public ResponseEntity<ApiResponse<Map<String, String>>> subirAvatar(
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            Long userId = getCurrentUserId();
+
+            // Guardar archivo y obtener URL
+            String avatarUrl = fileStorageService.guardarAvatar(file, userId);
+
+            // Actualizar avatar en BD
+            portalService.actualizarAvatar(userId, avatarUrl);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok(
+                            "Avatar actualizado correctamente",
+                            Map.of("avatarUrl", avatarUrl)
+                    )
+            );
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(ApiResponse.error(500, "Error al subir el avatar"));
+        }
     }
 
 }
