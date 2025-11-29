@@ -11,11 +11,13 @@ import { MapService } from '../../../services/map.service';
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { MapaComponent } from './mapaComponent/mapa.component';
 import { Router } from '@angular/router';
+import { StorageGlobalService } from '../../../services/storage-global.service';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-voluntario',
   standalone: true,
-  imports: [CommonModule, MapaComponent], // ← Ya NO necesitamos FormsModule
+  imports: [CommonModule, MapaComponent, NavbarComponent], // ← Ya NO necesitamos FormsModule
   templateUrl: './voluntario.component.html',
   styleUrls: ['./voluntario.component.css']
 })
@@ -25,6 +27,7 @@ export class VoluntarioComponent implements OnInit {
 
   private readonly mapService = inject(MapService);
   private readonly _router = inject(Router);
+  private readonly _storage = inject(StorageGlobalService);
 
   // ==================== SIGNALS - DATA ====================
 
@@ -43,14 +46,30 @@ export class VoluntarioComponent implements OnInit {
    * Top 5 solicitudes más recientes
    */
   readonly topSolicitudes = computed(() => {
-    return this._solicitudes().slice(0, 5);
+    return this._solicitudes()
+      .filter(s => s.estado === 'ABIERTA')
+      .slice(0, 5);
+  });
+
+  /**
+ * ✅ NUEVO: Solicitudes EN_PROCESO donde soy voluntario (chats activos)
+ */
+  readonly misChatsActivos = computed(() => {
+    const usuario = this._storage.getUsuario();
+    if (!usuario) return [];
+
+    return this._solicitudes()
+      .filter(s =>
+        s.estado === 'EN_PROCESO' &&
+        s.voluntario?.id === usuario.id
+      );
   });
 
   /**
    * Solicitudes filtradas por búsqueda (para el mapa)
    */
   readonly solicitudesFiltradas = computed(() => {
-    return this._solicitudes();
+    return this._solicitudes().filter(s => s.estado === 'ABIERTA'); // ✅ Solo ABIERTAS en el mapa
   });
 
   // ✅ Computed públicos para el template
@@ -82,14 +101,18 @@ export class VoluntarioComponent implements OnInit {
     this._loading.set(true);
     this._error.set('');
 
+    // Cargar solicitudes ABIERTAS para el mapa
     this.mapService.getSolicitudesMapa().subscribe({
       next: (response) => {
         if (response.codigo === 0) {
-          this._solicitudes.set(response.datos as ISolicitudMapa[]);
+          const solicitudesAbiertas = response.datos as ISolicitudMapa[];
+
+          // Cargar también solicitudes EN_PROCESO donde soy voluntario
+          this.cargarMisChatsActivos(solicitudesAbiertas);
         } else {
           this._error.set(response.mensaje || 'Error al cargar solicitudes');
+          this._loading.set(false);
         }
-        this._loading.set(false);
       },
       error: (err) => {
         console.error('Error cargando solicitudes:', err);
@@ -98,6 +121,31 @@ export class VoluntarioComponent implements OnInit {
       }
     });
   }
+
+  /**
+ * ✅ NUEVO: Carga solicitudes EN_PROCESO donde soy voluntario
+ */
+  private cargarMisChatsActivos(solicitudesAbiertas: ISolicitudMapa[]): void {
+    this.mapService.getSolicitudesComoVoluntario().subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          const misChats = response.datos as ISolicitudMapa[];
+
+          // Combinar ambas listas
+          const todasLasSolicitudes = [...solicitudesAbiertas, ...misChats];
+          this._solicitudes.set(todasLasSolicitudes);
+        }
+        this._loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando chats activos:', err);
+        // Mostrar solo las abiertas si falla
+        this._solicitudes.set(solicitudesAbiertas);
+        this._loading.set(false);
+      }
+    });
+  }
+
 
   /**
    * Escucha eventos globales desde popups de Leaflet

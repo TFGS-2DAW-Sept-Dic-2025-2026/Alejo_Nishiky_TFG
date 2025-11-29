@@ -150,6 +150,11 @@ export class ChatService {
             );
             console.log(`👤 ${notificacion.usuarioNombre} se desconectó del chat`);
             break;
+
+            case 'chat-finalizado': // ✅ AÑADIR ESTE CASO
+            console.log('🔔 Chat finalizado recibido en ChatService');
+            this._notificaciones.update(notifs => [...notifs, notificacion]);
+            break;
         }
       }
     );
@@ -195,9 +200,12 @@ export class ChatService {
   private notificarConexion(solicitudId: number): void {
     if (!this.stompClient?.connected) return;
 
+    const usuario = this.storage.getUsuario();
+    if (!usuario) return;
+
     this.stompClient.publish({
       destination: `/app/chat/${solicitudId}/conectar`,
-      body: JSON.stringify({})
+      body: JSON.stringify({ userId: usuario.id })
     });
   }
 
@@ -207,9 +215,12 @@ export class ChatService {
   notificarDesconexion(solicitudId: number): void {
     if (!this.stompClient?.connected) return;
 
+    const usuario = this.storage.getUsuario();
+    if (!usuario) return;
+
     this.stompClient.publish({
       destination: `/app/chat/${solicitudId}/desconectar`,
-      body: JSON.stringify({})
+      body: JSON.stringify({ userId: usuario.id }) // ✅ ENVIAR userId
     });
   }
 

@@ -5,10 +5,11 @@ import { RestPortalService } from '../../services/rest-portal.service';
 import { IPortalLeader } from '../../models/portal/IPortalLeader';
 import { routes } from '../../app.routes';
 import { Router } from '@angular/router';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @Component({
   selector: 'app-portal',
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarComponent],
   templateUrl: './portal.component.html',
   styleUrls: ['./portal.component.css']
 })

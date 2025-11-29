@@ -1,69 +1,8 @@
 <!-- Contenedor principal -->
 <div class="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
 
-  <!-- ==================== HEADER ==================== -->
-  <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-
-      <!-- Botones de navegación -->
-      <div class="flex items-center gap-3">
-        <button
-          (click)="volverPortal()"
-          class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-          </svg>
-          <span class="hidden sm:inline">Portal</span>
-        </button>
-
-        <button
-          (click)="irAMisVoluntariados()"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition font-semibold text-sm"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-          </svg>
-          <span class="hidden sm:inline">Mis Voluntariados</span>
-        </button>
-        <button
-          (click)="irAHistorial()"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition font-semibold text-sm"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <span class="hidden sm:inline">Historial</span>
-        </button>
-      </div>
-
-        <!-- Logo -->
-        <div class="flex items-center gap-3">
-          <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"/>
-          </svg>
-          <h1 class="text-xl font-bold text-gray-900 dark:text-white">VecinoTech</h1>
-        </div>
-
-        <!-- User Info + Logout -->
-        <div class="flex items-center gap-4">
-          <span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
-            John Doe
-          </span>
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
-            JD
-          </div>
-          <button
-            (click)="logout()"
-            class="px-4 py-2 text-sm font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <!-- Navbar -->
+  <app-navbar mode="voluntario"></app-navbar>
 
   <!-- ==================== MAIN CONTENT ==================== -->
   <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -81,6 +20,55 @@
         (errorMapa)="onErrorMapa($event)"
       >
       </app-mapa>
+
+      <!-- ==================== MIS CHATS ACTIVOS ==================== -->
+      @if (misChatsActivos().length > 0) {
+        <div class="space-y-6">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Mis Chats Activos ({{ misChatsActivos().length }})
+          </h3>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md divide-y divide-gray-200 dark:divide-gray-700">
+            @for (solicitud of misChatsActivos(); track solicitud.id) {
+              <div class="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                <!-- Avatar -->
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                  {{ obtenerIniciales(solicitud.solicitante.nombre) }}
+                </div>
+
+                <!-- Información -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="font-semibold text-gray-800 dark:text-gray-200 truncate">
+                      {{ solicitud.solicitante.nombre }}
+                    </p>
+                    <span class="px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
+                      En proceso
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {{ solicitud.titulo }}
+                  </p>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {{ solicitud.categoria }} • {{ calcularTiempoTranscurrido(solicitud.fecha_creacion) }}
+                  </p>
+                </div>
+
+                <!-- Botón Chat -->
+                <button
+                  (click)="continuarChat(solicitud.id)"
+                  class="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 flex-shrink-0"
+                >
+                  <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                  Ir al Chat
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
 
       <!-- Loading Overlay Global -->
       @if (loading()) {
@@ -114,10 +102,7 @@
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md divide-y divide-gray-200 dark:divide-gray-700">
             @if (topSolicitudes().length > 0) {
               @for (solicitud of topSolicitudes(); track solicitud.id) {
-                <div
-                  class="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer"
-                  (click)="aceptarSolicitud(solicitud.id)"
-                >
+                <div class="p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                   <!-- Avatar -->
                   <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                     {{ obtenerIniciales(solicitud.solicitante.nombre) }}
@@ -136,25 +121,26 @@
                     </p>
                   </div>
 
-                  <!-- Tiempo -->
-                  <div class="text-right flex-shrink-0">
+                  <!-- Tiempo y Botón -->
+                  <div class="text-right flex-shrink-0 flex flex-col items-end gap-2">
                     <p class="text-sm text-gray-400 dark:text-gray-500">
                       {{ calcularTiempoTranscurrido(solicitud.fecha_creacion) }}
                     </p>
-                    <!-- ✅ AÑADIR: Botón según estado -->
+
+                    <!-- Botón según estado -->
                     @if (solicitud.estado === 'ABIERTA') {
                       <button
                         (click)="aceptarSolicitud(solicitud.id)"
-                        class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        class="px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                       >
                         Aceptar
                       </button>
                     } @else if (solicitud.estado === 'EN_PROCESO') {
                       <button
                         (click)="continuarChat(solicitud.id)"
-                        class="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-1"
+                        class="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
                       >
-                        <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
                         Chat

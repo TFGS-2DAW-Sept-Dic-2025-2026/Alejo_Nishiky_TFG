@@ -1,0 +1,11 @@
+/* Animaciones suaves */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Responsive: Ocultar texto en móviles */
+@media (max-width: 640px) {
+  button span {
+    display: none;
+  }
+}

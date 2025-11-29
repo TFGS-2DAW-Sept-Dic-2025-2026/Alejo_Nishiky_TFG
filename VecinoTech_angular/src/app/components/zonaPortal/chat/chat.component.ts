@@ -67,6 +67,21 @@ export class ChatComponent {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+    // ✅ AÑADIR: Escuchar notificaciones de chat finalizado con effect
+    effect(() => {
+      const notifs = this.chatService.notificaciones();
+
+      // Buscar si hay alguna notificación de tipo 'chat-finalizado'
+      const chatFinalizado = notifs.find(n =>
+        n.tipo === 'chat-finalizado' &&
+        n.solicitudId === this._solicitudId()
+      );
+
+      if (chatFinalizado && !this.mostrarModalFinalizado()) {
+        console.log('🔔 Chat finalizado detectado');
+        this.mostrarModalFinalizado.set(true);
+      }
+    });
   }
 
   // ==================== LIFECYCLE ====================
@@ -102,7 +117,6 @@ export class ChatComponent {
           // 3. Suscribirse al chat
           setTimeout(() => {
             this.chatService.suscribirseAlChat(this._solicitudId());
-            this.escucharNotificacionesFinalizado();
             this._loading.set(false);
           }, 500);
 
@@ -252,8 +266,23 @@ export class ChatComponent {
       return 'Esperando conexión...';
     }
 
-    const nombreOtro = this.usuarioConectado();
-    return nombreOtro ? `${nombreOtro} está en línea` : 'Conectado';
+    const solicitud = this._solicitud();
+    const usuario = this.usuarioActual();
+
+    if (!solicitud || !usuario) {
+      return 'Conectado';
+    }
+
+    // Determinar quién es "el otro"
+    if (solicitud.solicitante.id === usuario.id) {
+      // Soy el solicitante, el otro es el voluntario
+      return solicitud.voluntario
+        ? `${solicitud.voluntario.nombre} está en línea`
+        : 'Voluntario está en línea';
+    } else {
+      // Soy el voluntario, el otro es el solicitante
+      return `${solicitud.solicitante.nombre} está en línea`;
+    }
   });
 
   /**
@@ -268,7 +297,11 @@ export class ChatComponent {
 
           if (solicitud) {
             this._solicitud.set(solicitud);
-          }
+            console.log('✅ Solicitud cargada (como solicitante):', solicitud);
+          } else {
+          // Si no la encontró, intentar como voluntario
+          this.cargarSolicitudComoVoluntario();
+        }
         }
       },
       error: (err) => {
@@ -277,23 +310,28 @@ export class ChatComponent {
     });
   }
 
-  /**
- * ✅ NUEVO: Escucha notificaciones de chat finalizado
- */
-  private escucharNotificacionesFinalizado(): void {
-    const notificaciones = this.chatService.notificaciones;
+    /**
+   * Carga la solicitud cuando el usuario es voluntario
+   */
+  private cargarSolicitudComoVoluntario(): void {
+    this.mapService.getSolicitudesComoVoluntario().subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          const solicitudes = response.datos as ISolicitudMapa[];
+          const solicitud = solicitudes.find(s => s.id === this._solicitudId());
 
-    setInterval(() => {
-      const notifs = notificaciones();
-      if (notifs.length > 0) {
-        const ultimaNotif = notifs[notifs.length - 1];
-
-        if (ultimaNotif.tipo === 'chat-finalizado') {
-          console.log('🔔 Chat finalizado por el solicitante');
-          this.mostrarModalFinalizado.set(true);
+          if (solicitud) {
+            this._solicitud.set(solicitud);
+            console.log('✅ Solicitud cargada (como voluntario):', solicitud);
+          } else {
+            console.warn('⚠️ No se encontró la solicitud');
+          }
         }
+      },
+      error: (err) => {
+        console.error('❌ Error cargando solicitud como voluntario:', err);
       }
-    }, 500);
+    });
   }
 
   /**
