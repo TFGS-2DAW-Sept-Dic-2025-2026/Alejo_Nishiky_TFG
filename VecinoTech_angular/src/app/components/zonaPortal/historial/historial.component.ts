@@ -8,10 +8,11 @@ import { MapService } from '../../../services/map.service';
 
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './historial.component.html',
   styleUrls: ['./historial.component.css']
 })

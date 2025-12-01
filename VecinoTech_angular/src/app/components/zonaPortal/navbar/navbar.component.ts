@@ -60,9 +60,7 @@ export class NavbarComponent {
   /**
    * Determina si se muestra el botón "Historial"
    */
-  readonly mostrarBotonHistorial = computed(() =>
-    this.mode === 'voluntario' || this.mode === 'solicitante'
-  );
+  readonly mostrarBotonHistorial = computed(() => this.mode === 'voluntario');
 
   // ==================== MÉTODOS DE NAVEGACIÓN ====================
 
