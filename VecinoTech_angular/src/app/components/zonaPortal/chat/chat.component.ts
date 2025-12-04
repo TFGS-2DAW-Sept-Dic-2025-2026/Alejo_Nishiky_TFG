@@ -6,10 +6,11 @@ import { IMensaje } from '../../../models/interfaces_orm/chat/IMensaje';
 import { CommonModule } from '@angular/common';
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { MapService } from '../../../services/map.service';
+import { SafePipe } from '../../../pipes/safe.pipe';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule],
+  imports: [CommonModule, SafePipe],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -32,7 +33,12 @@ export class ChatComponent {
   readonly enviando = signal<boolean>(false);
   readonly alturaTextarea = signal<number>(48);
   readonly mostrarModalFinalizado = signal<boolean>(false);
-
+  // ======= SEÑALES PARA VIDEOLLAMADA =========
+  readonly mostrarVideoModal = signal<boolean>(false);
+  readonly videoRoomUrl = signal<string>('');
+  readonly videoRoomName = signal<string>('');
+  readonly cargandoVideo = signal<boolean>(false);
+  readonly mostrarModalConfirmacion = signal<boolean>(false);
   // ==================== COMPUTED ====================
 
   readonly solicitudId = computed(() => this._solicitudId());
@@ -80,6 +86,21 @@ export class ChatComponent {
       if (chatFinalizado && !this.mostrarModalFinalizado()) {
         console.log('🔔 Chat finalizado detectado');
         this.mostrarModalFinalizado.set(true);
+      }
+    });
+
+    // ✅ EFFECT 3: Detectar invitaciones de videollamada
+    effect(() => {
+      const invitacion = this.invitacionVideo();
+
+      if (invitacion && !this.mostrarVideoModal()) {
+        console.log('📹 Invitación de videollamada detectada');
+
+        // Si la invitación no es del usuario actual, mostrar notificación
+        const usuario = this.usuarioActual();
+        if (usuario && invitacion.usuarioId !== usuario.id) {
+          this.mostrarNotificacionVideo(invitacion.usuarioNombre);
+        }
       }
     });
   }
@@ -142,6 +163,104 @@ export class ChatComponent {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   }
+
+  // ==================== MÉTODOS DE VIDEOLLAMADA ====================
+
+  /**
+   * Inicia una videollamada (método privado ahora)
+   */
+  private iniciarVideollamada(): void {
+    if (this.cargandoVideo()) return;
+
+    this.cargandoVideo.set(true);
+
+    this.chatService.crearSalaVideo(this._solicitudId()).subscribe({
+      next: (response) => {
+        if (response.codigo === 0) {
+          const videoCall = response.datos as any; // VideoCallInviteDTO
+
+          this.videoRoomUrl.set(videoCall.roomUrl);
+          this.videoRoomName.set(videoCall.roomName);
+          this.mostrarVideoModal.set(true);
+
+          console.log('✅ Sala de videollamada creada:', videoCall.roomUrl);
+        } else {
+          alert('❌ ' + response.mensaje);
+        }
+        this.cargandoVideo.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error creando sala:', err);
+        alert('❌ Error al crear la videollamada');
+        this.cargandoVideo.set(false);
+      }
+    });
+  }
+
+  /**
+   * Unirse a la videollamada (cuando recibes invitación)
+   */
+  unirseAVideollamada(): void {
+    const invitacion = this.invitacionVideo();
+    if (!invitacion) return;
+
+    // ✅ AHORA SÍ: Usar la URL que viene en la notificación
+    if (invitacion.videoRoomUrl && invitacion.videoRoomName) {
+      this.videoRoomUrl.set(invitacion.videoRoomUrl);
+      this.videoRoomName.set(invitacion.videoRoomName);
+      this.mostrarVideoModal.set(true);
+    } else {
+      alert('❌ No se pudo obtener la URL de la videollamada');
+    }
+  }
+
+  /**
+   * Cierra el modal de video
+   */
+  cerrarVideoModal(): void {
+    this.mostrarVideoModal.set(false);
+    this.videoRoomUrl.set('');
+    this.videoRoomName.set('');
+
+    // Limpiar notificación
+    this.chatService.eliminarNotificacion(this._solicitudId());
+  }
+
+  /**
+   * Muestra notificación cuando llega invitación
+   */
+  private mostrarNotificacionVideo(nombreUsuario: string): void {
+    // Opcional: Puedes usar un toast o notificación más elegante
+    const unirse = confirm(
+      `📹 ${nombreUsuario} ha iniciado una videollamada\n\n¿Deseas unirte?`
+    );
+
+    if (unirse) {
+      this.unirseAVideollamada();
+    }
+  }
+
+  readonly puedeIniciarVideo = computed(() => {
+    const solicitud = this._solicitud();
+    const conectadoWS = this.conectado();
+
+    // Validar que haya solicitud y esté conectado
+    if (!solicitud || !conectadoWS) {
+      return false;
+    }
+
+    // Validar que la solicitud esté EN_PROCESO
+    if (solicitud.estado !== 'EN_PROCESO') {
+      return false;
+    }
+
+    // Validar que haya un voluntario asignado
+    if (!solicitud.voluntario) {
+      return false;
+    }
+
+    return true;
+  });
 
   // ==================== MÉTODOS PÚBLICOS ====================
 
@@ -335,6 +454,17 @@ export class ChatComponent {
   }
 
   /**
+   * Detecta invitaciones de videollamada
+   */
+  readonly invitacionVideo = computed(() => {
+    const notifs = this.chatService.notificaciones();
+    return notifs.find(n =>
+      n.tipo === 'video-call-invite' &&
+      n.solicitudId === this._solicitudId()
+    );
+  });
+
+  /**
  * ✅ NUEVO: Finalizar el chat (solo solicitante)
  */
   finalizarChat(): void {
@@ -361,6 +491,36 @@ export class ChatComponent {
         this.enviando.set(false);
       }
     });
+  }
+    /**
+   * Muestra el modal de confirmación
+   */
+  mostrarModalConfirmacionVideo(): void {
+    if (!this.conectado()) {
+      alert('⚠️ No estás conectado al chat');
+      return;
+    }
+
+    if (!this.otroUsuarioEnLinea()) {
+      alert('⚠️ El otro usuario no está conectado');
+      return;
+    }
+
+    this.mostrarModalConfirmacion.set(true);
+  }
+  /**
+   * Cierra el modal de confirmación
+   */
+  cerrarModalConfirmacion(): void {
+    this.mostrarModalConfirmacion.set(false);
+  }
+
+  /**
+   * Confirma e inicia la videollamada
+   */
+  confirmarVideollamada(): void {
+    this.mostrarModalConfirmacion.set(false);
+    this.iniciarVideollamada();
   }
 
   /**

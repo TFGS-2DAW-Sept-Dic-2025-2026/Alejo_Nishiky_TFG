@@ -155,6 +155,11 @@ export class ChatService {
             console.log('🔔 Chat finalizado recibido en ChatService');
             this._notificaciones.update(notifs => [...notifs, notificacion]);
             break;
+
+            case 'video-call-invite':
+            console.log('📹 Invitación a videollamada recibida');
+            this._notificaciones.update(notifs => [...notifs, notificacion]);
+            break;
         }
       }
     );
@@ -299,6 +304,18 @@ export class ChatService {
   eliminarNotificacion(solicitudId: number): void {
     this._notificaciones.update(notifs =>
       notifs.filter(n => n.solicitudId !== solicitudId)
+    );
+  }
+
+  /**
+   * Crea una sala de videollamada
+   */
+  crearSalaVideo(solicitudId: number): Observable<IRestMessage> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<IRestMessage>(
+      `${this.API_URL}/${solicitudId}/videocall/create`,
+      {},
+      { headers }
     );
   }
 
