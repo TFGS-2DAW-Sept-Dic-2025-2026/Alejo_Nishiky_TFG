@@ -1,27 +1,25 @@
 package es.daw.vecinotechbackend.dto;
 
-import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ValoracionDTO {
     private Long id;
 
-    @NotNull
-    private Long autorId;
+    private Long solicitanteId;
+    private String solicitanteNombre;
 
-    @NotNull
-    private Long ayudadoId;
+    private Long voluntarioId;
+    private String voluntarioNombre;
 
-    @NotNull
     private Long solicitudId;
-
-    @NotNull
-    @Min(1) @Max(5)
-    private Integer puntuacion;
-
-    @Size(max = 500)
+    private Integer puntuacion; // 1-5
     private String comentario;
-
+    private LocalDateTime fechaCreacion;
 }
-

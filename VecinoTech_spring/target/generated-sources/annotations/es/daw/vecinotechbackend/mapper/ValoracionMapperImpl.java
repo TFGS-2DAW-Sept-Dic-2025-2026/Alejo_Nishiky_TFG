@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-02T06:51:55+0100",
+    date = "2025-12-06T19:43:45+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -23,12 +23,15 @@ public class ValoracionMapperImpl implements ValoracionMapper {
 
         ValoracionDTO valoracionDTO = new ValoracionDTO();
 
-        valoracionDTO.setAutorId( entityAutorId( entity ) );
-        valoracionDTO.setAyudadoId( entityAyudadoId( entity ) );
+        valoracionDTO.setSolicitanteId( entitySolicitanteId( entity ) );
+        valoracionDTO.setSolicitanteNombre( entitySolicitanteNombre( entity ) );
+        valoracionDTO.setVoluntarioId( entityVoluntarioId( entity ) );
+        valoracionDTO.setVoluntarioNombre( entityVoluntarioNombre( entity ) );
         valoracionDTO.setSolicitudId( entitySolicitudId( entity ) );
-        valoracionDTO.setComentario( entity.getComentario() );
         valoracionDTO.setId( entity.getId() );
         valoracionDTO.setPuntuacion( entity.getPuntuacion() );
+        valoracionDTO.setComentario( entity.getComentario() );
+        valoracionDTO.setFechaCreacion( entity.getFechaCreacion() );
 
         return valoracionDTO;
     }
@@ -42,8 +45,8 @@ public class ValoracionMapperImpl implements ValoracionMapper {
         Valoracion valoracion = new Valoracion();
 
         valoracion.setId( dto.getId() );
-        valoracion.setAutor( toUsuarioRef( dto.getAutorId() ) );
-        valoracion.setAyudado( toUsuarioRef( dto.getAyudadoId() ) );
+        valoracion.setSolicitante( toUsuarioRef( dto.getSolicitanteId() ) );
+        valoracion.setVoluntario( toUsuarioRef( dto.getVoluntarioId() ) );
         valoracion.setSolicitud( toSolicitudRef( dto.getSolicitudId() ) );
         valoracion.setPuntuacion( dto.getPuntuacion() );
         valoracion.setComentario( dto.getComentario() );
@@ -57,45 +60,78 @@ public class ValoracionMapperImpl implements ValoracionMapper {
             return;
         }
 
-        if ( dto.getComentario() != null ) {
-            entity.setComentario( dto.getComentario() );
-        }
         if ( dto.getId() != null ) {
             entity.setId( dto.getId() );
         }
         if ( dto.getPuntuacion() != null ) {
             entity.setPuntuacion( dto.getPuntuacion() );
         }
+        if ( dto.getComentario() != null ) {
+            entity.setComentario( dto.getComentario() );
+        }
+        if ( dto.getFechaCreacion() != null ) {
+            entity.setFechaCreacion( dto.getFechaCreacion() );
+        }
     }
 
-    private Long entityAutorId(Valoracion valoracion) {
+    private Long entitySolicitanteId(Valoracion valoracion) {
         if ( valoracion == null ) {
             return null;
         }
-        Usuario autor = valoracion.getAutor();
-        if ( autor == null ) {
+        Usuario solicitante = valoracion.getSolicitante();
+        if ( solicitante == null ) {
             return null;
         }
-        Long id = autor.getId();
+        Long id = solicitante.getId();
         if ( id == null ) {
             return null;
         }
         return id;
     }
 
-    private Long entityAyudadoId(Valoracion valoracion) {
+    private String entitySolicitanteNombre(Valoracion valoracion) {
         if ( valoracion == null ) {
             return null;
         }
-        Usuario ayudado = valoracion.getAyudado();
-        if ( ayudado == null ) {
+        Usuario solicitante = valoracion.getSolicitante();
+        if ( solicitante == null ) {
             return null;
         }
-        Long id = ayudado.getId();
+        String nombre = solicitante.getNombre();
+        if ( nombre == null ) {
+            return null;
+        }
+        return nombre;
+    }
+
+    private Long entityVoluntarioId(Valoracion valoracion) {
+        if ( valoracion == null ) {
+            return null;
+        }
+        Usuario voluntario = valoracion.getVoluntario();
+        if ( voluntario == null ) {
+            return null;
+        }
+        Long id = voluntario.getId();
         if ( id == null ) {
             return null;
         }
         return id;
+    }
+
+    private String entityVoluntarioNombre(Valoracion valoracion) {
+        if ( valoracion == null ) {
+            return null;
+        }
+        Usuario voluntario = valoracion.getVoluntario();
+        if ( voluntario == null ) {
+            return null;
+        }
+        String nombre = voluntario.getNombre();
+        if ( nombre == null ) {
+            return null;
+        }
+        return nombre;
     }
 
     private Long entitySolicitudId(Valoracion valoracion) {

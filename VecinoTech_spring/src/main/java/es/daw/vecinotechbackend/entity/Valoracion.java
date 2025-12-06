@@ -1,40 +1,49 @@
 package es.daw.vecinotechbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "valoracion")
+@Table(name = "valoracion",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"solicitante_id", "voluntario_id", "solicitud_id"}))
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Valoracion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Quien valora
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "autor_id", nullable = false)
-    private Usuario autor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "solicitante_id", nullable = false)
+    private Usuario solicitante;
 
-    // Quien recibe la valoración
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ayudado_id", nullable = false)
-    private Usuario ayudado;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voluntario_id", nullable = false)
+    private Usuario voluntario;
 
-    // A qué solicitud pertenece la valoración
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "solicitud_id", nullable = false)
     private Solicitud solicitud;
 
-    @Column(name = "puntuacion", nullable = false)
-    private Integer puntuacion; // 1..5 (CHECK en DB)
+    @Column(nullable = false)
+    private Integer puntuacion;
 
     @Column(length = 500)
     private String comentario;
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false, insertable = false)
-    private Instant fechaCreacion;
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion;
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+    }
 }

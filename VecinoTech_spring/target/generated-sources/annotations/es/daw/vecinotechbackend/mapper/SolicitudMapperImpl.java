@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-02T06:51:55+0100",
+    date = "2025-12-06T19:42:11+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -28,12 +28,12 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         solicitudDTO.setVoluntarioId( entityVoluntarioId( entity ) );
         solicitudDTO.setVoluntarioNombre( entityVoluntarioNombre( entity ) );
         solicitudDTO.setUbicacion( pointToUbicacionDTO( entity.getUbicacion() ) );
-        solicitudDTO.setCategoria( entity.getCategoria() );
-        solicitudDTO.setDescripcion( entity.getDescripcion() );
-        solicitudDTO.setEstado( entity.getEstado() );
-        solicitudDTO.setFechaCreacion( entity.getFechaCreacion() );
         solicitudDTO.setId( entity.getId() );
         solicitudDTO.setTitulo( entity.getTitulo() );
+        solicitudDTO.setDescripcion( entity.getDescripcion() );
+        solicitudDTO.setCategoria( entity.getCategoria() );
+        solicitudDTO.setEstado( entity.getEstado() );
+        solicitudDTO.setFechaCreacion( entity.getFechaCreacion() );
 
         return solicitudDTO;
     }
@@ -68,11 +68,11 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         iSolicitudMapaDTO.setUbicacion( pointToMapaUbicacionDTO( entity.getUbicacion() ) );
         iSolicitudMapaDTO.setSolicitante( toSolicitanteDTO( entity.getSolicitante() ) );
         iSolicitudMapaDTO.setFechaCreacion( localDateTimeToString( entity.getFechaCreacion() ) );
-        iSolicitudMapaDTO.setCategoria( entity.getCategoria() );
-        iSolicitudMapaDTO.setDescripcion( entity.getDescripcion() );
-        iSolicitudMapaDTO.setEstado( entity.getEstado() );
         iSolicitudMapaDTO.setId( entity.getId() );
         iSolicitudMapaDTO.setTitulo( entity.getTitulo() );
+        iSolicitudMapaDTO.setDescripcion( entity.getDescripcion() );
+        iSolicitudMapaDTO.setCategoria( entity.getCategoria() );
+        iSolicitudMapaDTO.setEstado( entity.getEstado() );
 
         return iSolicitudMapaDTO;
     }

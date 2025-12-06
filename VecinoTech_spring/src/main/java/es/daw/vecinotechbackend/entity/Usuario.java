@@ -3,7 +3,7 @@ package es.daw.vecinotechbackend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,8 +25,8 @@ public class Usuario {
     @Column(name = "password_hash", nullable = false, length = 72)
     private String passwordHash;
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false, insertable = false)
-    private Instant fechaCreacion;
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
     @Column(name = "avatar_url", length = 300)
     private String avatarUrl;
@@ -52,11 +52,28 @@ public class Usuario {
     @OneToMany(mappedBy = "voluntario", fetch = FetchType.LAZY)
     private Set<Solicitud> solicitudesTomadas = new HashSet<>();
 
-    // Valoraciones que este usuario HA RECIBIDO (otros me calificaron a mí)
-    @OneToMany(mappedBy = "ayudado", fetch = FetchType.LAZY)
+    // ✅ ACTUALIZADO: Valoraciones que este usuario HA RECIBIDO como voluntario
+    @OneToMany(mappedBy = "voluntario", fetch = FetchType.LAZY)
     private Set<Valoracion> valoracionesRecibidas = new HashSet<>();
 
-    // Valoraciones que este usuario HA EMITIDO (yo califiqué a otros)
-    @OneToMany(mappedBy = "autor", fetch = FetchType.LAZY)
+    // ✅ ACTUALIZADO: Valoraciones que este usuario HA EMITIDO como solicitante
+    @OneToMany(mappedBy = "solicitante", fetch = FetchType.LAZY)
     private Set<Valoracion> valoracionesEmitidas = new HashSet<>();
+
+    /**
+     * Se ejecuta automáticamente antes de insertar en la BD
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+        // Valores por defecto si vienen null
+        if (ratingPromedio == null) {
+            ratingPromedio = 0.0;
+        }
+        if (ratingTotal == null) {
+            ratingTotal = 0;
+        }
+    }
 }

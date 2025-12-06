@@ -9,28 +9,33 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface ValoracionMapper {
 
-    // Entity -> DTO
+    // ✅ Entity -> DTO (actualizado con nuevos nombres)
     @Mappings({
-            @Mapping(target = "autorId", source = "autor.id"),
-            @Mapping(target = "ayudadoId", source = "ayudado.id"),
+            @Mapping(target = "solicitanteId", source = "solicitante.id"),
+            @Mapping(target = "solicitanteNombre", source = "solicitante.nombre"),
+            @Mapping(target = "voluntarioId", source = "voluntario.id"),
+            @Mapping(target = "voluntarioNombre", source = "voluntario.nombre"),
             @Mapping(target = "solicitudId", source = "solicitud.id")
     })
     ValoracionDTO toDTO(Valoracion entity);
 
-    // DTO -> Entity
+    // ✅ DTO -> Entity (actualizado con nuevos nombres)
     @Mappings({
             @Mapping(target = "id", source = "id"),
-            @Mapping(target = "autor", source = "autorId", qualifiedByName = "userRef"),
-            @Mapping(target = "ayudado", source = "ayudadoId", qualifiedByName = "userRef"),
+            @Mapping(target = "solicitante", source = "solicitanteId", qualifiedByName = "userRef"),
+            @Mapping(target = "voluntario", source = "voluntarioId", qualifiedByName = "userRef"),
             @Mapping(target = "solicitud", source = "solicitudId", qualifiedByName = "solicitudRef"),
             @Mapping(target = "puntuacion", source = "puntuacion"),
-            @Mapping(target = "comentario", source = "comentario")
+            @Mapping(target = "comentario", source = "comentario"),
+            @Mapping(target = "fechaCreacion", ignore = true) // Se establece con @PrePersist
     })
     Valoracion toEntity(ValoracionDTO dto);
 
+    // ✅ Update parcial
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ValoracionDTO dto, @MappingTarget Valoracion entity);
 
+    // ✅ Helper methods
     @Named("userRef")
     default Usuario toUsuarioRef(Long id) {
         if (id == null) return null;
