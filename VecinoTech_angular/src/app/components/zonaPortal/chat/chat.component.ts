@@ -7,10 +7,11 @@ import { CommonModule } from '@angular/common';
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { MapService } from '../../../services/map.service';
 import { SafePipe } from '../../../pipes/safe.pipe';
+import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule, SafePipe],
+  imports: [CommonModule, SafePipe, ModalValoracionComponent],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -33,14 +34,16 @@ export class ChatComponent {
   readonly enviando = signal<boolean>(false);
   readonly alturaTextarea = signal<number>(48);
   readonly mostrarModalFinalizado = signal<boolean>(false);
+
   // ======= SEÑALES PARA VIDEOLLAMADA =========
   readonly mostrarVideoModal = signal<boolean>(false);
   readonly videoRoomUrl = signal<string>('');
   readonly videoRoomName = signal<string>('');
   readonly cargandoVideo = signal<boolean>(false);
   readonly mostrarModalConfirmacion = signal<boolean>(false);
-  // ==================== COMPUTED ====================
+  readonly mostrarModalValoracion = signal<boolean>(false);
 
+  // ==================== COMPUTED ====================
   readonly solicitudId = computed(() => this._solicitudId());
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
@@ -511,10 +514,13 @@ export class ChatComponent {
       next: (response) => {
         if (response.codigo === 0) {
           console.log('✅ Chat finalizado');
-          alert('✅ ¡Chat finalizado! Gracias por usar VecinoTech.');
-          this.router.navigate(['/portal/solicitante']);
+
+          this.enviando.set(false);
+          this.mostrarModalValoracion.set(true);
+
         } else {
           alert('❌ ' + response.mensaje);
+          this.enviando.set(false);
         }
         this.enviando.set(false);
       },
@@ -525,6 +531,33 @@ export class ChatComponent {
       }
     });
   }
+
+  /**
+   * Maneja el éxito de la valoración
+   */
+  onValoracionSuccess(): void {
+    console.log('✅ Valoración completada');
+    alert('✅ ¡Gracias por tu valoración!');
+    this.router.navigate(['/portal/solicitante']);
+  }
+
+  /**
+   * Cierra el modal de valoración sin valorar
+   */
+  onValoracionClose(): void {
+    console.log('⚠️ Valoración omitida');
+    this.mostrarModalValoracion.set(false);
+    this.router.navigate(['/portal/solicitante']);
+  }
+
+  /**
+   * Obtiene el nombre del voluntario
+   */
+  readonly nombreVoluntario = computed(() => {
+    const solicitud = this._solicitud();
+    return solicitud?.voluntario?.nombre || 'el voluntario';
+  });
+
     /**
    * Muestra el modal de confirmación
    */

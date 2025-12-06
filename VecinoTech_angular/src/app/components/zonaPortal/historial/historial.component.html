@@ -205,12 +205,38 @@
                       </div>
                     </div>
 
-                    <button
-                      (click)="verDetalles(solicitud.id)"
-                      class="w-full sm:w-auto px-6 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                    >
-                      Ver Detalles
-                    </button>
+                    <!-- ✅ ACTUALIZAR: Botones de acción -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                      <button
+                        (click)="verDetalles(solicitud.id)"
+                        class="flex-1 px-6 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        Ver Detalles
+                      </button>
+
+                      <!-- ✅ NUEVO: Botón Valorar (solo si es solicitante y no ha valorado) -->
+                      @if (esSolicitante(solicitud) && !yaFueValorada(solicitud)) {
+                        <button
+                          (click)="abrirModalValoracion(solicitud)"
+                          class="flex-1 px-6 py-2 rounded-lg bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <svg class="size-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                          </svg>
+                          Valorar
+                        </button>
+                      }
+
+                      <!-- ✅ NUEVO: Badge "Valorada" (si ya fue valorada) -->
+                      @if (esSolicitante(solicitud) && yaFueValorada(solicitud)) {
+                        <div class="flex-1 px-6 py-2 rounded-lg bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-semibold flex items-center justify-center gap-2">
+                          <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          Valorada
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
               }
@@ -235,4 +261,14 @@
       </div>
     </div>
   </div>
+  <!-- ✅ MODAL: VALORACIÓN -->
+    @if (solicitudAValorar(); as solicitud) {
+      <app-modal-valoracion
+        [isOpen]="mostrarModalValoracion()"
+        [solicitudId]="solicitud.id"
+        [voluntarioNombre]="solicitud.voluntario?.nombre || 'el voluntario'"
+        (close)="onValoracionClose()"
+        (success)="onValoracionSuccess()"
+      />
+    }
 </div>

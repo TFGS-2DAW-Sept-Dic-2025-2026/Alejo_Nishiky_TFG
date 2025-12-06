@@ -1,0 +1,8 @@
+/* Animación suave para las estrellas */
+button svg {
+  transition: all 0.2s ease;
+}
+
+button:hover svg {
+  filter: drop-shadow(0 0 8px currentColor);
+}

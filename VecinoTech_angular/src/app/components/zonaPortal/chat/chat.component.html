@@ -394,4 +394,13 @@
       </div>
     </div>
   }
+
+  <!-- ✅ MODAL: VALORACIÓN -->
+  <app-modal-valoracion
+    [isOpen]="mostrarModalValoracion()"
+    [solicitudId]="solicitudId()"
+    [voluntarioNombre]="nombreVoluntario()"
+    (close)="onValoracionClose()"
+    (success)="onValoracionSuccess()"
+  />
 </div>

@@ -10,9 +10,13 @@ import { MapService } from '../../../services/map.service';
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { NavbarComponent } from '../navbar/navbar.component';
 
+import { StorageGlobalService } from '../../../services/storage-global.service';
+import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
+import { ValoracionesService } from '../../../services/valoraciones.service';
+
 @Component({
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, ModalValoracionComponent],
   templateUrl: './historial.component.html',
   styleUrls: ['./historial.component.css']
 })
@@ -22,6 +26,8 @@ export class HistorialComponent {
 
   private readonly mapService = inject(MapService);
   private readonly router = inject(Router);
+  private readonly valoracionesService = inject(ValoracionesService); // ✅ AÑADIR
+private readonly storage = inject(StorageGlobalService); // ✅ AÑADIR
 
   // ==================== SIGNALS ====================
 
@@ -31,6 +37,15 @@ export class HistorialComponent {
   private readonly _error = signal<string>('');
   private readonly _filtroRol = signal<'todas' | 'solicitante' | 'voluntario'>('todas');
   private readonly _categoriaSeleccionada = signal<string>('');
+
+  // ✅ AÑADIR: Set de IDs de solicitudes ya valoradas
+  private readonly _solicitudesValoradas = signal<Set<number>>(new Set());
+  // ✅ AÑADIR: Signals para modal de valoración
+  readonly mostrarModalValoracion = signal<boolean>(false);
+  readonly solicitudAValorar = signal<ISolicitudMapa | null>(null);
+
+  // ✅ AÑADIR: Usuario actual
+  readonly usuarioActual = this.storage.usuarioSig;
 
   // ==================== CATEGORÍAS ====================
 
@@ -118,9 +133,10 @@ export class HistorialComponent {
         if (response.codigo === 0) {
           const solicitudes = response.datos as ISolicitudMapa[];
           // Filtrar solo las cerradas
-          this._solicitudesComoSolicitante.set(
-            solicitudes.filter(s => s.estado === 'CERRADA')
-          );
+          const cerradas = solicitudes.filter(s => s.estado === 'CERRADA');
+          this._solicitudesComoSolicitante.set(cerradas);
+          // ✅ AÑADIR: Cargar valoraciones de estas solicitudes
+          this.cargarValoraciones(cerradas);
         }
         this.cargarVoluntariados();
       },
@@ -129,6 +145,42 @@ export class HistorialComponent {
         this._error.set('No se pudo cargar el historial');
         this._loading.set(false);
       }
+    });
+  }
+
+  /**
+   * Carga las valoraciones de las solicitudes cerradas
+   */
+  private cargarValoraciones(solicitudes: ISolicitudMapa[]): void {
+    // Si no hay solicitudes, no hacer nada
+    if (solicitudes.length === 0) return;
+
+    // Por cada solicitud, verificar si ya fue valorada
+    const valoradasSet = new Set<number>();
+    let pendientes = solicitudes.length;
+
+    solicitudes.forEach(solicitud => {
+      this.valoracionesService.verificarSiYaValorada(solicitud.id).subscribe({
+        next: (response) => {
+          if (response.codigo === 0 && response.datos === true) {
+            valoradasSet.add(solicitud.id);
+          }
+
+          // Cuando termine de verificar todas, actualizar el signal
+          pendientes--;
+          if (pendientes === 0) {
+            this._solicitudesValoradas.set(valoradasSet);
+            console.log('✅ Valoraciones cargadas:', valoradasSet);
+          }
+        },
+        error: (err) => {
+          console.error('Error verificando valoración:', err);
+          pendientes--;
+          if (pendientes === 0) {
+            this._solicitudesValoradas.set(valoradasSet);
+          }
+        }
+      });
     });
   }
 
@@ -162,6 +214,62 @@ export class HistorialComponent {
    */
   cambiarFiltroRol(filtro: 'todas' | 'solicitante' | 'voluntario'): void {
     this._filtroRol.set(filtro);
+  }
+  /**
+   * Abre el modal de valoración
+   */
+  abrirModalValoracion(solicitud: ISolicitudMapa): void {
+    // Validar que sea solicitante
+    if (!this.esSolicitante(solicitud)) {
+      alert('⚠️ Solo el solicitante puede valorar');
+      return;
+    }
+
+    // Validar que haya voluntario
+    if (!solicitud.voluntario) {
+      alert('⚠️ Esta solicitud no tiene voluntario asignado');
+      return;
+    }
+
+    this.solicitudAValorar.set(solicitud);
+    this.mostrarModalValoracion.set(true);
+  }
+
+  /**
+   * Maneja el éxito de la valoración
+   */
+  onValoracionSuccess(): void {
+    console.log('✅ Valoración completada desde historial');
+    alert('✅ ¡Gracias por tu valoración!');
+
+    // ✅ Añadir al Set de valoradas
+    const solicitud = this.solicitudAValorar();
+    if (solicitud) {
+      this._solicitudesValoradas.update(set => {
+        const newSet = new Set(set);
+        newSet.add(solicitud.id);
+        return newSet;
+      });
+    }
+
+    // Cerrar modal
+    this.mostrarModalValoracion.set(false);
+    this.solicitudAValorar.set(null);
+  }
+
+  /**
+   * Cierra el modal de valoración
+   */
+  onValoracionClose(): void {
+    this.mostrarModalValoracion.set(false);
+    this.solicitudAValorar.set(null);
+  }
+
+  /**
+   * Verifica si la solicitud ya fue valorada
+   */
+  yaFueValorada(solicitud: ISolicitudMapa): boolean {
+    return this._solicitudesValoradas().has(solicitud.id);
   }
 
   /**

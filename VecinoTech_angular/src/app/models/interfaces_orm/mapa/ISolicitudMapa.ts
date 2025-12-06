@@ -1,3 +1,4 @@
+import { IValoracion } from "../IValoracion";
 import ISolicitante from "./ISolicitante";
 import IUbicacion from "./IUbicacion";
 
@@ -12,4 +13,5 @@ export default interface ISolicitudMapa {
   solicitante: ISolicitante;
   voluntario?: ISolicitante;
   fecha_creacion: string;
+  valoracion?: IValoracion;
 }

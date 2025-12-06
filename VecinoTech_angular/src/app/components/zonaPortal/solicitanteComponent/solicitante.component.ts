@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
-import { ChatService } from '../../../services/chat.service'; // ✅ AÑADIR
+import { ChatService } from '../../../services/chat.service';
 
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
@@ -17,12 +17,12 @@ import { NavbarComponent } from '../navbar/navbar.component';
   templateUrl: './solicitante.component.html',
   styleUrls: ['./solicitante.component.css']
 })
-export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDestroy
+export class SolicitanteComponent implements OnDestroy {
 
   // ==================== DEPENDENCY INJECTION ====================
 
   private readonly mapService = inject(MapService);
-  private readonly chatService = inject(ChatService); // ✅ AÑADIR
+  private readonly chatService = inject(ChatService);
   private readonly _router = inject(Router);
 
   // ==================== SIGNALS ====================
@@ -30,7 +30,7 @@ export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDest
   private readonly _solicitudes = signal<ISolicitudMapa[]>([]);
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
-  private readonly _notificacionActiva = signal<IChatNotificacion | null>(null); // ✅ Ya lo tienes
+  private readonly _notificacionActiva = signal<IChatNotificacion | null>(null);
 
   // ==================== COMPUTED SIGNALS ====================
 
@@ -51,17 +51,16 @@ export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDest
   readonly error = computed(() => this._error());
   readonly notificacionActiva = computed(() => this._notificacionActiva());
 
-  // ==================== CONSTRUCTOR ==================== ✅ AÑADIR ESTO
+  // ==================== CONSTRUCTOR ====================
 
   constructor() {
     this.cargarMisSolicitudes();
-    this.inicializarNotificaciones(); // ✅ Inicializar WebSocket
+    this.inicializarNotificaciones();
   }
 
   // ==================== LIFECYCLE ====================
 
   ngOnDestroy(): void {
-    // Desconectar WebSocket al salir
     this.chatService.desconectarWebSocket();
   }
 
@@ -88,31 +87,19 @@ export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDest
     });
   }
 
-  // ✅ AÑADIR: Métodos de notificaciones
-
-  /**
-   * Inicializa el sistema de notificaciones WebSocket
-   */
   private inicializarNotificaciones(): void {
     console.log('🔔 Inicializando notificaciones...');
-
-    // Conectar WebSocket
     this.chatService.conectarWebSocket();
 
-    // Esperar a que se conecte y luego suscribirse
     setTimeout(() => {
       this.chatService.suscribirseANotificaciones();
       this.escucharNotificaciones();
     }, 1000);
   }
 
-  /**
-   * Escucha las notificaciones
-   */
   private escucharNotificaciones(): void {
     const notificaciones = this.chatService.notificaciones;
 
-    // Polling simple para detectar nuevas notificaciones
     setInterval(() => {
       const notifs = notificaciones();
       if (notifs.length > 0) {
@@ -162,20 +149,12 @@ export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDest
     });
   }
 
-  // ✅ AÑADIR: Métodos del modal de notificación
-
-  /**
-   * Ir al chat desde la notificación
-   */
   irAlChat(solicitudId: number): void {
     this.chatService.eliminarNotificacion(solicitudId);
     this._notificacionActiva.set(null);
     this._router.navigate(['/portal/chat', solicitudId]);
   }
 
-  /**
-   * Cerrar notificación sin ir al chat
-   */
   cerrarNotificacion(solicitudId: number): void {
     this.chatService.eliminarNotificacion(solicitudId);
     this._notificacionActiva.set(null);
@@ -205,15 +184,15 @@ export class SolicitanteComponent implements OnDestroy { // ✅ Cambiar a OnDest
     }
   }
 
-  getImagenCategoria(categoria: string): string {
-    const imagenes: Record<string, string> = {
-      'ORDENADOR': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
-      'MOVIL': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-      'TABLET': 'https://images.unsplash.com/photo-1561154464-82e9adf32764',
-      'SMART_TV': 'https://images.unsplash.com/photo-1593784991095-a205069470b6',
-      'GENERAL': 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b'
+  getIconoCategoria(categoria: string): string {
+    const iconos: Record<string, string> = {
+      'ORDENADOR': '💻',
+      'MOVIL': '📱',
+      'TABLET': '📲',
+      'SMART_TV': '📺',
+      'GENERAL': '🛠️'
     };
-    return imagenes[categoria] || imagenes['GENERAL'];
+    return iconos[categoria] || '🛠️';
   }
 
   calcularTiempoTranscurrido(fecha: string): string {

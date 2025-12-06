@@ -1,215 +1,266 @@
 <!-- Navbar -->
 <app-navbar mode="solicitante"></app-navbar>
-<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark text-[#111813] dark:text-gray-200">
-  <div class="layout-container flex h-full grow flex-col">
-    <div class="px-4 sm:px-8 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
-      <div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-8">
 
-        <main class="flex flex-col gap-8">
-          <!-- PageHeading -->
-          <div class="flex flex-wrap justify-between gap-3 p-4">
-            <div class="flex min-w-72 flex-col gap-3">
-              <p class="text-[#111813] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
-                ¡Bienvenido de nuevo!
-              </p>
-              <p class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">
-                Tu centro para gestionar solicitudes y encontrar recursos
-              </p>
-            </div>
+<div class="relative flex min-h-screen w-full flex-col bg-slate-50 dark:bg-slate-900">
+  <div class="layout-container flex h-full grow flex-col">
+    <div class="px-4 sm:px-6 lg:px-8 flex flex-1 justify-center py-8">
+      <div class="layout-content-container flex flex-col max-w-4xl flex-1 gap-12">
+
+        <main class="flex flex-col gap-12">
+
+          <!-- ==================== PAGE HEADING ==================== -->
+          <div class="text-center pt-8">
+            <h1 class="text-slate-900 dark:text-white text-4xl sm:text-5xl font-black leading-tight mb-4">
+              Panel de Creación de Solicitudes
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 text-lg sm:text-xl">
+              Tu centro para gestionar solicitudes y encontrar recursos
+            </p>
           </div>
 
-          <!-- Loading State -->
+          <!-- ==================== LOADING/ERROR STATES ==================== -->
           @if (loading()) {
-            <div class="flex justify-center items-center py-12">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div class="flex justify-center items-center py-16">
+              <div class="animate-spin rounded-full size-16 border-b-4 border-blue-600"></div>
             </div>
           }
 
-          <!-- Error State -->
           @if (error()) {
-            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mx-4">
-              <p class="text-red-800 dark:text-red-400">{{ error() }}</p>
+            <div class="bg-red-50 dark:bg-red-950/50 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6">
+              <div class="flex items-center gap-3">
+                <svg class="size-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-red-800 dark:text-red-400 font-semibold">{{ error() }}</p>
+              </div>
             </div>
           }
 
-          <!-- Active Requests Section -->
-          @if (!loading()) {
-            <div>
-              <h2 class="text-[#111813] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
+          <!-- ==================== CONTENT (cuando no hay loading/error) ==================== -->
+          @if (!loading() && !error()) {
+
+            <!-- CÓMO FUNCIONA -->
+            <section>
+              <h2 class="text-slate-900 dark:text-white text-3xl font-bold mb-8 text-center">
+                ¿Cómo Funciona?
+              </h2>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center shadow-sm">
+                  <div class="flex justify-center mb-4">
+                    <div class="flex items-center justify-center size-16 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      <svg class="size-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                    1. Envía tu Solicitud
+                  </h3>
+                  <p class="text-slate-600 dark:text-slate-400 text-base">
+                    Cuéntanos qué necesitas llenando un formulario simple.
+                  </p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center shadow-sm">
+                  <div class="flex justify-center mb-4">
+                    <div class="flex items-center justify-center size-16 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      <svg class="size-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                    2. Conectamos
+                  </h3>
+                  <p class="text-slate-600 dark:text-slate-400 text-base">
+                    Nuestro sistema encuentra un voluntario amigable en tu comunidad.
+                  </p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center shadow-sm">
+                  <div class="flex justify-center mb-4">
+                    <div class="flex items-center justify-center size-16 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      <svg class="size-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                    3. Recibe Ayuda
+                  </h3>
+                  <p class="text-slate-600 dark:text-slate-400 text-base">
+                    Conecta con tu voluntario y obtén el apoyo que necesitas.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- CONSEJOS DE SEGURIDAD -->
+            <section class="bg-blue-50 dark:bg-blue-950/20 rounded-2xl p-8 border-2 border-blue-200 dark:border-blue-800">
+              <div class="flex items-start gap-4">
+                <div class="flex items-center justify-center size-12 rounded-full bg-blue-600 flex-shrink-0">
+                  <svg class="size-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                    Consejos de Seguridad para Ti
+                  </h3>
+                  <p class="text-slate-700 dark:text-slate-300 text-base mb-4">
+                    Tu seguridad es nuestra prioridad. Sigue estas recomendaciones:
+                  </p>
+                  <ul class="space-y-3 text-slate-700 dark:text-slate-300">
+                    <li class="flex items-start gap-3">
+                      <svg class="size-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                      <span><strong class="font-semibold">No compartas información personal sensible</strong> como tu número de cuenta bancaria o contraseñas.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                      <svg class="size-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                      <span>Verifica siempre la identidad del voluntario a través de la plataforma antes de reunirte.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                      <svg class="size-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                      <span>Si algo te parece sospechoso, <button class="text-blue-600 dark:text-blue-400 underline hover:text-blue-700 font-semibold">contacta a nuestro equipo de soporte</button> de inmediato.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <!-- MIS SOLICITUDES ACTIVAS -->
+            <section>
+              <h2 class="text-slate-900 dark:text-white text-2xl font-bold mb-6">
                 Mis Solicitudes Activas ({{ totalActivas() }})
               </h2>
 
-              <!-- Empty State -->
               @if (solicitudesActivas().length === 0) {
-                <div class="text-center py-12 px-4">
-                  <p class="text-gray-500 dark:text-gray-400 mb-4">No tienes solicitudes activas</p>
+                <div class="text-center bg-white dark:bg-slate-800 rounded-2xl p-12 border-2 border-slate-200 dark:border-slate-700">
+                  <div class="flex justify-center mb-6">
+                    <div class="flex items-center justify-center size-20 rounded-full bg-slate-100 dark:bg-slate-700">
+                      <svg class="size-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="text-slate-500 dark:text-slate-400 text-lg mb-6">
+                    No tienes solicitudes activas
+                  </p>
                   <button
                     (click)="crearNuevaSolicitud()"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-[#111813] rounded-xl font-bold hover:opacity-90 transition"
+                    class="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white text-lg font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
                   >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     Crear Primera Solicitud
                   </button>
                 </div>
               }
 
-              <!-- Carousel -->
               @if (solicitudesActivas().length > 0) {
-                <div class="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  <div class="flex items-stretch p-4 gap-4">
-                    <!-- Card Item -->
-                    @for (solicitud of solicitudesActivas(); track solicitud.id) {
-                      <div class="flex h-full flex-1 flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 shadow-[0_0_4px_rgba(0,0,0,0.1)] min-w-72 hover:shadow-lg transition">
-                        <!-- Imagen -->
-                        <div
-                          class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-t-xl flex flex-col"
-                          [style.background-image]="'url(' + getImagenCategoria(solicitud.categoria) + ')'"
-                        ></div>
-
-                        <!-- Content -->
-                        <div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
-                          <div>
-                            <div class="flex items-center justify-between mb-2">
-                              <p class="text-[#111813] dark:text-white text-base font-medium leading-normal">
+                <div class="grid grid-cols-1 gap-6">
+                  @for (solicitud of solicitudesActivas(); track solicitud.id) {
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition border-2 border-slate-200 dark:border-slate-700">
+                      <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-2">
+                              <span class="text-3xl flex-shrink-0">{{ getIconoCategoria(solicitud.categoria) }}</span>
+                              <h3 class="text-xl font-bold text-slate-900 dark:text-white break-words">
                                 {{ solicitud.titulo }}
-                              </p>
-                              <span
-                                class="px-2 py-1 rounded-full text-xs font-semibold"
-                                [ngClass]="getEstadoColor(solicitud.estado)"
-                              >
-                                {{ getEstadoTexto(solicitud.estado) }}
-                              </span>
+                              </h3>
                             </div>
-
-                            <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal line-clamp-2">
+                            <p class="text-slate-600 dark:text-slate-400 text-base mb-2 break-words line-clamp-3">
                               {{ solicitud.descripcion }}
                             </p>
-
-                            <p class="text-gray-400 dark:text-gray-500 text-xs mt-2">
+                            <p class="text-slate-400 dark:text-slate-500 text-sm">
                               {{ calcularTiempoTranscurrido(solicitud.fecha_creacion) }}
                             </p>
                           </div>
+                          <span
+                            class="px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap ml-4"
+                            [ngClass]="getEstadoColor(solicitud.estado)"
+                          >
+                            {{ getEstadoTexto(solicitud.estado) }}
+                          </span>
+                        </div>
 
-                          <div class="flex gap-2">
-                            <!-- ✅ Botón "Ir al Chat" para solicitudes EN_PROCESO -->
-                            @if (solicitud.estado === 'EN_PROCESO') {
-                              <button
-                                (click)="irAlChat(solicitud.id)"
-                                class="flex-1 flex items-center justify-center rounded-xl h-10 px-4 bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition gap-2"
-                              >
-                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                </svg>
-                                Ir al Chat
-                              </button>
-
-                              <button
-                                (click)="completarSolicitud(solicitud.id)"
-                                class="flex-1 flex items-center justify-center rounded-xl h-10 px-4 bg-green-500 text-white text-sm font-bold hover:bg-green-600 transition gap-2"
-                              >
-                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Finalizar
-                              </button>
-                            } @else {
-                              <button
-                                (click)="verDetalles(solicitud.id)"
-                                class="flex-1 flex items-center justify-center rounded-xl h-10 px-4 bg-[#f0f4f1] dark:bg-gray-700 text-[#111813] dark:text-white text-sm font-bold hover:opacity-80 transition"
-                              >
-                                Ver Detalles
-                              </button>
-                            }
-                          </div>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                          @if (solicitud.estado === 'EN_PROCESO') {
+                            <button
+                              (click)="irAlChat(solicitud.id)"
+                              class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white text-base font-bold hover:bg-blue-700 transition"
+                            >
+                              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                              </svg>
+                              Ir al Chat
+                            </button>
+                            <button
+                              (click)="completarSolicitud(solicitud.id)"
+                              class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-green-600 text-white text-base font-bold hover:bg-green-700 transition"
+                            >
+                              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                              Finalizar
+                            </button>
+                          } @else {
+                            <button
+                              (click)="verDetalles(solicitud.id)"
+                              class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white text-base font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+                            >
+                              Ver Detalles
+                            </button>
+                          }
                         </div>
                       </div>
-                    }
-                  </div>
+                    </div>
+                  }
                 </div>
               }
-            </div>
+            </section>
+
+            <!-- BOTONES PRINCIPALES -->
+            <section class="flex flex-col items-center gap-6 py-8">
+              <button
+                (click)="crearNuevaSolicitud()"
+                class="w-full sm:w-auto flex items-center justify-center gap-4 px-12 py-5 bg-blue-600 text-white text-xl font-bold rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Solicitar Ayuda Ahora
+              </button>
+
+              <button
+                (click)="irAHistorial()"
+                class="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-lg font-bold rounded-xl hover:bg-purple-200 dark:hover:bg-purple-900/50 transition"
+              >
+                <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Ver Historial de Solicitudes
+              </button>
+            </section>
           }
-
-          <!-- CTA Button -->
-          <div class="flex px-4 py-8 justify-center">
-            <button
-              (click)="crearNuevaSolicitud()"
-              class="flex min-w-[84px] max-w-[480px] w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-primary text-[#111813] gap-3 text-lg font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span class="truncate">Solicitar Ayuda Ahora</span>
-            </button>
-          </div>
-          <!-- ✅ NUEVO: Botón Ver Historial -->
-          <div class="flex px-4 pb-8 justify-center">
-            <button
-              (click)="irAHistorial()"
-              class="flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-semibold hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              Ver Historial de Solicitudes
-            </button>
-          </div>
-
-          <!-- How It Works Section -->
-          <div class="flex flex-col gap-4 px-4">
-            <h2 class="text-[#111813] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
-              Cómo Funciona
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div class="flex flex-col items-center gap-3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-[0_0_4px_rgba(0,0,0,0.1)]">
-                <div class="flex items-center justify-center size-14 rounded-full bg-primary/20 text-primary">
-                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-lg text-[#111813] dark:text-white">1. Envía tu Solicitud</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Cuéntanos qué necesitas llenando un formulario simple
-                </p>
-              </div>
-
-              <div class="flex flex-col items-center gap-3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-[0_0_4px_rgba(0,0,0,0.1)]">
-                <div class="flex items-center justify-center size-14 rounded-full bg-primary/20 text-primary">
-                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-lg text-[#111813] dark:text-white">2. Conectamos</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Nuestro sistema encuentra un voluntario amigable en tu comunidad
-                </p>
-              </div>
-
-              <div class="flex flex-col items-center gap-3 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-[0_0_4px_rgba(0,0,0,0.1)]">
-                <div class="flex items-center justify-center size-14 rounded-full bg-primary/20 text-primary">
-                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-lg text-[#111813] dark:text-white">3. Recibe Ayuda</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Conecta con tu voluntario y obtén el apoyo que necesitas
-                </p>
-              </div>
-            </div>
-          </div>
         </main>
       </div>
     </div>
   </div>
-  <!-- ✅ MODAL DE NOTIFICACIÓN -->
-  @if (notificacionActiva(); as notif) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slideUp">
 
-        <!-- Icono y título -->
+  <!-- MODAL DE NOTIFICACIÓN -->
+  @if (notificacionActiva(); as notif) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
         <div class="flex items-center gap-4 mb-4">
           <div class="flex items-center justify-center size-14 rounded-full bg-green-100 dark:bg-green-900/30">
             <svg class="size-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,24 +268,18 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
-              ¡Solicitud Aceptada!
-            </h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400">
-              Un voluntario está listo para ayudarte
-            </p>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">¡Solicitud Aceptada!</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Un voluntario está listo para ayudarte</p>
           </div>
         </div>
 
-        <!-- Mensaje -->
         <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-6">
-          <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+          <p class="text-slate-700 dark:text-slate-300">
             <span class="font-semibold text-slate-900 dark:text-white">{{ notif.usuarioNombre }}</span>
             ha aceptado tu solicitud. ¿Quieres conectarte al chat ahora?
           </p>
         </div>
 
-        <!-- Botones -->
         <div class="flex gap-3">
           <button
             (click)="cerrarNotificacion(notif.solicitudId)"
