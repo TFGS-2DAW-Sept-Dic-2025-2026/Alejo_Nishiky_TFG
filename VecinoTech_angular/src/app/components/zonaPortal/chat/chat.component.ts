@@ -103,6 +103,13 @@ export class ChatComponent {
         }
       }
     });
+
+    // ✅ DEBUG: Monitorear usuarios en línea
+    effect(() => {
+      const enLinea = this.usuariosEnLinea();
+      console.log('🔍 DEBUG - Usuarios en línea:', enLinea);
+      console.log('🔍 DEBUG - Otro usuario en línea?', this.otroUsuarioEnLinea());
+    });
   }
 
   // ==================== LIFECYCLE ====================
@@ -135,9 +142,13 @@ export class ChatComponent {
           this.chatService.establecerMensajes(mensajes);
           console.log('📜 Historial cargado:', mensajes.length);
 
-          // 3. Suscribirse al chat
+          // 4. Suscribirse al chat
           setTimeout(() => {
             this.chatService.suscribirseAlChat(this._solicitudId());
+
+            // ✅ AÑADIR: Simular que el otro usuario está conectado si hay actividad reciente
+            this.verificarUsuariosConectados();
+
             this._loading.set(false);
           }, 500);
 
@@ -152,6 +163,28 @@ export class ChatComponent {
         this._loading.set(false);
       }
     });
+  }
+  /**
+   * Verifica si hay usuarios conectados inicialmente
+   * (Para casos donde el otro usuario ya estaba conectado antes)
+   */
+  private verificarUsuariosConectados(): void {
+    const solicitud = this._solicitud();
+    const usuarioActual = this.usuarioActual();
+
+    if (!solicitud || !usuarioActual) return;
+
+    // Si soy el solicitante y hay un voluntario asignado
+    if (solicitud.solicitante.id === usuarioActual.id && solicitud.voluntario) {
+      console.log('👤 Asumiendo que el voluntario podría estar conectado');
+      // No hacemos nada aquí, esperamos la notificación WebSocket
+    }
+
+    // Si soy el voluntario, asumir que el solicitante existe
+    if (solicitud.voluntario && solicitud.voluntario.id === usuarioActual.id) {
+      console.log('👤 Asumiendo que el solicitante podría estar conectado');
+      // No hacemos nada aquí, esperamos la notificación WebSocket
+    }
   }
 
   /**

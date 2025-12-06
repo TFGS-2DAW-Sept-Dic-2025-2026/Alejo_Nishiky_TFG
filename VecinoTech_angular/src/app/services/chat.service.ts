@@ -137,11 +137,13 @@ export class ChatService {
             // ✅ AÑADIR: Agregar usuario a la lista de usuarios en línea
             this._usuariosEnLinea.update(usuarios => {
               if (!usuarios.includes(notificacion.usuarioId)) {
+                console.log(`✅ Añadiendo usuario ${notificacion.usuarioId} a la lista`);
                 return [...usuarios, notificacion.usuarioId];
               }
               return usuarios;
             });
             console.log(`👤 ${notificacion.usuarioNombre} se conectó al chat`);
+            console.log('📋 Usuarios en línea actuales:', this._usuariosEnLinea());
             break;
 
             case 'usuario-desconectado': // ✅ AÑADIR NUEVO CASO
