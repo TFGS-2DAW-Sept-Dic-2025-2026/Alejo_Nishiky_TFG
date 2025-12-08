@@ -3,10 +3,11 @@
     <div class="flex h-16 items-center justify-between">
 
       <!-- ==================== IZQUIERDA: LOGO + TÍTULO ==================== -->
-      <a routerLink="/portal" class="flex items-center gap-2">
-        <img src="/vecinotech_logo4.png" class="w-20 h-20" alt="VecinoTech">
-        <span class="font-extrabold text-lg text-slate-900 dark:text-white">VecinoTech</span>
-      </a>
+      <div (click)="irAlPortal()"
+     class="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
+  <img src="/vecinotech_logo4.png" class="w-20 h-20" alt="VecinoTech">
+  <span class="font-extrabold text-lg text-slate-900 dark:text-white">VecinoTech</span>
+</div>
 
       <!-- ==================== DERECHA: USUARIO + ACCIONES ==================== -->
       <div class="flex items-center gap-4">

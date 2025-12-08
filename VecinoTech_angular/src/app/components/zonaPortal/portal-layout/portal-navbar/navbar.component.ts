@@ -84,6 +84,7 @@ export class NavbarComponent {
     this.router.navigate(['/portal/perfil']);
   }
 
+
   logout(): void {
     if (confirm('¿Deseas cerrar sesión?')) {
       this.storage.clearSession();
