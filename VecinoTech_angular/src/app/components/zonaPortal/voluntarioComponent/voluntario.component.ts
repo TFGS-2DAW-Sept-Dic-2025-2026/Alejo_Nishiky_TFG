@@ -1,23 +1,21 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
-// Componente hijo
-
+// Componentes
+import { MapaComponent } from './mapaComponent/mapa.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
+import { StorageGlobalService } from '../../../services/storage-global.service';
 
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
-import { MapaComponent } from './mapaComponent/mapa.component';
-import { Router } from '@angular/router';
-import { StorageGlobalService } from '../../../services/storage-global.service';
-import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-voluntario',
-  standalone: true,
-  imports: [CommonModule, MapaComponent, NavbarComponent], // ← Ya NO necesitamos FormsModule
+  imports: [CommonModule, MapaComponent, NavbarComponent],
   templateUrl: './voluntario.component.html',
   styleUrls: ['./voluntario.component.css']
 })
@@ -52,8 +50,8 @@ export class VoluntarioComponent implements OnInit {
   });
 
   /**
- * ✅ NUEVO: Solicitudes EN_PROCESO donde soy voluntario (chats activos)
- */
+   * Solicitudes EN_PROCESO donde soy voluntario (chats activos)
+   */
   readonly misChatsActivos = computed(() => {
     const usuario = this._storage.getUsuario();
     if (!usuario) return [];
@@ -66,16 +64,14 @@ export class VoluntarioComponent implements OnInit {
   });
 
   /**
-   * Solicitudes filtradas por búsqueda (para el mapa)
+   * Solicitudes filtradas para el mapa (solo ABIERTAS)
    */
   readonly solicitudesFiltradas = computed(() => {
-    return this._solicitudes().filter(s => s.estado === 'ABIERTA'); // ✅ Solo ABIERTAS en el mapa
+    return this._solicitudes().filter(s => s.estado === 'ABIERTA');
   });
 
-  // ✅ Computed públicos para el template
   readonly reminderSubject = computed(() => this._reminderSubject());
   readonly reminderTime = computed(() => this._reminderTime());
-
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
   readonly totalSolicitudes = computed(() => this._solicitudes().length);
@@ -101,13 +97,11 @@ export class VoluntarioComponent implements OnInit {
     this._loading.set(true);
     this._error.set('');
 
-    // Cargar solicitudes ABIERTAS para el mapa
+    // Cargar solicitudes ABIERTAS
     this.mapService.getSolicitudesMapa().subscribe({
       next: (response) => {
         if (response.codigo === 0) {
           const solicitudesAbiertas = response.datos as ISolicitudMapa[];
-
-          // Cargar también solicitudes EN_PROCESO donde soy voluntario
           this.cargarMisChatsActivos(solicitudesAbiertas);
         } else {
           this._error.set(response.mensaje || 'Error al cargar solicitudes');
@@ -123,15 +117,13 @@ export class VoluntarioComponent implements OnInit {
   }
 
   /**
- * ✅ NUEVO: Carga solicitudes EN_PROCESO donde soy voluntario
- */
+   * Carga solicitudes EN_PROCESO donde soy voluntario
+   */
   private cargarMisChatsActivos(solicitudesAbiertas: ISolicitudMapa[]): void {
     this.mapService.getSolicitudesComoVoluntario().subscribe({
       next: (response) => {
         if (response.codigo === 0) {
           const misChats = response.datos as ISolicitudMapa[];
-
-          // Combinar ambas listas
           const todasLasSolicitudes = [...solicitudesAbiertas, ...misChats];
           this._solicitudes.set(todasLasSolicitudes);
         }
@@ -139,13 +131,11 @@ export class VoluntarioComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error cargando chats activos:', err);
-        // Mostrar solo las abiertas si falla
         this._solicitudes.set(solicitudesAbiertas);
         this._loading.set(false);
       }
     });
   }
-
 
   /**
    * Escucha eventos globales desde popups de Leaflet
@@ -156,15 +146,6 @@ export class VoluntarioComponent implements OnInit {
       this.aceptarSolicitud(solicitudId);
     });
   }
-
-  // ==================== MÉTODOS PÚBLICOS - BÚSQUEDA ====================
-
-  /**
-   * Actualiza búsqueda de ubicación
-   */
-  // buscarLocation(query: string): void {
-  //   this._busquedaLocation.set(query);
-  // }
 
   // ==================== MÉTODOS PÚBLICOS - SOLICITUDES ====================
 
@@ -184,7 +165,7 @@ export class VoluntarioComponent implements OnInit {
 
         if (response.codigo === 0) {
           alert('✅ Solicitud aceptada correctamente');
-          this.cargarSolicitudes(); // Recargar lista
+          this.cargarSolicitudes();
           this._router.navigate(['/portal/chat', solicitudId]);
         } else {
           alert(`❌ ${response.mensaje}`);
@@ -213,25 +194,23 @@ export class VoluntarioComponent implements OnInit {
     this._error.set(error);
   }
 
+  /**
+   * Continuar conversación en el chat
+   */
+  continuarChat(solicitudId: number): void {
+    this._router.navigate(['/portal/chat', solicitudId]);
+  }
+
   // ==================== MÉTODOS PÚBLICOS - RECORDATORIOS ====================
 
-  /**
-   * Actualiza el subject del reminder
-   */
   setReminderSubject(subject: string): void {
     this._reminderSubject.set(subject);
   }
 
-  /**
-   * Actualiza el time del reminder
-   */
   setReminderTime(time: string): void {
     this._reminderTime.set(time);
   }
 
-  /**
-   * Establece un recordatorio
-   */
   setReminder(): void {
     const subject = this._reminderSubject();
     const time = this._reminderTime();
@@ -241,19 +220,35 @@ export class VoluntarioComponent implements OnInit {
       return;
     }
 
-    // TODO: Implementar backend de recordatorios
     alert(`✅ Recordatorio establecido:\n${subject} - ${time}`);
 
-    // Resetear formulario
     this._reminderSubject.set('');
     this._reminderTime.set('');
   }
 
-  // ==================== HELPERS ====================
+  // ==================== MÉTODOS PÚBLICOS - NAVEGACIÓN ====================
 
   /**
-   * Calcula tiempo transcurrido desde una fecha
+   * Navega al mapa (mismo componente, scroll top)
    */
+  irAlMapa(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  volverPortal(): void {
+    this._router.navigate(['/portal']);
+  }
+
+  irAMisVoluntariados(): void {
+    this._router.navigate(['/portal/mis-voluntariados']);
+  }
+
+  irAHistorial(): void {
+    this._router.navigate(['/portal/historial']);
+  }
+
+  // ==================== HELPERS ====================
+
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -271,14 +266,6 @@ export class VoluntarioComponent implements OnInit {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
-  //Regresar al dashboard del portal
-  volverPortal(): void {
-  this._router.navigate(['/portal']);
-}
-
-  /**
-   * Obtiene iniciales del nombre
-   */
   obtenerIniciales(nombre: string): string {
     return nombre
       .split(' ')
@@ -288,33 +275,8 @@ export class VoluntarioComponent implements OnInit {
       .substring(0, 2);
   }
 
-  /**
- * ✅ NUEVO: Continuar conversación en el chat
- **/
-  continuarChat(solicitudId: number): void {
-    this._router.navigate(['/portal/chat', solicitudId]);
-  }
-
-    /**
-   * Navega a mis voluntariados
-   */
-  irAMisVoluntariados(): void {
-    this._router.navigate(['/portal/mis-voluntariados']);
-  }
-
-    /**
-   * Navega al historial
-   */
-  irAHistorial(): void {
-    this._router.navigate(['/portal/historial']);
-  }
-
-  /**
-   * Logout
-   */
   logout(): void {
     if (confirm('¿Deseas cerrar sesión?')) {
-      // TODO: Implementar logout con AuthService
       console.log('Logout');
     }
   }

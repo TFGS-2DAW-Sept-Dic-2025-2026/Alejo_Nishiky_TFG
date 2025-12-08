@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 // Servicios
 import { MapService } from '../../../../services/map.service';
@@ -37,7 +38,6 @@ export class DetalleSolicitudComponent implements OnInit {
   // ==================== LIFECYCLE ====================
 
   ngOnInit(): void {
-    // Obtener ID de la URL
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.cargarDetalleSolicitud(Number(id));
@@ -50,28 +50,38 @@ export class DetalleSolicitudComponent implements OnInit {
   // ==================== MÉTODOS PRIVADOS ====================
 
   /**
-   * Carga los detalles de una solicitud específica
+   * Carga los detalles de una solicitud buscando en TODAS las fuentes
    */
   private cargarDetalleSolicitud(id: number): void {
     this._loading.set(true);
     this._error.set('');
 
-    // TODO: Crear endpoint específico para detalles
-    // Por ahora, obtener de la lista general y filtrar
-    this.mapService.getMisSolicitudes().subscribe({
-      next: (response) => {
-        if (response.codigo === 0) {
-          const solicitudes = response.datos as ISolicitudMapa[];
-          const solicitud = solicitudes.find(s => s.id === id);
+    // ✅ Buscar en AMBAS listas: como solicitante Y como voluntario
+    forkJoin({
+      misSolicitudes: this.mapService.getMisSolicitudes(),
+      misVoluntariados: this.mapService.getSolicitudesComoVoluntario()
+    }).subscribe({
+      next: ({ misSolicitudes, misVoluntariados }) => {
+        // Combinar ambas listas
+        const todasLasSolicitudes: ISolicitudMapa[] = [];
 
-          if (solicitud) {
-            this._solicitud.set(solicitud);
-          } else {
-            this._error.set('Solicitud no encontrada');
-          }
-        } else {
-          this._error.set(response.mensaje || 'Error al cargar solicitud');
+        if (misSolicitudes.codigo === 0) {
+          todasLasSolicitudes.push(...(misSolicitudes.datos as ISolicitudMapa[]));
         }
+
+        if (misVoluntariados.codigo === 0) {
+          todasLasSolicitudes.push(...(misVoluntariados.datos as ISolicitudMapa[]));
+        }
+
+        // Buscar la solicitud por ID
+        const solicitud = todasLasSolicitudes.find(s => s.id === id);
+
+        if (solicitud) {
+          this._solicitud.set(solicitud);
+        } else {
+          this._error.set('Solicitud no encontrada');
+        }
+
         this._loading.set(false);
       },
       error: (err) => {
@@ -84,16 +94,11 @@ export class DetalleSolicitudComponent implements OnInit {
 
   // ==================== MÉTODOS PÚBLICOS ====================
 
-  /**
-   * Vuelve a la lista de solicitudes
-   */
   volver(): void {
-    this.router.navigate(['/portal/solicitante']);
+    // Intentar volver a la página anterior
+    window.history.back();
   }
 
-  /**
-   * Completar solicitud
-   */
   completarSolicitud(): void {
     const solicitud = this._solicitud();
     if (!solicitud) return;
@@ -123,9 +128,6 @@ export class DetalleSolicitudComponent implements OnInit {
     });
   }
 
-  /**
-   * Obtiene el color del badge según el estado
-   */
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -139,9 +141,6 @@ export class DetalleSolicitudComponent implements OnInit {
     }
   }
 
-  /**
-   * Obtiene el texto del estado en español
-   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -155,9 +154,6 @@ export class DetalleSolicitudComponent implements OnInit {
     }
   }
 
-  /**
-   * Calcula tiempo transcurrido
-   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 

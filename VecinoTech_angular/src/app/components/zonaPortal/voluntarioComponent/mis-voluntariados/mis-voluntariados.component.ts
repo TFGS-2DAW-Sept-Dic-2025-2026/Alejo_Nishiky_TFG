@@ -1,18 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+
+// Componentes
+
+
+// Servicios
 import { MapService } from '../../../../services/map.service';
+
+// Interfaces
+import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
+import { NavbarComponent } from '../../navbar/navbar.component';
 
 @Component({
   selector: 'app-mis-voluntariados',
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarComponent],
   templateUrl: './mis-voluntariados.component.html',
   styleUrl: './mis-voluntariados.component.css'
 })
-export class MisVoluntariadosComponent {
+export class MisVoluntariadosComponent implements OnInit {
 
-    // ==================== DEPENDENCY INJECTION ====================
+  // ==================== DEPENDENCY INJECTION ====================
 
   private readonly mapService = inject(MapService);
   private readonly router = inject(Router);
@@ -26,9 +34,6 @@ export class MisVoluntariadosComponent {
 
   // ==================== COMPUTED SIGNALS ====================
 
-  /**
-   * Solicitudes filtradas según el filtro activo
-   */
   readonly solicitudesFiltradas = computed(() => {
     const filtro = this._filtroActivo();
     const todas = this._solicitudes();
@@ -43,33 +48,16 @@ export class MisVoluntariadosComponent {
     }
   });
 
-  /**
-   * Solicitudes en progreso
-   */
   readonly solicitudesEnProgreso = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'EN_PROCESO');
   });
 
-  /**
-   * Solicitudes completadas
-   */
   readonly solicitudesCompletadas = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'CERRADA');
   });
 
-  /**
-   * Total de ayudas
-   */
   readonly totalAyudas = computed(() => this._solicitudes().length);
-
-  /**
-   * Total en progreso
-   */
   readonly totalEnProgreso = computed(() => this.solicitudesEnProgreso().length);
-
-  /**
-   * Total completadas
-   */
   readonly totalCompletadas = computed(() => this.solicitudesCompletadas().length);
 
   readonly loading = computed(() => this._loading());
@@ -84,9 +72,6 @@ export class MisVoluntariadosComponent {
 
   // ==================== MÉTODOS PRIVADOS ====================
 
-  /**
-   * Carga las solicitudes donde el usuario es voluntario
-   */
   private cargarMisVoluntariados(): void {
     this._loading.set(true);
     this._error.set('');
@@ -110,37 +95,22 @@ export class MisVoluntariadosComponent {
 
   // ==================== MÉTODOS PÚBLICOS ====================
 
-  /**
-   * Cambia el filtro activo
-   */
   cambiarFiltro(filtro: 'todas' | 'en_progreso' | 'completadas'): void {
     this._filtroActivo.set(filtro);
   }
 
-  /**
-   * Ver detalles de una solicitud
-   */
   verDetalles(solicitudId: number): void {
     this.router.navigate(['/portal/solicitud', solicitudId]);
   }
 
-  /**
-   * Navegar al mapa para buscar más solicitudes
-   */
   buscarMasSolicitudes(): void {
     this.router.navigate(['/portal/voluntario']);
   }
 
-  /**
-   * Volver al portal
-   */
   volverPortal(): void {
     this.router.navigate(['/portal']);
   }
 
-  /**
-   * Obtiene el color del badge según el estado
-   */
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -154,9 +124,6 @@ export class MisVoluntariadosComponent {
     }
   }
 
-  /**
-   * Obtiene el texto del estado en español
-   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -170,9 +137,6 @@ export class MisVoluntariadosComponent {
     }
   }
 
-  /**
-   * Obtiene el icono por categoría
-   */
   getIconoCategoria(categoria: string): string {
     const iconos: Record<string, string> = {
       'ORDENADOR': '💻',
@@ -184,9 +148,6 @@ export class MisVoluntariadosComponent {
     return iconos[categoria] || '🛠️';
   }
 
-  /**
-   * Calcula tiempo transcurrido
-   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -204,14 +165,9 @@ export class MisVoluntariadosComponent {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
-  /**
-   * Logout
-   */
   logout(): void {
     if (confirm('¿Deseas cerrar sesión?')) {
-      // TODO: Implementar logout
       console.log('Logout');
     }
   }
-
 }
