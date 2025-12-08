@@ -10,11 +10,11 @@ import { MapService } from '../../../../services/map.service';
 
 // Interfaces
 import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
-import { NavbarComponent } from '../../navbar/navbar.component';
+import { NavbarComponent } from '../../portal-layout/portal-navbar/navbar.component';
 
 @Component({
   selector: 'app-mis-voluntariados',
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule],
   templateUrl: './mis-voluntariados.component.html',
   styleUrl: './mis-voluntariados.component.css'
 })

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 // Componentes
 import { MapaComponent } from './mapaComponent/mapa.component';
-import { NavbarComponent } from '../navbar/navbar.component';
+import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
@@ -15,7 +15,7 @@ import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 
 @Component({
   selector: 'app-voluntario',
-  imports: [CommonModule, MapaComponent, NavbarComponent],
+  imports: [CommonModule, MapaComponent],
   templateUrl: './voluntario.component.html',
   styleUrls: ['./voluntario.component.css']
 })

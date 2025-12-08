@@ -12,7 +12,7 @@ import { ModalEditarComponent } from './modal-editar/modal-editar.component';
 
 // Interfaces
 import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
-import { NavbarComponent } from '../navbar/navbar.component';
+import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
 
 interface EstadisticasUsuario {
   solicitudes_creadas: number;
@@ -24,7 +24,7 @@ interface EstadisticasUsuario {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, ModalEditarComponent, NavbarComponent],  // ✅ Importar el modal
+  imports: [CommonModule, ModalEditarComponent],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
 })

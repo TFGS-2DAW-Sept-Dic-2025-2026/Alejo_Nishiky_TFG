@@ -15,9 +15,11 @@ import { MisVoluntariadosComponent } from './components/zonaPortal/voluntarioCom
 import { HistorialComponent } from './components/zonaPortal/historial/historial.component';
 import { PerfilComponent } from './components/zonaPortal/perfil/perfil.component';
 import { ChatComponent } from './components/zonaPortal/chat/chat.component';
+import { PortalLayoutComponent } from './components/zonaPortal/portal-layout/portal-layout.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
+
   {
     path: 'vecinotech',
     component: LayoutComponent,
@@ -35,52 +37,56 @@ export const routes: Routes = [
       {path: 'activar', component: ActivarCuentaComponent }
     ]
   },
-  // ==================== ZONA PORTAL (autenticado, SIN LayoutComponent) ====================
+  // ==================== ZONA PORTAL (autenticado, osea authGuard) ====================
   {
     path: 'portal',
-    component: PortalComponent,
-    canActivate: [authGuard]
+    component: PortalLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      // Dashboard principal
+      {
+        path: '',
+        component: PortalComponent
+      },
 
-  },
-  {
-    path: 'portal/voluntario',
-    component: VoluntarioComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'portal/solicitante',
-    component: SolicitanteComponent,
-    canActivate: [authGuard]
-  },
-  {
-  path: 'portal/solicitud/:id',
-  component: DetalleSolicitudComponent,
-  canActivate: [authGuard]
-  },
-  {
-  path: 'portal/crear-solicitud',
-  component: CrearSolicitudComponent,
-  canActivate: [authGuard]
-  },
-  {
-  path: 'portal/mis-voluntariados',
-  component: MisVoluntariadosComponent,
-  canActivate: [authGuard]
-  },
-  {
-    path: 'portal/historial',
-    component: HistorialComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'portal/perfil',
-    component: PerfilComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'portal/chat/:id',
-    component: ChatComponent,
-    canActivate: [authGuard]
+      // Voluntario
+      {
+        path: 'voluntario',
+        component: VoluntarioComponent
+      },
+      {
+        path: 'mis-voluntariados',
+        component: MisVoluntariadosComponent
+      },
+
+      // Solicitante
+      {
+        path: 'solicitante',
+        component: SolicitanteComponent
+      },
+      {
+        path: 'crear-solicitud',
+        component: CrearSolicitudComponent
+      },
+      {
+        path: 'solicitud/:id',
+        component: DetalleSolicitudComponent
+      },
+
+      // Común
+      {
+        path: 'historial',
+        component: HistorialComponent
+      },
+      {
+        path: 'perfil',
+        component: PerfilComponent
+      },
+      {
+        path: 'chat/:id',
+        component: ChatComponent
+      }
+    ]
   },
   // ==================== FALLBACK ====================
   {

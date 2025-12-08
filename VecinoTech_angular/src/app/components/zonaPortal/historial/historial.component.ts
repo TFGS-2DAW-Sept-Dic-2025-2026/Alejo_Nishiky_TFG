@@ -8,7 +8,7 @@ import { MapService } from '../../../services/map.service';
 
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
-import { NavbarComponent } from '../navbar/navbar.component';
+import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
 
 import { StorageGlobalService } from '../../../services/storage-global.service';
 import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
@@ -16,7 +16,7 @@ import { ValoracionesService } from '../../../services/valoraciones.service';
 
 @Component({
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, NavbarComponent, ModalValoracionComponent],
+  imports: [CommonModule, FormsModule, ModalValoracionComponent],
   templateUrl: './historial.component.html',
   styleUrls: ['./historial.component.css']
 })

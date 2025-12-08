@@ -1,238 +1,230 @@
-<div class="flex min-h-screen flex-col bg-[#f6f7f8] dark:bg-[#101c22] font-sans">
+<!-- Hero -->
+<div class="relative h-96">
+  <div
+    class="absolute inset-0 bg-cover bg-center"
+    [style.background-image]="'url(' + bannerUrl + ')'"
+  ></div>
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative flex h-full flex-col items-center justify-center p-4 text-center text-white">
+    <h2 class="mb-4 text-4xl font-extrabold md:text-5xl">Panel de Control</h2>
+    <p class="max-w-2xl">
+      Gestiona tus solicitudes, ayuda a tu comunidad y mantente conectado
+    </p>
+  </div>
+</div>
 
-  <!-- Navbar -->
-  <app-navbar mode="portal"></app-navbar>
+<!-- CTAs: Solo 2 botones -->
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
 
-  <main class="flex-grow">
-    <!-- Hero -->
-    <div class="relative h-96">
-      <div
-        class="absolute inset-0 bg-cover bg-center"
-        [style.background-image]="'url(' + bannerUrl + ')'"
-      ></div>
-      <div class="absolute inset-0 bg-black/40"></div>
-      <div class="relative flex h-full flex-col items-center justify-center p-4 text-center text-white">
-        <h2 class="mb-4 text-4xl font-extrabold md:text-5xl">Panel de Control</h2>
-        <p class="max-w-2xl">
-          Gestiona tus solicitudes, ayuda a tu comunidad y mantente conectado
-        </p>
+    <!-- Ready to Help -->
+    <div
+      class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+      (click)="onVolunteer()"
+    >
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+        <svg class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
       </div>
+      <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Listo para Ayudar?</h3>
+      <p class="mb-6 text-slate-600 dark:text-slate-400">
+        Únete a nuestro equipo de voluntarios y ayuda a tu comunidad
+      </p>
     </div>
 
-    <!-- CTAs: Solo 2 botones -->
-    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
-
-        <!-- Ready to Help -->
-        <div
-          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
-          (click)="onVolunteer()"
-        >
-          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-            <svg class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-            </svg>
-          </div>
-          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Listo para Ayudar?</h3>
-          <p class="mb-6 text-slate-600 dark:text-slate-400">
-            Únete a nuestro equipo de voluntarios y ayuda a tu comunidad
-          </p>
-        </div>
-
-        <!-- Need a Hand -->
-        <div
-          class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
-          (click)="onNeedHelp()"
-        >
-          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
-            <svg class="h-8 w-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Necesitas Ayuda?</h3>
-          <p class="mb-6 text-slate-600 dark:text-slate-400">
-            No dudes en pedir asistencia. Estamos aquí para apoyarte
-          </p>
-        </div>
+    <!-- Need a Hand -->
+    <div
+      class="transform cursor-pointer rounded-xl bg-[#f6f7f8] p-8 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl dark:bg-[#1a2830]"
+      (click)="onNeedHelp()"
+    >
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+        <svg class="h-8 w-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
       </div>
+      <h3 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">¿Necesitas Ayuda?</h3>
+      <p class="mb-6 text-slate-600 dark:text-slate-400">
+        No dudes en pedir asistencia. Estamos aquí para apoyarte
+      </p>
+    </div>
+  </div>
 
-      <!-- Leaderboard con Top 3 -->
-      <div class="mt-16">
-        <h2 class="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Top 3 Mejores Voluntarios
-        </h2>
+  <!-- Leaderboard con Top 3 -->
+  <div class="mt-16">
+    <h2 class="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+      Top 3 Mejores Voluntarios
+    </h2>
 
-        <div class="rounded-xl bg-[#f6f7f8] p-6 sm:p-8 shadow-lg dark:bg-[#1a2830]">
-          @if (leaderboardR().codigo === 100) {
-            <div class="text-center text-slate-600 dark:text-slate-400 py-8">Cargando ranking...</div>
-          } @else if (!leaders().length) {
-            <div class="text-center text-slate-600 dark:text-slate-400 py-8">Aún no hay datos.</div>
-          } @else {
-            <!-- Top 3 con columnas -->
-            <div class="flex justify-around items-end h-72 text-center text-slate-800 dark:text-slate-200 mb-8">
-              <!-- 2do Lugar -->
-              @if (leaders()[1]; as second) {
-                <div class="flex flex-col items-center w-1/3 group">
-                  <img
-                    [src]="'https://ui-avatars.com/api/?name=' + second.name + '&background=random&size=80'"
-                    [alt]="second.name"
-                    class="w-20 h-20 rounded-full border-4 border-slate-300 dark:border-slate-600 object-cover mb-3"
-                  />
-                  <span class="font-semibold text-lg">{{ second.name }}</span>
-                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ second.points }} pts</span>
-                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
-                    <div
-                      class="bg-[#13a4ec]/70 group-hover:bg-[#13a4ec] transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
-                      style="--bar-height: 75%; animation-delay: 200ms; height: 75%;"
-                    >
-                      <span class="text-2xl font-bold text-white">2</span>
-                    </div>
-                  </div>
-                </div>
-              }
-
-              <!-- 1er Lugar -->
-              @if (leaders()[0]; as first) {
-                <div class="flex flex-col items-center w-1/3 group -mt-4">
-                  <img
-                    [src]="'https://ui-avatars.com/api/?name=' + first.name + '&background=random&size=96'"
-                    [alt]="first.name"
-                    class="w-24 h-24 rounded-full border-4 border-yellow-400 dark:border-yellow-500 object-cover mb-3"
-                  />
-                  <span class="font-semibold text-xl">{{ first.name }}</span>
-                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ first.points }} pts</span>
-                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
-                    <div
-                      class="bg-[#13a4ec] group-hover:opacity-80 transition-opacity rounded-t-lg flex items-center justify-center animate-bar-up"
-                      style="--bar-height: 100%; height: 100%;"
-                    >
-                      <span class="text-3xl font-bold text-white">1</span>
-                    </div>
-                  </div>
-                </div>
-              }
-
-              <!-- 3er Lugar -->
-              @if (leaders()[2]; as third) {
-                <div class="flex flex-col items-center w-1/3 group">
-                  <img
-                    [src]="'https://ui-avatars.com/api/?name=' + third.name + '&background=random&size=80'"
-                    [alt]="third.name"
-                    class="w-20 h-20 rounded-full border-4 border-orange-400 dark:border-orange-500 object-cover mb-3"
-                  />
-                  <span class="font-semibold text-lg">{{ third.name }}</span>
-                  <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ third.points }} pts</span>
-                  <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
-                    <div
-                      class="bg-[#13a4ec]/50 group-hover:bg-[#13a4ec]/80 transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
-                      style="--bar-height: 60%; animation-delay: 400ms; height: 60%;"
-                    >
-                      <span class="text-2xl font-bold text-white">3</span>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Lista completa (resto del ranking) -->
-            @if (leaders().length > 3) {
-              <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Resto del Ranking</h3>
-                <div class="space-y-4">
-                  @for (l of leaders().slice(3); track l.name; let i = $index) {
-                    <div class="group">
-                      <div class="mb-1 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-300">
-                            {{ i + 4 }}
-                          </span>
-                          <span class="font-semibold text-slate-800 dark:text-slate-200">{{ l.name }}</span>
-                        </div>
-                        <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ l.points }} Puntos</span>
-                      </div>
-                      <div class="h-3 w-full rounded-full bg-slate-200 dark:bg-slate-700">
-                        <div
-                          class="h-3 rounded-full bg-slate-400 dark:bg-slate-500 transition-all duration-1000 ease-out"
-                          [style.width]="barWidth(l.points) + '%'"
-                        ></div>
-                      </div>
-                    </div>
-                  }
+    <div class="rounded-xl bg-[#f6f7f8] p-6 sm:p-8 shadow-lg dark:bg-[#1a2830]">
+      @if (leaderboardR().codigo === 100) {
+        <div class="text-center text-slate-600 dark:text-slate-400 py-8">Cargando ranking...</div>
+      } @else if (!leaders().length) {
+        <div class="text-center text-slate-600 dark:text-slate-400 py-8">Aún no hay datos.</div>
+      } @else {
+        <!-- Top 3 con columnas -->
+        <div class="flex justify-around items-end h-72 text-center text-slate-800 dark:text-slate-200 mb-8">
+          <!-- 2do Lugar -->
+          @if (leaders()[1]; as second) {
+            <div class="flex flex-col items-center w-1/3 group">
+              <img
+                [src]="'https://ui-avatars.com/api/?name=' + second.name + '&background=random&size=80'"
+                [alt]="second.name"
+                class="w-20 h-20 rounded-full border-4 border-slate-300 dark:border-slate-600 object-cover mb-3"
+              />
+              <span class="font-semibold text-lg">{{ second.name }}</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ second.points }} pts</span>
+              <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                <div
+                  class="bg-[#13a4ec]/70 group-hover:bg-[#13a4ec] transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
+                  style="--bar-height: 75%; animation-delay: 200ms; height: 75%;"
+                >
+                  <span class="text-2xl font-bold text-white">2</span>
                 </div>
               </div>
-            }
+            </div>
           }
+
+          <!-- 1er Lugar -->
+          @if (leaders()[0]; as first) {
+            <div class="flex flex-col items-center w-1/3 group -mt-4">
+              <img
+                [src]="'https://ui-avatars.com/api/?name=' + first.name + '&background=random&size=96'"
+                [alt]="first.name"
+                class="w-24 h-24 rounded-full border-4 border-yellow-400 dark:border-yellow-500 object-cover mb-3"
+              />
+              <span class="font-semibold text-xl">{{ first.name }}</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ first.points }} pts</span>
+              <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                <div
+                  class="bg-[#13a4ec] group-hover:opacity-80 transition-opacity rounded-t-lg flex items-center justify-center animate-bar-up"
+                  style="--bar-height: 100%; height: 100%;"
+                >
+                  <span class="text-3xl font-bold text-white">1</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- 3er Lugar -->
+          @if (leaders()[2]; as third) {
+            <div class="flex flex-col items-center w-1/3 group">
+              <img
+                [src]="'https://ui-avatars.com/api/?name=' + third.name + '&background=random&size=80'"
+                [alt]="third.name"
+                class="w-20 h-20 rounded-full border-4 border-orange-400 dark:border-orange-500 object-cover mb-3"
+              />
+              <span class="font-semibold text-lg">{{ third.name }}</span>
+              <span class="text-sm text-slate-500 dark:text-slate-400 mb-2">{{ third.points }} pts</span>
+              <div class="w-16 sm:w-20 h-full flex flex-col justify-end">
+                <div
+                  class="bg-[#13a4ec]/50 group-hover:bg-[#13a4ec]/80 transition-colors rounded-t-lg flex items-center justify-center animate-bar-up"
+                  style="--bar-height: 60%; animation-delay: 400ms; height: 60%;"
+                >
+                  <span class="text-2xl font-bold text-white">3</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Lista completa (resto del ranking) -->
+        @if (leaders().length > 3) {
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Resto del Ranking</h3>
+            <div class="space-y-4">
+              @for (l of leaders().slice(3); track l.name; let i = $index) {
+                <div class="group">
+                  <div class="mb-1 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-300">
+                        {{ i + 4 }}
+                      </span>
+                      <span class="font-semibold text-slate-800 dark:text-slate-200">{{ l.name }}</span>
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ l.points }} Puntos</span>
+                  </div>
+                  <div class="h-3 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div
+                      class="h-3 rounded-full bg-slate-400 dark:bg-slate-500 transition-all duration-1000 ease-out"
+                      [style.width]="barWidth(l.points) + '%'"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Community Highlights -->
+  <div class="mt-16">
+    <h2 class="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+      Historias de Nuestra Comunidad
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Testimonio 1 -->
+      <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
+        <img
+          alt="Ayuda con tecnología"
+          class="w-full h-48 object-cover"
+          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop"
+        />
+        <div class="p-6 flex-grow flex flex-col">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            Aprendiendo a usar WhatsApp
+          </h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
+            "Gracias a mi voluntario, ahora puedo hacer videollamadas con mis nietos. Es maravilloso sentirse conectado de nuevo."
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+            - María García, 72 años
+          </p>
         </div>
       </div>
 
-      <!-- ✅ NUEVO: Community Highlights -->
-      <div class="mt-16">
-        <h2 class="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Historias de Nuestra Comunidad
-        </h2>
+      <!-- Testimonio 2 -->
+      <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
+        <img
+          alt="Configuración de Smart TV"
+          class="w-full h-48 object-cover"
+          src="https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop"
+        />
+        <div class="p-6 flex-grow flex flex-col">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            Mi Smart TV funciona perfecto
+          </h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
+            "No sabía cómo configurar mi televisor nuevo. Un voluntario vino a casa y en media hora ya estaba viendo Netflix. ¡Increíble!"
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+            - Juan Rodríguez, 65 años
+          </p>
+        </div>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <!-- Testimonio 1 -->
-          <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
-            <img
-              alt="Ayuda con tecnología"
-              class="w-full h-48 object-cover"
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop"
-            />
-            <div class="p-6 flex-grow flex flex-col">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Aprendiendo a usar WhatsApp
-              </h3>
-              <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
-                "Gracias a mi voluntario, ahora puedo hacer videollamadas con mis nietos. Es maravilloso sentirse conectado de nuevo."
-              </p>
-              <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                - María García, 72 años
-              </p>
-            </div>
-          </div>
-
-          <!-- Testimonio 2 -->
-          <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
-            <img
-              alt="Configuración de Smart TV"
-              class="w-full h-48 object-cover"
-              src="https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop"
-            />
-            <div class="p-6 flex-grow flex flex-col">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Mi Smart TV funciona perfecto
-              </h3>
-              <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
-                "No sabía cómo configurar mi televisor nuevo. Un voluntario vino a casa y en media hora ya estaba viendo Netflix. ¡Increíble!"
-              </p>
-              <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                - Juan Rodríguez, 65 años
-              </p>
-            </div>
-          </div>
-
-          <!-- Testimonio 3 -->
-          <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
-            <img
-              alt="Ayuda con ordenador"
-              class="w-full h-48 object-cover"
-              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop"
-            />
-            <div class="p-6 flex-grow flex flex-col">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Ahora puedo hacer trámites online
-              </h3>
-              <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
-                "Me ayudaron a entender cómo usar la banca online y hacer citas médicas por internet. Ya no necesito salir para todo."
-              </p>
-              <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                - Carmen López, 68 años
-              </p>
-            </div>
-          </div>
+      <!-- Testimonio 3 -->
+      <div class="bg-[#f6f7f8] dark:bg-[#1a2830] rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition-shadow transform hover:-translate-y-1">
+        <img
+          alt="Ayuda con ordenador"
+          class="w-full h-48 object-cover"
+          src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop"
+        />
+        <div class="p-6 flex-grow flex flex-col">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            Ahora puedo hacer trámites online
+          </h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-4 flex-grow">
+            "Me ayudaron a entender cómo usar la banca online y hacer citas médicas por internet. Ya no necesito salir para todo."
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+            - Carmen López, 68 años
+          </p>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </div>

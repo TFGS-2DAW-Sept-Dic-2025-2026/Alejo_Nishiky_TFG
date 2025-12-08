@@ -1,12 +1,12 @@
 import { Component, computed, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { StorageGlobalService } from '../../../services/storage-global.service';
+import { StorageGlobalService } from '../../../../services/storage-global.service';
 
 type NavbarMode = 'portal' | 'solicitante' | 'voluntario';
 
 @Component({
-  selector: 'app-navbar',
+  selector: 'app-portal-navbar',
   imports: [CommonModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']

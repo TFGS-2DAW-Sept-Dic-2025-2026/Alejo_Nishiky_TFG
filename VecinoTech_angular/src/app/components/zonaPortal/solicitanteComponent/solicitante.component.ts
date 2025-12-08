@@ -9,11 +9,10 @@ import { ChatService } from '../../../services/chat.service';
 // Interfaces
 import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { IChatNotificacion } from '../../../models/interfaces_orm/chat/IChatNotificacion';
-import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-solicitante',
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule],
   templateUrl: './solicitante.component.html',
   styleUrls: ['./solicitante.component.css']
 })
