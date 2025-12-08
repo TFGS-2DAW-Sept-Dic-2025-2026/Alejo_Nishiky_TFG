@@ -18,27 +18,28 @@ import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
 })
 export class  RegistroComponent {
 
-  //Servicios
+  // ==================== INJECTION SERVICIOS ====================
   private _router = inject(Router);
   private _injector = inject(Injector);
   private _restSvc:RestClientService = inject(RestClientService);
 
-  //Atributos para el header
-  mobileOpen = signal(false);
-  toggleMobile() { this.mobileOpen.set(!this.mobileOpen()); }
-  closeMobile()  { this.mobileOpen.set(false); }
-
-  //Señales para visibilidad de contraseñas
+  // ==================== SIGNALS ====================
   showPassword = signal(false);
   showRepeatPassword = signal(false);
   mensajeError = signal<string>('');
   cargando = signal(false);
   private submitEffect?: EffectRef;
 
+  //Atributos para el header
+  mobileOpen = signal(false);
+  toggleMobile() { this.mobileOpen.set(!this.mobileOpen()); }
+  closeMobile()  { this.mobileOpen.set(false); }
+
   // Respuesta del backend
   respuesta: Signal<IRestMessage> | null = null;
+
   // Formulario reactivo
-  formRegistro = new FormGroup({
+  readonly formRegistro = new FormGroup({
     nombreCompleto: new FormControl('', [
       Validators.required,
       Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+(?: [A-Za-zÁÉÍÓÚáéíóúñÑ]+)+$/), // al menos dos palabras
@@ -145,8 +146,6 @@ export class  RegistroComponent {
     }, { injector: this._injector });
   }
 
-  constructor(){
-
-  }
+  constructor(){}
 
 }

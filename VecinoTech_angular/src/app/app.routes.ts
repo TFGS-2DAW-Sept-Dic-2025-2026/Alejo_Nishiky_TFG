@@ -27,6 +27,7 @@ export const routes: Routes = [
   },
   {
     path: 'usuario',
+    component: LayoutComponent,
     children: [
       {path: 'registro', component: RegistroComponent},
       {path: 'login', component: LoginComponent},
@@ -34,6 +35,7 @@ export const routes: Routes = [
       {path: 'activar', component: ActivarCuentaComponent }
     ]
   },
+  // ==================== ZONA PORTAL (autenticado, SIN LayoutComponent) ====================
   {
     path: 'portal',
     component: PortalComponent,
@@ -65,7 +67,6 @@ export const routes: Routes = [
   component: MisVoluntariadosComponent,
   canActivate: [authGuard]
   },
-
   {
     path: 'portal/historial',
     component: HistorialComponent,
@@ -81,9 +82,9 @@ export const routes: Routes = [
     component: ChatComponent,
     canActivate: [authGuard]
   },
+  // ==================== FALLBACK ====================
   {
     path: '**',
     redirectTo: '/vecinotech/home'
-  },
-
+  }
 ];
