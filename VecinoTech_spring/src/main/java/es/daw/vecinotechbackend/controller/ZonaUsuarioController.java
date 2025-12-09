@@ -1,17 +1,17 @@
 package es.daw.vecinotechbackend.controller;
 
 import com.mailjet.client.errors.MailjetException;
-import es.daw.vecinotechbackend.api.ApiResponse;
-import es.daw.vecinotechbackend.api.auth.AuthPayload;
-import es.daw.vecinotechbackend.api.auth.AuthRequest;
-import es.daw.vecinotechbackend.api.auth.RefreshRequest;
-import es.daw.vecinotechbackend.dto.UsuarioDTO;
+import es.daw.vecinotechbackend.dto.ApiResponse;
+import es.daw.vecinotechbackend.dto.auth.AuthPayload;
+import es.daw.vecinotechbackend.dto.auth.AuthRequest;
+import es.daw.vecinotechbackend.dto.auth.RefreshRequest;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDTO;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.mapper.UsuarioMapper;
 import es.daw.vecinotechbackend.repository.UsuarioDetalleRepository;
 import es.daw.vecinotechbackend.repository.UsuarioRepository;
 import es.daw.vecinotechbackend.service.MailService;
-import es.daw.vecinotechbackend.utils.JwtUtils;
+import es.daw.vecinotechbackend.security.JwtUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +59,7 @@ public class ZonaUsuarioController {
     // ============= REGISTRO DE USUARIO ==========
     @PostMapping("/registro")
     public ResponseEntity<ApiResponse<UsuarioDTO>> registrar(@Valid @RequestBody UsuarioDTO dto) {
-        System.out.println("=========== ESTAS EN EL REGISTRO MACHOOOOOOOOOOOOO =========");
+
         String email = dto.getEmail().trim().toLowerCase();
 
         if (usuarioRepository.findByEmail(email).isPresent()) {

@@ -179,5 +179,7 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
       AND s.estado = 'CERRADA'""")
     long countSolicitudesAyudadas(@Param("usuarioId") Long usuarioId);
 
+    @Query("SELECT s FROM Solicitud s WHERE s.ubicacion IS NOT NULL AND s.estado IN ('ABIERTA', 'EN_PROCESO')")
+    List<Solicitud> findAllAbiertasYEnProcesoConUbicacion();
 
 }

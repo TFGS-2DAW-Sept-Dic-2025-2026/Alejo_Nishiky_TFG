@@ -1,7 +1,7 @@
 package es.daw.vecinotechbackend.service;
 
-import es.daw.vecinotechbackend.dto.CrearValoracionRequest;
-import es.daw.vecinotechbackend.dto.ValoracionDTO;
+import es.daw.vecinotechbackend.dto.valoracion.CrearValoracionRequest;
+import es.daw.vecinotechbackend.dto.valoracion.ValoracionDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.Valoracion;

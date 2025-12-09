@@ -1,12 +1,17 @@
 package es.daw.vecinotechbackend.controller;
 
-import es.daw.vecinotechbackend.api.ApiResponse;
+import es.daw.vecinotechbackend.dto.ApiResponse;
 import es.daw.vecinotechbackend.dto.*;
+import es.daw.vecinotechbackend.dto.solicitud.ISolicitudMapaDTO;
+import es.daw.vecinotechbackend.dto.solicitud.NeedHelpRequest;
+import es.daw.vecinotechbackend.dto.solicitud.SolicitudDTO;
+import es.daw.vecinotechbackend.dto.usuario.ActualizarPerfilRequest;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDetalleDTO;
+import es.daw.vecinotechbackend.dto.valoracion.LeaderDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.mapper.SolicitudMapper;
 import es.daw.vecinotechbackend.service.FileStorageService;
 import es.daw.vecinotechbackend.service.PortalService;
-import es.daw.vecinotechbackend.utils.JwtUtils;
 import jakarta.validation.Valid;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.ResponseEntity;

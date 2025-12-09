@@ -1,8 +1,8 @@
 package es.daw.vecinotechbackend.controller;
 
-import es.daw.vecinotechbackend.api.ApiResponse;
-import es.daw.vecinotechbackend.dto.CrearValoracionRequest;
-import es.daw.vecinotechbackend.dto.ValoracionDTO;
+import es.daw.vecinotechbackend.dto.ApiResponse;
+import es.daw.vecinotechbackend.dto.valoracion.CrearValoracionRequest;
+import es.daw.vecinotechbackend.dto.valoracion.ValoracionDTO;
 import es.daw.vecinotechbackend.service.ValoracionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

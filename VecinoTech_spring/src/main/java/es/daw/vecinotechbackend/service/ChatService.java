@@ -1,7 +1,8 @@
 package es.daw.vecinotechbackend.service;
 
-import es.daw.vecinotechbackend.dto.ChatNotificacionDTO;
-import es.daw.vecinotechbackend.dto.MensajeDTO;
+import es.daw.vecinotechbackend.dto.chat.ChatNotificacionDTO;
+import es.daw.vecinotechbackend.dto.chat.MensajeDTO;
+import es.daw.vecinotechbackend.dto.VideoCallInviteDTO;
 import es.daw.vecinotechbackend.entity.Mensaje;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -168,6 +170,68 @@ public class ChatService {
                 "/topic/notificaciones/" + solicitud.getSolicitante().getId(),
                 notificacion
         );
+    }
+
+    /**
+     * Crea una sala de videollamada Jitsi
+     */
+    @Transactional
+    public VideoCallInviteDTO crearSalaVideo(Long solicitudId, Long userId) {
+
+        // Validar solicitud
+        Solicitud solicitud = solicitudRepository.findById(solicitudId)
+                .orElseThrow(() -> new IllegalStateException("Solicitud no encontrada"));
+
+        // Validar que esté EN_PROCESO
+        if (!"EN_PROCESO".equals(solicitud.getEstado())) {
+            throw new IllegalStateException("Solo se puede crear videollamadas en solicitudes en proceso");
+        }
+
+        // Validar que el usuario sea participante
+        boolean esParticipante = solicitud.getSolicitante().getId().equals(userId) ||
+                (solicitud.getVoluntario() != null && solicitud.getVoluntario().getId().equals(userId));
+
+        if (!esParticipante) {
+            throw new SecurityException("No tienes permiso para crear videollamadas en este chat");
+        }
+
+        // Obtener usuario
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+
+        // Generar nombre único de sala
+        String roomName = "vecinotech-" + solicitudId + "-" + System.currentTimeMillis();
+
+        // ✅ SERVIDOR ESPAÑOL SIN RESTRICCIONES
+        String roomUrl = "https://meet.guifi.net/" + roomName;
+
+        // Crear DTO
+        VideoCallInviteDTO videoCall = new VideoCallInviteDTO();
+        videoCall.setSolicitudId(solicitudId);
+        videoCall.setRoomName(roomName);
+        videoCall.setRoomUrl(roomUrl);
+        videoCall.setCreadoPorId(userId);
+        videoCall.setCreadoPorNombre(usuario.getNombre());
+        videoCall.setFechaCreacion(LocalDateTime.now());
+
+        // Crear notificación para WebSocket
+        ChatNotificacionDTO notificacion = new ChatNotificacionDTO();
+        notificacion.setTipo("video-call-invite");
+        notificacion.setSolicitudId(solicitudId);
+        notificacion.setUsuarioId(userId);
+        notificacion.setUsuarioNombre(usuario.getNombre());
+        notificacion.setVideoRoomUrl(roomUrl);
+        notificacion.setVideoRoomName(roomName);
+
+        // Emitir por WebSocket
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + solicitudId,
+                notificacion
+        );
+
+        System.out.println("📹 Sala de videollamada creada: " + roomUrl);
+
+        return videoCall;
     }
 
     /**

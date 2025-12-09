@@ -1,18 +1,22 @@
 package es.daw.vecinotechbackend.controller;
 
-import es.daw.vecinotechbackend.api.ApiResponse;
-import es.daw.vecinotechbackend.dto.EnviarMensajeRequest;
-import es.daw.vecinotechbackend.dto.MensajeDTO;
+import es.daw.vecinotechbackend.dto.ApiResponse;
+import es.daw.vecinotechbackend.dto.chat.EnviarMensajeRequest;
+import es.daw.vecinotechbackend.dto.chat.MensajeDTO;
+import es.daw.vecinotechbackend.dto.VideoCallInviteDTO;
 import es.daw.vecinotechbackend.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
 
 import java.util.List;
 
@@ -103,9 +107,13 @@ public class ChatController {
      * Se reenvía a: /topic/chat/{solicitudId}
      */
     @MessageMapping("/chat/{solicitudId}/conectar")
-    @SendTo("/topic/chat/{solicitudId}")
-    public void notificarConexion(@DestinationVariable Long solicitudId) {
-        Long userId = getCurrentUserId();
+    public void notificarConexion(
+            @DestinationVariable Long solicitudId,
+            @Payload Map<String, Object> payload,
+            SimpMessageHeaderAccessor headerAccessor) {
+
+        // Extraer userId del payload enviado por el frontend
+        Long userId = ((Number) payload.get("userId")).longValue();
         chatService.notificarConexion(solicitudId, userId);
     }
 
@@ -115,14 +123,42 @@ public class ChatController {
      * Se reenvía a: /topic/chat/{solicitudId}
      */
     @MessageMapping("/chat/{solicitudId}/desconectar")
-    @SendTo("/topic/chat/{solicitudId}")
-    public void notificarDesconexion(@DestinationVariable Long solicitudId) {
-        Long userId = getCurrentUserId();
+    public void notificarDesconexion(
+            @DestinationVariable Long solicitudId,
+            @Payload Map<String, Object> payload) { // ✅ CAMBIAR: recibir userId del frontend
+
+        Long userId = ((Number) payload.get("userId")).longValue();
+
         chatService.notificarDesconexion(solicitudId, userId);
     }
 
-    // ==================== HELPER ====================
+    /**
+     * Crea una sala de videollamada
+     * POST /api/portal/chat/{solicitudId}/videocall/create
+     */
+    @PostMapping("/api/portal/chat/{solicitudId}/videocall/create")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<VideoCallInviteDTO>> crearSalaVideo(
+            @PathVariable Long solicitudId) {
 
+        try {
+            Long userId = getCurrentUserId();
+            VideoCallInviteDTO videoCall = chatService.crearSalaVideo(solicitudId, userId);
+
+            return ResponseEntity.ok(
+                    ApiResponse.ok("Sala de videollamada creada", videoCall)
+            );
+
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403)
+                    .body(ApiResponse.error(403, e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(1, e.getMessage()));
+        }
+    }
+
+    // ==================== HELPER ====================
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return (Long) auth.getPrincipal();

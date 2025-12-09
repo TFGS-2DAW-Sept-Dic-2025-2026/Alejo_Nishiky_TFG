@@ -1,14 +1,14 @@
 package es.daw.vecinotechbackend.mapper;
 
-import es.daw.vecinotechbackend.dto.UsuarioDTO;
-import es.daw.vecinotechbackend.dto.UsuarioDetalleDTO;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDTO;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDetalleDTO;
 import es.daw.vecinotechbackend.entity.UsuarioDetalle;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-06T19:42:11+0100",
+    date = "2025-12-09T21:47:40+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -23,13 +23,13 @@ public class UsuarioDetalleMapperImpl implements UsuarioDetalleMapper {
         UsuarioDetalleDTO usuarioDetalleDTO = new UsuarioDetalleDTO();
 
         usuarioDetalleDTO.setId( entity.getId() );
-        usuarioDetalleDTO.setTelefono( entity.getTelefono() );
-        usuarioDetalleDTO.setDireccion( entity.getDireccion() );
-        usuarioDetalleDTO.setCiudad( entity.getCiudad() );
-        usuarioDetalleDTO.setPais( entity.getPais() );
-        usuarioDetalleDTO.setCodigoPostal( entity.getCodigoPostal() );
         usuarioDetalleDTO.setBio( entity.getBio() );
+        usuarioDetalleDTO.setCiudad( entity.getCiudad() );
+        usuarioDetalleDTO.setCodigoPostal( entity.getCodigoPostal() );
+        usuarioDetalleDTO.setDireccion( entity.getDireccion() );
         usuarioDetalleDTO.setEsVoluntario( entity.isEsVoluntario() );
+        usuarioDetalleDTO.setPais( entity.getPais() );
+        usuarioDetalleDTO.setTelefono( entity.getTelefono() );
 
         return usuarioDetalleDTO;
     }

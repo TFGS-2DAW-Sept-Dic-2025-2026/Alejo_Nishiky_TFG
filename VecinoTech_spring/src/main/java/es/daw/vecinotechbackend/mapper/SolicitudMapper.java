@@ -1,7 +1,7 @@
 package es.daw.vecinotechbackend.mapper;
 
-import es.daw.vecinotechbackend.dto.ISolicitudMapaDTO;
-import es.daw.vecinotechbackend.dto.SolicitudDTO;
+import es.daw.vecinotechbackend.dto.solicitud.ISolicitudMapaDTO;
+import es.daw.vecinotechbackend.dto.solicitud.SolicitudDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import org.locationtech.jts.geom.Point;
 import org.mapstruct.*;

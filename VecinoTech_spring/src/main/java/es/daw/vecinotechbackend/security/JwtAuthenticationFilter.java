@@ -1,6 +1,5 @@
 package es.daw.vecinotechbackend.security;
 
-import es.daw.vecinotechbackend.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

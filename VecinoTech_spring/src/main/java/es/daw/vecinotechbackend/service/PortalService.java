@@ -1,6 +1,11 @@
 package es.daw.vecinotechbackend.service;
 
 import es.daw.vecinotechbackend.dto.*;
+import es.daw.vecinotechbackend.dto.solicitud.ISolicitudMapaDTO;
+import es.daw.vecinotechbackend.dto.solicitud.NeedHelpRequest;
+import es.daw.vecinotechbackend.dto.usuario.ActualizarPerfilRequest;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDetalleDTO;
+import es.daw.vecinotechbackend.dto.valoracion.LeaderDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.UsuarioDetalle;
@@ -276,10 +281,10 @@ public class PortalService {
 
     /**
      * Obtiene solicitudes para el mapa en formato DTO
+     * Ahora incluye ABIERTAS y EN_PROCESO
      */
     public List<ISolicitudMapaDTO> getSolicitudesParaMapa() {
-        List<Solicitud> solicitudes = solicitudRepository.findAllAbiertasConUbicacion();
-
+        List<Solicitud> solicitudes = solicitudRepository.findAllAbiertasYEnProcesoConUbicacion();
         return solicitudes.stream()
                 .map(this::convertirSolicitudAMapaDTO)
                 .toList();
@@ -315,6 +320,12 @@ public class PortalService {
             solicitante.setId(s.getSolicitante().getId());
             solicitante.setNombre(s.getSolicitante().getNombre());
             dto.setSolicitante(solicitante);
+        }
+        if (s.getVoluntario() != null) {
+            ISolicitudMapaDTO.VoluntarioDTO voluntario = new ISolicitudMapaDTO.VoluntarioDTO();
+            voluntario.setId(s.getVoluntario().getId());
+            voluntario.setNombre(s.getVoluntario().getNombre());
+            dto.setVoluntario(voluntario);
         }
 
         return dto;

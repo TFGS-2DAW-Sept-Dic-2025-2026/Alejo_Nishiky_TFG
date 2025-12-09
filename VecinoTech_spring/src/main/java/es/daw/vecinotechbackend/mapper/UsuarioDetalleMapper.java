@@ -1,7 +1,7 @@
 package es.daw.vecinotechbackend.mapper;
 
-import es.daw.vecinotechbackend.dto.UsuarioDTO;
-import es.daw.vecinotechbackend.dto.UsuarioDetalleDTO;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDTO;
+import es.daw.vecinotechbackend.dto.usuario.UsuarioDetalleDTO;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.UsuarioDetalle;
 import org.mapstruct.*;

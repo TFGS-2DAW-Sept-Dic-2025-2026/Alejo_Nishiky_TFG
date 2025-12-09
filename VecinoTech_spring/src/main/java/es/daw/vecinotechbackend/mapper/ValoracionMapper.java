@@ -1,6 +1,6 @@
 package es.daw.vecinotechbackend.mapper;
 
-import es.daw.vecinotechbackend.dto.ValoracionDTO;
+import es.daw.vecinotechbackend.dto.valoracion.ValoracionDTO;
 import es.daw.vecinotechbackend.entity.Solicitud;
 import es.daw.vecinotechbackend.entity.Usuario;
 import es.daw.vecinotechbackend.entity.Valoracion;

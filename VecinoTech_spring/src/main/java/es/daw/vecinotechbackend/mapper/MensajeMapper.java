@@ -1,6 +1,6 @@
 package es.daw.vecinotechbackend.mapper;
 
-import es.daw.vecinotechbackend.dto.MensajeDTO;
+import es.daw.vecinotechbackend.dto.chat.MensajeDTO;
 import es.daw.vecinotechbackend.entity.Mensaje;
 import org.springframework.stereotype.Component;
 
