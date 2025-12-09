@@ -41,7 +41,7 @@ export class NavbarComponent {
   });
 
   // ==================== COMPUTED - BOTONES DINÁMICOS ====================
-
+  
   /**
    * Determina si se muestra el botón "Volver al Portal"
    */
