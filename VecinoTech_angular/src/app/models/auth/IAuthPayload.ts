@@ -1,4 +1,4 @@
-import { IUsuario } from "./interfaces_orm/IUsuario";
+import { IUsuario } from "../usuario/IUsuario";
 
 export interface IAuthPayload {
   accessToken: string;

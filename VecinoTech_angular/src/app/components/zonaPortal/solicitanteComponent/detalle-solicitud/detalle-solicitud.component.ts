@@ -5,9 +5,10 @@ import { forkJoin } from 'rxjs';
 
 // Servicios
 import { MapService } from '../../../../services/map.service';
+import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
 
 // Interfaces
-import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
+
 
 @Component({
   selector: 'app-detalle-solicitud',
@@ -56,7 +57,7 @@ export class DetalleSolicitudComponent implements OnInit {
     this._loading.set(true);
     this._error.set('');
 
-    // ✅ Buscar en AMBAS listas: como solicitante Y como voluntario
+    // Buscar en AMBAS listas: como solicitante Y como voluntario
     forkJoin({
       misSolicitudes: this.mapService.getMisSolicitudes(),
       misVoluntariados: this.mapService.getSolicitudesComoVoluntario()

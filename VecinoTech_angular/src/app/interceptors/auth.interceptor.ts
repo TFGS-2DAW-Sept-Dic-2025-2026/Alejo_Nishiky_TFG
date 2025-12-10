@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError, Observable } from 'rxjs';
 
-import { IAuthPayload } from '../models/IAuthPayload';
+import { IAuthPayload } from '../models/auth/IAuthPayload';
 import { StorageGlobalService } from '../services/storage-global.service';
 import { RestClientService } from '../services/rest-cliente.service';
 import IRestMessage from '../models/IRestMessage';

@@ -6,7 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { StorageGlobalService } from '../../../services/storage-global.service';
 import { RestClientService } from '../../../services/rest-cliente.service';
 import IRestMessage from '../../../models/IRestMessage';
-import { IAuthPayload } from '../../../models/IAuthPayload';
+import { IAuthPayload } from '../../../models/auth/IAuthPayload';
 
 @Component({
   selector: 'app-login',

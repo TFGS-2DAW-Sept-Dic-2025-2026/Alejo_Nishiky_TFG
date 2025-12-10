@@ -1,4 +1,5 @@
-import { IValoracion } from "../IValoracion";
+
+import { IValoracion } from "../valoracion/IValoracion";
 import ISolicitante from "./ISolicitante";
 import IUbicacion from "./IUbicacion";
 

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { IUsuario } from '../models/interfaces_orm/IUsuario';
-import { IAuthPayload } from '../models/IAuthPayload';
+import { IUsuario } from '../models/usuario/IUsuario';
+import { IAuthPayload } from '../models/auth/IAuthPayload';
 
 @Injectable({
   providedIn: 'root'

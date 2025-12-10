@@ -7,12 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { MapService } from '../../../services/map.service';
 
 // Interfaces
-import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
+
 import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
 
 import { StorageGlobalService } from '../../../services/storage-global.service';
 import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
 import { ValoracionesService } from '../../../services/valoraciones.service';
+import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
 
 @Component({
   selector: 'app-historial',

@@ -5,8 +5,8 @@ import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 // Models
-import { IMensaje } from '../models/interfaces_orm/chat/IMensaje';
-import { IChatNotificacion } from '../models/interfaces_orm/chat/IChatNotificacion';
+import { IMensaje } from '../models/chat/IMensaje';
+import { IChatNotificacion } from '../models/chat/IChatNotificacion';
 import IRestMessage from '../models/IRestMessage';
 import { StorageGlobalService } from './storage-global.service';
 

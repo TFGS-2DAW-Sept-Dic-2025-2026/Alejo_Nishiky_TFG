@@ -1,6 +1,8 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { filter, switchMap } from 'rxjs';
 
 // Servicios
 import { AuthService } from '../../../services/auth.service';
@@ -9,16 +11,24 @@ import { StorageGlobalService } from '../../../services/storage-global.service';
 
 // Componentes
 import { ModalEditarComponent } from './modal-editar/modal-editar.component';
+import { IUsuario } from '../../../models/usuario/IUsuario';
 
 // Interfaces
-import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
-import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
+
 
 interface EstadisticasUsuario {
   solicitudes_creadas: number;
   solicitudes_completadas: number;
   ayudas_realizadas: number;
   tasa_exito: number;
+}
+
+interface ActualizarPerfilRequest {
+  nombre: string;
+  avatarUrl?: string;
+  telefono?: string;
+  direccion?: string;
+  codigoPostal?: string;
 }
 
 @Component({
@@ -36,6 +46,7 @@ export class PerfilComponent {
   private readonly router = inject(Router);
   private readonly restPortal = inject(RestPortalService);
   private readonly storage = inject(StorageGlobalService);
+  private readonly injector = inject(Injector);
 
   // ==================== SIGNALS ====================
 
@@ -49,8 +60,24 @@ export class PerfilComponent {
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
 
-  // ✅ Signal para controlar el modal
+  // Signal para controlar el modal
   readonly mostrarModal = signal<boolean>(false);
+
+  // Signal para trigger de actualización
+  private readonly _triggerActualizacion = signal<ActualizarPerfilRequest | null>(null);
+
+  // ==================== toSignal para petición HTTP ====================
+
+  /**
+   *  Convierte el trigger de actualización en Observable y ejecuta la petición HTTP
+   */
+  private readonly _resultadoActualizacion = toSignal(
+    toObservable(this._triggerActualizacion).pipe(
+      filter(request => request !== null),
+      switchMap(request => this.restPortal.putActualizarPerfil(request!))
+    ),
+    { initialValue: null, injector: this.injector }
+  );
 
   // ==================== COMPUTED SIGNALS ====================
 
@@ -108,6 +135,33 @@ export class PerfilComponent {
 
   constructor() {
     this.cargarPerfil();
+
+    /**
+     * Effect que reacciona al resultado de actualización
+     * Reemplaza el callback .subscribe()
+     */
+    effect(() => {
+      const resultado = this._resultadoActualizacion();
+
+      if (resultado) {
+        if (resultado.codigo === 0) {
+          console.log('✅ Perfil actualizado correctamente');
+
+          // Actualizar usuario en storage y recargar perfil
+          const datosActualizados = this._triggerActualizacion();
+          if (datosActualizados) {
+            this.storage.actualizarUsuario(datosActualizados);
+            this._perfil.set(this.authService.currentUser());
+          }
+
+          this.mostrarModal.set(false);
+          alert('✅ Perfil actualizado correctamente');
+        } else {
+          console.error('❌ Error en actualización:', resultado.mensaje);
+          alert('❌ ' + resultado.mensaje);
+        }
+      }
+    }, { injector: this.injector });
   }
 
   // ==================== MÉTODOS PRIVADOS ====================
@@ -163,35 +217,21 @@ export class PerfilComponent {
 
   /**
    * Guarda los cambios del perfil
+   * ✅ MEJORADO: Sin .subscribe(), solo actualiza el signal trigger
    */
   guardarPerfil(datos: Partial<IUsuario>): void {
-  console.log('📤 Guardando perfil:', datos);
+    console.log('📤 Guardando perfil:', datos);
 
-  // Si hay archivo seleccionado, subirlo primero
-  const modal = // obtener referencia al modal si es necesario
+    const request: ActualizarPerfilRequest = {
+      nombre: datos.nombre!,
+      avatarUrl: datos.avatarUrl,
+      telefono: datos.telefono,
+      direccion: datos.direccion,
+      codigoPostal: datos.codigoPostal
+    };
 
-  this.restPortal.putActualizarPerfil({
-    nombre: datos.nombre!,
-    avatarUrl: datos.avatarUrl,
-    telefono: datos.telefono,
-    direccion: datos.direccion,
-    codigoPostal: datos.codigoPostal
-    }).subscribe({
-      next: (response) => {
-        if (response.codigo === 0) {
-          this.storage.actualizarUsuario(datos);
-          this._perfil.set(this.authService.currentUser());
-          this.mostrarModal.set(false);
-          alert('✅ Perfil actualizado correctamente');
-        } else {
-          alert('❌ ' + response.mensaje);
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error:', error);
-        alert('❌ Error al actualizar el perfil');
-      }
-    });
+    // ✅ Actualizamos el signal para triggear la petición HTTP
+    this._triggerActualizacion.set(request);
   }
 
   /**

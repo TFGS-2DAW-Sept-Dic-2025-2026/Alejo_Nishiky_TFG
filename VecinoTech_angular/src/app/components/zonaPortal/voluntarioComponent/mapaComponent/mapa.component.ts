@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
+
 import * as L from 'leaflet';
 import ICategoria from '../../../../models/ICategoria';
 import { MapService } from '../../../../services/map.service';
+import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
 
 @Component({
   selector: 'app-mapa',

@@ -9,9 +9,10 @@ import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component
 // Servicios
 import { MapService } from '../../../services/map.service';
 import { StorageGlobalService } from '../../../services/storage-global.service';
+import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
 
 // Interfaces
-import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
+
 
 @Component({
   selector: 'app-voluntario',

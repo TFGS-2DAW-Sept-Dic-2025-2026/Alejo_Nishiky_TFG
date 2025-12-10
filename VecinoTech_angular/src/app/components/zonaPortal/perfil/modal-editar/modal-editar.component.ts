@@ -1,11 +1,13 @@
 import { Component, signal, input, output, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http'; // ✅ AÑADIR
+
+// Services
+import { RestPortalService } from '../../../../services/rest-portal.service';
+import { IUsuario } from '../../../../models/usuario/IUsuario';
 
 // Interfaces
-import { IUsuario } from '../../../../models/interfaces_orm/IUsuario';
-import IRestMessage from '../../../../models/IRestMessage'; // ✅ AÑADIR
+
 
 @Component({
   selector: 'app-modal-editar',
@@ -18,7 +20,7 @@ export class ModalEditarComponent {
   // ==================== DEPENDENCY INJECTION ====================
 
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient); // ✅ AÑADIR
+  private readonly restPortal = inject(RestPortalService);
 
   // ==================== INPUTS/OUTPUTS ====================
 
@@ -32,8 +34,8 @@ export class ModalEditarComponent {
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<string>('');
-  readonly archivoSeleccionado = signal<File | null>(null);  // ✅ AÑADIR
-  readonly previsualizacion = signal<string>('');             // ✅ AÑADIR
+  readonly archivoSeleccionado = signal<File | null>(null);
+  readonly previsualizacion = signal<string>('');
 
   // ==================== FORM ====================
 
@@ -92,18 +94,10 @@ export class ModalEditarComponent {
     });
   }
 
-  /**
-   * Obtiene el token de autenticación
-   */
-  private getToken(): string | null {
-    // Asumiendo que tienes el token en localStorage
-    return localStorage.getItem('access_token');
-  }
-
   // ==================== MÉTODOS PÚBLICOS ====================
 
   /**
-   * ✅ NUEVO: Maneja la selección de archivo
+   * Maneja la selección de archivo
    */
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -138,7 +132,7 @@ export class ModalEditarComponent {
   }
 
   /**
-   * ✅ NUEVO: Elimina la imagen seleccionada
+   * Elimina la imagen seleccionada
    */
   eliminarImagen(): void {
     this.archivoSeleccionado.set(null);
@@ -147,6 +141,7 @@ export class ModalEditarComponent {
 
   /**
    * Envía el formulario
+   *  Usa RestPortalService.subirAvatar()
    */
   async onSubmit(): Promise<void> {
     if (this.perfilForm.invalid) {
@@ -190,23 +185,15 @@ export class ModalEditarComponent {
   }
 
   /**
-   * ✅ NUEVO: Sube la imagen al backend y retorna la URL
+   * ✅ MEJORADO: Sube la imagen usando RestPortalService
+   * Ahora usa toPromise() en vez de .subscribe()
    */
-  private subirImagen(archivo: File): Promise<string> {
+  private async subirImagen(archivo: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', archivo);
+
     return new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append('file', archivo);
-
-      const token = this.getToken();
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      });
-
-      this.http.post<IRestMessage>(
-        'http://localhost:8080/api/portal/perfil/avatar',
-        formData,
-        { headers }
-      ).subscribe({
+      this.restPortal.subirAvatar(formData).subscribe({
         next: (response) => {
           if (response.codigo === 0 && response.datos) {
             const avatarUrl = (response.datos as any).avatarUrl;
@@ -216,7 +203,7 @@ export class ModalEditarComponent {
           }
         },
         error: (error) => {
-          console.error('Error al subir imagen:', error);
+          console.error('❌ Error al subir imagen:', error);
           reject(error);
         }
       });

@@ -9,8 +9,9 @@ import { Router } from '@angular/router';
 import { MapService } from '../../../../services/map.service';
 
 // Interfaces
-import ISolicitudMapa from '../../../../models/interfaces_orm/mapa/ISolicitudMapa';
+
 import { NavbarComponent } from '../../portal-layout/portal-navbar/navbar.component';
+import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
 
 @Component({
   selector: 'app-mis-voluntariados',

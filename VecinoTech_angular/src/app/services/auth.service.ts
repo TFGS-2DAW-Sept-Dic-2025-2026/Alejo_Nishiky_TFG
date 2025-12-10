@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import IRestMessage from '../models/IRestMessage';
 import { StorageGlobalService } from './storage-global.service';
-import { IAuthPayload } from '../models/IAuthPayload';
+import { IAuthPayload } from '../models/auth/IAuthPayload';
 
 @Injectable({
   providedIn: 'root'

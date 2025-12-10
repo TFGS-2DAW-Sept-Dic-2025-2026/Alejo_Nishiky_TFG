@@ -1,98 +1,108 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { StorageGlobalService } from './storage-global.service';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import IRestMessage from '../models/IRestMessage';
 import * as L from 'leaflet';
 
-@Injectable({
-  providedIn: 'root'
-})
+// Services
+import { RestPortalService } from './rest-portal.service';
+import { StorageGlobalService } from './storage-global.service';
+
+// Models
+import IRestMessage from '../models/IRestMessage';
+
+/**
+ * Servicio especializado en lógica de Leaflet Maps
+ * Delega TODAS las peticiones HTTP a RestPortalService
+ *
+ * Responsabilidades:
+ * ✅ Crear iconos personalizados de Leaflet
+ * ✅ Helpers de mapas (distancias, centrado, etc.)
+ * ✅ Lógica de presentación de mapas
+ * ❌ NO hace peticiones HTTP directas
+ */
+@Injectable({providedIn: 'root'})
 export class MapService {
 
-  private readonly API_URL = 'http://localhost:8080/api/portal';
+  // ==================== DEPENDENCY INJECTION ====================
 
-  constructor(private http: HttpClient, private storage: StorageGlobalService) { }
+  private readonly restPortal = inject(RestPortalService);
+  private readonly storage = inject(StorageGlobalService);
 
-  //Obtenemos el token de autentcacion usando SotrageGlobalService
-  private getAuthHeaders(): HttpHeaders {
-    const token = this.storage.getAccessToken();
-    if(!token){
-      throw new Error('No hay token de autenticacion majo!!!!!');
-    }
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  }
+  // ==================== HTTP ESTA DELEGADO A RestPortalService ====================
 
   /**
-   * * Obtiene todas las solicitudes abiertas para el mapa *
-   * !Endpoint: GET /api/portal/solicitudes/mapa
+   * Obtiene todas las solicitudes abiertas para el mapa
+   * ✅ Delega a RestPortalService
    */
   getSolicitudesMapa(): Observable<IRestMessage> {
-    return this.http.get<IRestMessage>(
-      `${this.API_URL}/solicitudes/mapa`,
-      { headers: this.getAuthHeaders() }
-    );
+    return this.restPortal.getSolicitudesMapa();
   }
 
-    /**
-   * * Obtiene solicitudes cercanas al usuario *
-   * !Endpoint: GET /api/portal/solicitudes/cercanas?radius={km}
-   * @param radiusKm Radio de búsqueda en kilómetros (default: 5)
+  /**
+   * Obtiene solicitudes cercanas al usuario
+   * ✅ Delega a RestPortalService
    */
   getSolicitudesCercanas(radiusKm: number = 5): Observable<IRestMessage> {
-    return this.http.get<IRestMessage>(
-      `${this.API_URL}/solicitudes/cercanas?radius=${radiusKm}`,
-      { headers: this.getAuthHeaders() }
-    );
+    return this.restPortal.getSolicitudesCercanas(radiusKm);
   }
 
-    /**
-   * * Actualiza la ubicación del usuario geocodificando su dirección *
-   * !Endpoint: POST /api/portal/ubicacion/actualizar
-   *
-   * En el backend:
-   * 1. Lee la dirección del usuario_detalle
-   * 2. Geocodifica usando Nominatim
-   * 3. Guarda las coordenadas en PostGIS
+  /**
+   * Actualiza la ubicación del usuario (geocodificación)
+   * ✅ Delega a RestPortalService
    */
   actualizarUbicacion(): Observable<IRestMessage> {
-    return this.http.post<IRestMessage>(
-      `${this.API_URL}/ubicacion/actualizar`,
-      {},
-      { headers: this.getAuthHeaders() }
-    );
+    return this.restPortal.actualizarUbicacion();
   }
 
   /**
-   * * Acepta una solicitud como voluntario *
-   * !Endpoint: POST /api/portal/solicitudes/{id}/aceptar
-   * @param solicitudId ID de la solicitud a aceptar
+   * Acepta una solicitud como voluntario
+   * ✅ Delega a RestPortalService
    */
   aceptarSolicitud(solicitudId: number): Observable<IRestMessage> {
-    return this.http.post<IRestMessage>(
-      `${this.API_URL}/solicitudes/${solicitudId}/aceptar`,
-      {},
-      { headers: this.getAuthHeaders() }
-    );
+    return this.restPortal.aceptarSolicitud(solicitudId);
   }
 
   /**
-   * * Marca una solicitud como completada *
-   * !Endpoint: POST /api/portal/solicitudes/{id}/completar
-   * @param solicitudId ID de la solicitud a completar
+   * Marca una solicitud como completada
+   * ✅ Delega a RestPortalService
    */
   completarSolicitud(solicitudId: number): Observable<IRestMessage> {
-    return this.http.post<IRestMessage>(
-      `${this.API_URL}/solicitudes/${solicitudId}/completar`,
-      {},
-      { headers: this.getAuthHeaders() }
-    );
+    return this.restPortal.completarSolicitud(solicitudId);
   }
 
-  // *==================== MÉTODOS DE LEAFLET ====================*
-    /**
+  /**
+   * Obtiene las solicitudes creadas por el usuario
+   * ✅ Delega a RestPortalService
+   */
+  getMisSolicitudes(): Observable<IRestMessage> {
+    return this.restPortal.getMisSolicitudes();
+  }
+
+  /**
+   * Obtiene las solicitudes donde el usuario es voluntario
+   * ✅ Delega a RestPortalService
+   */
+  getSolicitudesComoVoluntario(): Observable<IRestMessage> {
+    return this.restPortal.getSolicitudesComoVoluntario();
+  }
+
+  /**
+   * Crea una nueva solicitud de ayuda
+   * ✅ Delega a RestPortalService
+   */
+  crearSolicitud(solicitud: {
+    asunto: string;
+    descripcion: string;
+    categoria: string
+  }): Observable<IRestMessage> {
+    return this.restPortal.crearSolicitud(solicitud);
+  }
+
+  // ==================== LÓGICA LEAFLET (SOLO AQUÍ) ====================
+
+  /**
    * Crea un icono personalizado de Leaflet según la categoría
    * @param categoria Categoría de la solicitud (GENERAL, MOVIL, etc.)
+   * @returns Icono de Leaflet personalizado
    */
   crearIcono(categoria: string): L.Icon {
     const colores: Record<string, string> = {
@@ -114,8 +124,10 @@ export class MapService {
       shadowSize: [41, 41]
     });
   }
+
   /**
    * Crea un icono para la ubicación del usuario
+   * @returns Icono dorado de Leaflet
    */
   crearIconoUsuario(): L.Icon {
     return L.icon({
@@ -129,54 +141,87 @@ export class MapService {
   }
 
   /**
-   * ?Obtenemos la información del usuario autenticado desde el StorageGlobalService
-   * * Reactivo: Se actualiza automáticamente con Signals *
+   * Calcula la distancia entre dos puntos geográficos (Haversine)
+   * @param lat1 Latitud del primer punto
+   * @param lon1 Longitud del primer punto
+   * @param lat2 Latitud del segundo punto
+   * @param lon2 Longitud del segundo punto
+   * @returns Distancia en kilómetros
+   */
+  calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distancia = R * c;
+
+    return Math.round(distancia * 10) / 10; // Redondear a 1 decimal
+  }
+
+  /**
+   * Convierte grados a radianes
+   * @param grados Ángulo en grados
+   * @returns Ángulo en radianes
+   */
+  private toRad(grados: number): number {
+    return grados * (Math.PI / 180);
+  }
+
+  /**
+   * Centra el mapa en una ubicación específica
+   * @param mapa Instancia del mapa de Leaflet
+   * @param lat Latitud
+   * @param lng Longitud
+   * @param zoom Nivel de zoom (default: 13)
+   */
+  centrarMapa(mapa: L.Map, lat: number, lng: number, zoom: number = 13): void {
+    mapa.setView([lat, lng], zoom);
+  }
+
+  /**
+   * Ajusta el mapa para mostrar todos los marcadores
+   * @param mapa Instancia del mapa de Leaflet
+   * @param marcadores Array de marcadores
+   */
+  ajustarVistaAMarcadores(mapa: L.Map, marcadores: L.Marker[]): void {
+    if (marcadores.length === 0) return;
+
+    const grupo = L.featureGroup(marcadores);
+    mapa.fitBounds(grupo.getBounds().pad(0.1)); // 10% padding
+  }
+
+  /**
+   * Formatea la distancia para mostrarla de forma legible
+   * @param distanciaKm Distancia en kilómetros
+   * @returns String formateado (ej: "1.5 km", "850 m")
+   */
+  formatearDistancia(distanciaKm: number): string {
+    if (distanciaKm < 1) {
+      const metros = Math.round(distanciaKm * 1000);
+      return `${metros} m`;
+    }
+    return `${distanciaKm.toFixed(1)} km`;
+  }
+
+  // ==================== HELPERS PRIVADOS ====================
+
+  /**
+   * Obtiene el usuario actual desde el storage
    */
   private getUsuarioActual() {
     return this.storage.getUsuario();
   }
 
   /**
-   * * Verifica si el usuario está autenticado - Usa Signals *
+   * Verifica si el usuario está autenticado
    */
   private isAuthenticated(): boolean {
     return this.storage.getAccessToken() !== null;
   }
-
-  /**
- * Obtiene las solicitudes creadas por el usuario autenticado
- * Endpoint: GET /api/portal/mis-solicitudes
- */
-  getMisSolicitudes(): Observable<IRestMessage> {
-    return this.http.get<IRestMessage>(
-      `${this.API_URL}/mis-solicitudes`,
-      { headers: this.getAuthHeaders() }
-    );
-  }
-
-  /**
-   * Obtiene las solicitudes donde el usuario es voluntario
-   * Endpoint: GET /api/portal/solicitudes/voluntario
-   */
-  getSolicitudesComoVoluntario(): Observable<IRestMessage> {
-    return this.http.get<IRestMessage>(
-      `${this.API_URL}/solicitudes/voluntario`,
-      { headers: this.getAuthHeaders() }
-    );
-  }
-
-    /**
-   * Crea una nueva solicitud de ayuda
-   * Endpoint: POST /api/portal/need-help
-   * @param solicitud Datos de la solicitud (titulo, descripcion, categoria)
-   */
-  crearSolicitud(solicitud: { titulo: string; descripcion: string; categoria: string }): Observable<IRestMessage> {
-    return this.http.post<IRestMessage>(
-      `${this.API_URL}/need-help`,
-      solicitud,
-      { headers: this.getAuthHeaders() }
-    );
-  }
-
-
 }

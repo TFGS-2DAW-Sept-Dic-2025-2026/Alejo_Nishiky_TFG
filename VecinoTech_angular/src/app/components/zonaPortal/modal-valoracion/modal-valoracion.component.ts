@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ValoracionesService } from '../../../services/valoraciones.service';
 
 // Models
-import { ICrearValoracionRequest } from '../../../models/interfaces_orm/IValoracion';
+import { ICrearValoracionRequest } from '../../../models/valoracion/IValoracion';
 
 @Component({
   selector: 'app-modal-valoracion',

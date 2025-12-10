@@ -2,12 +2,12 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ChatService } from '../../../services/chat.service';
 import { StorageGlobalService } from '../../../services/storage-global.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IMensaje } from '../../../models/interfaces_orm/chat/IMensaje';
+import { IMensaje } from '../../../models/chat/IMensaje';
 import { CommonModule } from '@angular/common';
-import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
 import { MapService } from '../../../services/map.service';
 import { SafePipe } from '../../../pipes/safe.pipe';
 import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
+import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
 
 @Component({
   selector: 'app-chat',

@@ -7,8 +7,9 @@ import { MapService } from '../../../services/map.service';
 import { ChatService } from '../../../services/chat.service';
 
 // Interfaces
-import ISolicitudMapa from '../../../models/interfaces_orm/mapa/ISolicitudMapa';
-import { IChatNotificacion } from '../../../models/interfaces_orm/chat/IChatNotificacion';
+
+import { IChatNotificacion } from '../../../models/chat/IChatNotificacion';
+import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
 
 @Component({
   selector: 'app-solicitante',

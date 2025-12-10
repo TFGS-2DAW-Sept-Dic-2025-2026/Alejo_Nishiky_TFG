@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RestClientService } from '../../../services/rest-cliente.service';
-import { IUsuario } from '../../../models/interfaces_orm/IUsuario';
+import { IUsuario } from '../../../models/usuario/IUsuario';
 
 
 @Component({
