@@ -6,9 +6,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { RestPortalService } from '../../../../services/rest-portal.service';
 import { IUsuario } from '../../../../models/usuario/IUsuario';
 
-// Interfaces
-
-
 @Component({
   selector: 'app-modal-editar',
   imports: [CommonModule, ReactiveFormsModule],
@@ -58,6 +55,16 @@ export class ModalEditarComponent {
           direccion: user.direccion || '',
           codigoPostal: user.codigoPostal || ''
         });
+      }
+    });
+
+    // ✅ NUEVO: Effect que detecta cuando se cierra el modal para resetear
+    effect(() => {
+      const abierto = this.isOpen();
+
+      if (!abierto) {
+        // Modal cerrado → resetear estado
+        this.resetState();
       }
     });
   }
@@ -141,7 +148,7 @@ export class ModalEditarComponent {
 
   /**
    * Envía el formulario
-   *  Usa RestPortalService.subirAvatar()
+   * ✅ CORREGIDO: Maneja mejor los errores y el loading
    */
   async onSubmit(): Promise<void> {
     if (this.perfilForm.invalid) {
@@ -156,7 +163,7 @@ export class ModalEditarComponent {
     try {
       let avatarUrl = this.perfilForm.value.avatarUrl;
 
-      // ✅ Si hay archivo seleccionado, subirlo primero
+      // Si hay archivo seleccionado, subirlo primero
       if (this.archivoSeleccionado()) {
         console.log('📤 Subiendo imagen...');
         avatarUrl = await this.subirImagen(this.archivoSeleccionado()!);
@@ -172,10 +179,14 @@ export class ModalEditarComponent {
         codigoPostal: this.perfilForm.value.codigoPostal || ''
       };
 
-      console.log('📤 Enviando perfil:', formData);
+      console.log('📤 Enviando perfil al padre:', formData);
 
-      // Emitir datos al padre
+      // ✅ Emitir datos al padre
       this.save.emit(formData);
+
+      // ✅ Resetear loading DESPUÉS de emitir
+      // (el padre se encargará de cerrar el modal)
+      this.loading.set(false);
 
     } catch (error) {
       console.error('❌ Error:', error);
@@ -185,8 +196,7 @@ export class ModalEditarComponent {
   }
 
   /**
-   * ✅ MEJORADO: Sube la imagen usando RestPortalService
-   * Ahora usa toPromise() en vez de .subscribe()
+   * Sube la imagen usando RestPortalService
    */
   private async subirImagen(archivo: File): Promise<string> {
     const formData = new FormData();
@@ -277,11 +287,11 @@ export class ModalEditarComponent {
     if (this.perfilForm.dirty || this.archivoSeleccionado()) {
       if (confirm('¿Descartar los cambios?')) {
         this.close.emit();
-        this.resetState();
+        // El resetState se ejecutará automáticamente por el effect
       }
     } else {
       this.close.emit();
-      this.resetState();
+      // El resetState se ejecutará automáticamente por el effect
     }
   }
 
@@ -295,12 +305,14 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Resetea loading y error (llamado desde el padre)
+   * ✅ NUEVO: Resetea el estado del modal
    */
   resetState(): void {
     this.loading.set(false);
     this.error.set('');
     this.archivoSeleccionado.set(null);
     this.previsualizacion.set('');
+    this.perfilForm.markAsPristine();
   }
 }
+

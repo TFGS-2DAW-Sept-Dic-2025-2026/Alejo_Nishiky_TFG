@@ -7,6 +7,7 @@ import { ValoracionesService } from '../../../services/valoraciones.service';
 
 // Models
 import { ICrearValoracionRequest } from '../../../models/valoracion/IValoracion';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-modal-valoracion',
@@ -97,17 +98,27 @@ export class ModalValoracionComponent {
     this.valoracionesService.crearValoracion(request).subscribe({
       next: (response) => {
         if (response.codigo === 0) {
-          console.log('✅ Valoración enviada');
+          console.log('Valoracion enviada!!!');
           this.success.emit();
           this.cerrar();
         } else {
-          alert('❌ ' + response.mensaje);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo enviar tu valoración',
+            text: response.mensaje,
+            confirmButtonText: 'Entendido'
+          });
           this.enviando.set(false);
         }
       },
       error: (err) => {
-        console.error('❌ Error enviando valoración:', err);
-        alert('❌ Error al enviar la valoración');
+        console.error('Error enviando valoración ... ', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al enviar la valoración',
+          text: 'Inténtalo de nuevo en unos minutos.',
+          confirmButtonText: 'Entendido'
+        });
         this.enviando.set(false);
       }
     });
@@ -130,11 +141,21 @@ export class ModalValoracionComponent {
   /**
    * Omite la valoración
    */
-  omitir(): void {
-    if (confirm('¿Estás seguro de omitir la valoración?\n\nPodrás hacerlo más tarde desde el historial.')) {
+  async omitir(): Promise<void> {
+    const result = await Swal.fire({
+      title: '¿Omitir valoración?',
+      text: 'Podrás valorarla más tarde desde el historial.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, omitir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
       this.cerrar();
     }
   }
+
 
   /**
    * Cierra el modal

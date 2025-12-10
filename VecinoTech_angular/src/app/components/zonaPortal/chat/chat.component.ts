@@ -8,6 +8,7 @@ import { MapService } from '../../../services/map.service';
 import { SafePipe } from '../../../pipes/safe.pipe';
 import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
 import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-chat',
@@ -221,13 +222,23 @@ export class ChatComponent {
 
           console.log('✅ Sala de videollamada creada:', videoCall.roomUrl);
         } else {
-          alert('❌ ' + response.mensaje);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo crear la videollamada',
+            text: response.mensaje,
+            confirmButtonText: 'Entendido'
+          });
         }
         this.cargandoVideo.set(false);
       },
       error: (err) => {
-        console.error('❌ Error creando sala:', err);
-        alert('❌ Error al crear la videollamada');
+        console.error('Error creando sala: ', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear la videollamada',
+          text: 'Inténtalo de nuevo en unos minutos.',
+          confirmButtonText: 'Entendido'
+        });
         this.cargandoVideo.set(false);
       }
     });
@@ -246,7 +257,12 @@ export class ChatComponent {
       this.videoRoomName.set(invitacion.videoRoomName);
       this.mostrarVideoModal.set(true);
     } else {
-      alert('❌ No se pudo obtener la URL de la videollamada');
+      Swal.fire({
+          icon: 'error',
+          title: 'No se pudo abrir la videollamada',
+          text: 'No se recibió una URL válida de la sala.',
+          confirmButtonText: 'Entendido'
+      });
     }
   }
 

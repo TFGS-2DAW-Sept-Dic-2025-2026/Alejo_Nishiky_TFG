@@ -1,13 +1,10 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-
-// Servicios
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, filter, switchMap, map } from 'rxjs';
 import { MapService } from '../../../../services/map.service';
 import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
-
-// Interfaces
 
 
 @Component({
@@ -16,13 +13,14 @@ import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
   templateUrl: './detalle-solicitud.component.html',
   styleUrls: ['./detalle-solicitud.component.css']
 })
-export class DetalleSolicitudComponent implements OnInit {
+export class DetalleSolicitudComponent {
 
   // ==================== DEPENDENCY INJECTION ====================
 
   private readonly mapService = inject(MapService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
 
   // ==================== SIGNALS ====================
 
@@ -30,76 +28,124 @@ export class DetalleSolicitudComponent implements OnInit {
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
 
+  // ✅ NUEVO: Signal para trigger de completar solicitud
+  private readonly _triggerCompletar = signal<number | null>(null);
+
+  // ✅ NUEVO: Signal para el ID de la ruta
+  private readonly _solicitudId = signal<number | null>(null);
+
+  // ==================== toSignal para peticiones HTTP ====================
+
+  /**
+   * ✅ Carga automática de solicitudes al inicializar
+   * Combina mis solicitudes + mis voluntariados
+   */
+  private readonly _todasLasSolicitudes = toSignal(
+    combineLatest({
+      misSolicitudes: this.mapService.getMisSolicitudes(),
+      misVoluntariados: this.mapService.getSolicitudesComoVoluntario()
+    }).pipe(
+      map(({ misSolicitudes, misVoluntariados }) => {
+        const todas: ISolicitudMapa[] = [];
+
+        if (misSolicitudes.codigo === 0) {
+          todas.push(...(misSolicitudes.datos as ISolicitudMapa[]));
+        }
+
+        if (misVoluntariados.codigo === 0) {
+          todas.push(...(misVoluntariados.datos as ISolicitudMapa[]));
+        }
+
+        return todas;
+      })
+    ),
+    { initialValue: [], injector: this.injector }
+  );
+
+  /**
+   * ✅ Resultado de completar solicitud
+   */
+  private readonly _resultadoCompletar = toSignal(
+    toObservable(this._triggerCompletar).pipe(
+      filter(id => id !== null),
+      switchMap(id => this.mapService.completarSolicitud(id!))
+    ),
+    { initialValue: null, injector: this.injector }
+  );
+
   // ==================== COMPUTED SIGNALS ====================
 
   readonly solicitud = computed(() => this._solicitud());
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
 
-  // ==================== LIFECYCLE ====================
+  // ==================== CONSTRUCTOR ====================
 
-  ngOnInit(): void {
+  constructor() {
+    // Obtener ID de la ruta
     const id = this.route.snapshot.params['id'];
     if (id) {
-      this.cargarDetalleSolicitud(Number(id));
+      this._solicitudId.set(Number(id));
     } else {
       this._error.set('ID de solicitud no válido');
       this._loading.set(false);
     }
-  }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+    /**
+     * ✅ Effect que busca la solicitud cuando se cargan todas
+     */
+    effect(() => {
+      const todas = this._todasLasSolicitudes();
+      const solicitudId = this._solicitudId();
 
-  /**
-   * Carga los detalles de una solicitud buscando en TODAS las fuentes
-   */
-  private cargarDetalleSolicitud(id: number): void {
-    this._loading.set(true);
-    this._error.set('');
-
-    // Buscar en AMBAS listas: como solicitante Y como voluntario
-    forkJoin({
-      misSolicitudes: this.mapService.getMisSolicitudes(),
-      misVoluntariados: this.mapService.getSolicitudesComoVoluntario()
-    }).subscribe({
-      next: ({ misSolicitudes, misVoluntariados }) => {
-        // Combinar ambas listas
-        const todasLasSolicitudes: ISolicitudMapa[] = [];
-
-        if (misSolicitudes.codigo === 0) {
-          todasLasSolicitudes.push(...(misSolicitudes.datos as ISolicitudMapa[]));
-        }
-
-        if (misVoluntariados.codigo === 0) {
-          todasLasSolicitudes.push(...(misVoluntariados.datos as ISolicitudMapa[]));
-        }
-
-        // Buscar la solicitud por ID
-        const solicitud = todasLasSolicitudes.find(s => s.id === id);
+      if (todas.length > 0 && solicitudId) {
+        const solicitud = todas.find(s => s.id === solicitudId);
 
         if (solicitud) {
           this._solicitud.set(solicitud);
+          this._error.set('');
         } else {
           this._error.set('Solicitud no encontrada');
         }
 
         this._loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error cargando detalle:', err);
-        this._error.set('No se pudo cargar la solicitud');
-        this._loading.set(false);
       }
-    });
+    }, { injector: this.injector });
+
+    /**
+     * ✅ Effect que reacciona al resultado de completar
+     */
+    effect(() => {
+      const resultado = this._resultadoCompletar();
+
+      if (resultado) {
+        this._loading.set(false);
+
+        if (resultado.codigo === 0) {
+          console.log('✅ Solicitud completada exitosamente');
+          alert('✅ Solicitud completada exitosamente');
+          this.volver();
+        } else {
+          console.error('❌ Error:', resultado.mensaje);
+          alert(`❌ ${resultado.mensaje}`);
+        }
+      }
+    }, { injector: this.injector });
   }
 
   // ==================== MÉTODOS PÚBLICOS ====================
 
+  /**
+   * Vuelve a la página anterior
+   */
   volver(): void {
-    // Intentar volver a la página anterior
     window.history.back();
   }
 
+  /**
+   * Completa la solicitud
+   * ✅ MEJORADO: Sin .subscribe(), solo actualiza el signal trigger
+   */
   completarSolicitud(): void {
     const solicitud = this._solicitud();
     if (!solicitud) return;
@@ -110,25 +156,13 @@ export class DetalleSolicitudComponent implements OnInit {
 
     this._loading.set(true);
 
-    this.mapService.completarSolicitud(solicitud.id).subscribe({
-      next: (response) => {
-        this._loading.set(false);
-
-        if (response.codigo === 0) {
-          alert('✅ Solicitud completada exitosamente');
-          this.volver();
-        } else {
-          alert(`❌ ${response.mensaje}`);
-        }
-      },
-      error: (err) => {
-        this._loading.set(false);
-        console.error('Error completando solicitud:', err);
-        alert('❌ Error al completar la solicitud');
-      }
-    });
+    // ✅ Actualizamos el signal para triggear la petición HTTP
+    this._triggerCompletar.set(solicitud.id);
   }
 
+  /**
+   * Obtiene el color del badge según el estado
+   */
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -142,6 +176,9 @@ export class DetalleSolicitudComponent implements OnInit {
     }
   }
 
+  /**
+   * Obtiene el texto legible del estado
+   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -155,6 +192,9 @@ export class DetalleSolicitudComponent implements OnInit {
     }
   }
 
+  /**
+   * Calcula el tiempo transcurrido desde la fecha
+   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 

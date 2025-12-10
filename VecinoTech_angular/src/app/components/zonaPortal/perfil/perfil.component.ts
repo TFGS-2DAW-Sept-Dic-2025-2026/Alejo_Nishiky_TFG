@@ -2,7 +2,7 @@ import { Component, signal, computed, inject, effect, Injector } from '@angular/
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { filter, switchMap } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
 
 // Servicios
 import { AuthService } from '../../../services/auth.service';
@@ -12,9 +12,6 @@ import { StorageGlobalService } from '../../../services/storage-global.service';
 // Componentes
 import { ModalEditarComponent } from './modal-editar/modal-editar.component';
 import { IUsuario } from '../../../models/usuario/IUsuario';
-
-// Interfaces
-
 
 interface EstadisticasUsuario {
   solicitudes_creadas: number;
@@ -63,18 +60,25 @@ export class PerfilComponent {
   // Signal para controlar el modal
   readonly mostrarModal = signal<boolean>(false);
 
+  // ✅ NUEVO: Signal para el loading de la actualización
+  readonly actualizandoPerfil = signal<boolean>(false);
+
   // Signal para trigger de actualización
   private readonly _triggerActualizacion = signal<ActualizarPerfilRequest | null>(null);
 
   // ==================== toSignal para petición HTTP ====================
 
   /**
-   *  Convierte el trigger de actualización en Observable y ejecuta la petición HTTP
+   * ✅ CORREGIDO: Convierte el trigger de actualización en Observable
    */
   private readonly _resultadoActualizacion = toSignal(
     toObservable(this._triggerActualizacion).pipe(
-      filter(request => request !== null),
-      switchMap(request => this.restPortal.putActualizarPerfil(request!))
+      filter((request): request is ActualizarPerfilRequest => request !== null),
+      tap(() => {
+        // ✅ Activar loading cuando empieza la petición
+        this.actualizandoPerfil.set(true);
+      }),
+      switchMap(request => this.restPortal.putActualizarPerfil(request))
     ),
     { initialValue: null, injector: this.injector }
   );
@@ -93,17 +97,13 @@ export class PerfilComponent {
     const perfil = this._perfil();
     if (!perfil) return 'https://ui-avatars.com/api/?name=Usuario&background=random&size=128';
 
-    // Si tiene avatarUrl personalizado
     if (perfil.avatarUrl) {
-      // Si es una URL relativa (/avatars/...), añadir el backend
       if (perfil.avatarUrl.startsWith('/avatars/')) {
         return `http://localhost:8080${perfil.avatarUrl}`;
       }
-      // Si es URL completa (http://...), usarla tal cual
       return perfil.avatarUrl;
     }
 
-    // Si no tiene avatar, generar uno con iniciales
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(perfil.nombre)}&background=random&size=128`;
   });
 
@@ -137,29 +137,44 @@ export class PerfilComponent {
     this.cargarPerfil();
 
     /**
-     * Effect que reacciona al resultado de actualización
-     * Reemplaza el callback .subscribe()
+     * ✅ CORREGIDO: Effect que reacciona al resultado de actualización
      */
     effect(() => {
       const resultado = this._resultadoActualizacion();
 
-      if (resultado) {
-        if (resultado.codigo === 0) {
-          console.log('✅ Perfil actualizado correctamente');
+      // ✅ Solo procesamos si hay resultado Y si estamos actualizando
+      if (!resultado || !this.actualizandoPerfil()) return;
 
-          // Actualizar usuario en storage y recargar perfil
-          const datosActualizados = this._triggerActualizacion();
-          if (datosActualizados) {
-            this.storage.actualizarUsuario(datosActualizados);
-            this._perfil.set(this.authService.currentUser());
-          }
+      console.log('📥 Respuesta del backend:', resultado);
 
-          this.mostrarModal.set(false);
-          alert('✅ Perfil actualizado correctamente');
+      // ✅ Desactivar loading
+      this.actualizandoPerfil.set(false);
+
+      if (resultado.codigo === 0) {
+        console.log('✅ Perfil actualizado correctamente');
+
+        // ✅ Actualizar el perfil con los datos del backend
+        const usuarioActualizado = resultado.datos as IUsuario;
+
+        if (usuarioActualizado) {
+          this._perfil.set(usuarioActualizado);
+          this.storage.actualizarUsuario(usuarioActualizado);
         } else {
-          console.error('❌ Error en actualización:', resultado.mensaje);
-          alert('❌ ' + resultado.mensaje);
+          // Si no viene el usuario, recargamos
+          this.cargarPerfil();
         }
+
+        // ✅ Cerrar modal
+        this.mostrarModal.set(false);
+        this._error.set('');
+
+        // ✅ Mostrar mensaje de éxito
+        alert('✅ Perfil actualizado correctamente');
+      } else {
+        // ❌ Error del backend
+        console.error('❌ Error del backend:', resultado.mensaje);
+        this._error.set(resultado.mensaje || 'No se pudo actualizar el perfil');
+        alert('❌ ' + resultado.mensaje);
       }
     }, { injector: this.injector });
   }
@@ -173,7 +188,6 @@ export class PerfilComponent {
     this._loading.set(true);
     this._error.set('');
 
-    // Obtener datos del usuario desde AuthService (computed signal)
     const usuario = this.authService.currentUser();
 
     if (usuario) {
@@ -213,24 +227,29 @@ export class PerfilComponent {
    */
   cerrarModal(): void {
     this.mostrarModal.set(false);
+    this._error.set('');
   }
 
   /**
    * Guarda los cambios del perfil
-   * ✅ MEJORADO: Sin .subscribe(), solo actualiza el signal trigger
+   * ✅ CORREGIDO: Sin .subscribe(), dispara el trigger
    */
-  guardarPerfil(datos: Partial<IUsuario>): void {
+  public guardarPerfil(datos: Partial<IUsuario>): void {
     console.log('📤 Guardando perfil:', datos);
 
+    this._error.set('');
+
+    const perfilActual = this._perfil();
+
     const request: ActualizarPerfilRequest = {
-      nombre: datos.nombre!,
+      nombre: datos.nombre ?? perfilActual?.nombre ?? '',
       avatarUrl: datos.avatarUrl,
       telefono: datos.telefono,
       direccion: datos.direccion,
       codigoPostal: datos.codigoPostal
     };
 
-    // ✅ Actualizamos el signal para triggear la petición HTTP
+    // ✅ Disparar el trigger para activar la petición HTTP
     this._triggerActualizacion.set(request);
   }
 
