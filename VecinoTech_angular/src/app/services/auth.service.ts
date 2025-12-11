@@ -1,16 +1,18 @@
 import { Injectable, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import IRestMessage from '../models/IRestMessage';
 import { StorageGlobalService } from './storage-global.service';
 import { IAuthPayload } from '../models/auth/IAuthPayload';
+import { IUsuario } from '../models/usuario/IUsuario';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:8080/api/zonaUsuario';
+  private readonly PORTAL_API_URL = 'http://localhost:8080/api/portal';
 
   // Computed: reactivo al estado de los signals
   public isAuthenticated = computed(() => {
@@ -58,6 +60,32 @@ export class AuthService {
       `${this.API_URL}/reenvio-activacion`,
       { email },
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    );
+  }
+
+  /**
+   * Recarga el usuario actual desde el backend
+   * Útil para obtener datos actualizados (ej: es_voluntario)
+   */
+  recargarUsuarioActual(): Observable<IUsuario> {
+    return this.http.get<IRestMessage>(`${this.PORTAL_API_URL}/perfil/me`).pipe(
+      map(response => {
+        if (response.codigo === 0) {
+          const usuario = response.datos as IUsuario;
+
+          // Actualiza el storage con los datos frescos
+          this.storage.actualizarUsuario(usuario);
+
+          console.log('Usuario recargado desde backend:', usuario);
+
+          return usuario;
+        }
+        throw new Error(response.mensaje || 'Error al recargar usuario');
+      }),
+      catchError(error => {
+        console.error('❌ Error recargando usuario:', error);
+        return throwError(() => error);
+      })
     );
   }
 

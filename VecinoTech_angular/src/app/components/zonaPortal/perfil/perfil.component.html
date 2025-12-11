@@ -85,6 +85,71 @@
                         🔒 Cambiar Contraseña
                       </button>
                     </div>
+
+                    <!-- ✅ NUEVO: Card Modo Voluntario -->
+                    <div class="mt-4 w-full p-4 rounded-lg border-2 transition-all" [ngClass]="{
+                      'border-green-500 bg-green-50 dark:bg-green-950/20': user.esVoluntario,
+                      'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50': !user.esVoluntario
+                    }">
+                      <!-- Header -->
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                          <svg class="size-6" [class.text-green-600]="user.esVoluntario" [class.text-slate-400]="!user.esVoluntario" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                          </svg>
+                          <span class="font-semibold text-slate-900 dark:text-white text-sm">
+                            Modo Voluntario
+                          </span>
+                        </div>
+
+                        @if (user.esVoluntario) {
+                          <span class="px-2 py-1 text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
+                            ACTIVO
+                          </span>
+                        } @else {
+                          <span class="px-2 py-1 text-xs font-bold bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400 rounded-full">
+                            INACTIVO
+                          </span>
+                        }
+                      </div>
+
+                      <!-- Descripción -->
+                      <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                        @if (user.esVoluntario) {
+                          Estás activo como voluntario. Puedes aceptar solicitudes de ayuda.
+                        } @else {
+                          Activa este modo para poder aceptar solicitudes de ayuda en tu comunidad.
+                        }
+                      </p>
+
+                      <!-- Botón Toggle -->
+                      <button
+                        (click)="toggleModoVoluntario()"
+                        [disabled]="cambiandoModoVoluntario()"
+                        class="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        [ngClass]="{
+                          'bg-red-600 text-white hover:bg-red-700': user.esVoluntario,
+                          'bg-green-600 text-white hover:bg-green-700': !user.esVoluntario
+                        }"
+                      >
+                        @if (cambiandoModoVoluntario()) {
+                          <div class="animate-spin rounded-full size-4 border-b-2 border-white"></div>
+                          <span>Cambiando...</span>
+                        } @else {
+                          @if (user.esVoluntario) {
+                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span>Desactivar</span>
+                          } @else {
+                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Activar</span>
+                          }
+                        }
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -262,6 +327,7 @@
       </div>
     </div>
   </div>
+
   <!-- ✅ MODAL DE EDITAR PERFIL -->
   <app-modal-editar
     [isOpen]="mostrarModal()"

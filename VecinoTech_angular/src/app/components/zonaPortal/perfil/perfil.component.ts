@@ -31,7 +31,6 @@ interface ActualizarPerfilRequest {
 
 @Component({
   selector: 'app-perfil',
-  standalone: true,
   imports: [CommonModule, ModalEditarComponent, AvatarUrlPipe],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
@@ -61,8 +60,11 @@ export class PerfilComponent {
   // Signal para controlar el modal
   readonly mostrarModal = signal<boolean>(false);
 
-  // ✅ NUEVO: Signal para el loading de la actualización
+  // Signal para el loading de la actualización
   readonly actualizandoPerfil = signal<boolean>(false);
+
+  // Signal para el loading del toggle voluntario
+  readonly cambiandoModoVoluntario = signal<boolean>(false);
 
   // Signal para trigger de actualización
   private readonly _triggerActualizacion = signal<ActualizarPerfilRequest | null>(null);
@@ -70,13 +72,12 @@ export class PerfilComponent {
   // ==================== toSignal para petición HTTP ====================
 
   /**
-   * ✅ CORREGIDO: Convierte el trigger de actualización en Observable
+   * Convierte el trigger de actualización en Observable
    */
   private readonly _resultadoActualizacion = toSignal(
     toObservable(this._triggerActualizacion).pipe(
       filter((request): request is ActualizarPerfilRequest => request !== null),
       tap(() => {
-        // ✅ Activar loading cuando empieza la petición
         this.actualizandoPerfil.set(true);
       }),
       switchMap(request => this.restPortal.putActualizarPerfil(request))
@@ -121,41 +122,34 @@ export class PerfilComponent {
     this.cargarPerfil();
 
     /**
-     * ✅ CORREGIDO: Effect que reacciona al resultado de actualización
+     * Effect que reacciona al resultado de actualización
      */
     effect(() => {
       const resultado = this._resultadoActualizacion();
 
-      // ✅ Solo procesamos si hay resultado Y si estamos actualizando
       if (!resultado || !this.actualizandoPerfil()) return;
 
       console.log('📥 Respuesta del backend:', resultado);
 
-      // ✅ Desactivar loading
       this.actualizandoPerfil.set(false);
 
       if (resultado.codigo === 0) {
-        console.log('✅ Perfil actualizado correctamente');
+        console.log(' Perfil actualizado correctamente!!');
 
-        // ✅ Actualizar el perfil con los datos del backend
         const usuarioActualizado = resultado.datos as IUsuario;
 
         if (usuarioActualizado) {
           this._perfil.set(usuarioActualizado);
           this.storage.actualizarUsuario(usuarioActualizado);
         } else {
-          // Si no viene el usuario, recargamos
           this.cargarPerfil();
         }
 
-        // ✅ Cerrar modal
         this.mostrarModal.set(false);
         this._error.set('');
 
-        // ✅ Mostrar mensaje de éxito
-        alert('✅ Perfil actualizado correctamente');
+        alert('Perfil actualizado correctamente ...');
       } else {
-        // ❌ Error del backend
         console.error('❌ Error del backend:', resultado.mensaje);
         this._error.set(resultado.mensaje || 'No se pudo actualizar el perfil');
         alert('❌ ' + resultado.mensaje);
@@ -216,7 +210,6 @@ export class PerfilComponent {
 
   /**
    * Guarda los cambios del perfil
-   * ✅ CORREGIDO: Sin .subscribe(), dispara el trigger
    */
   public guardarPerfil(datos: Partial<IUsuario>): void {
     console.log('📤 Guardando perfil:', datos);
@@ -233,8 +226,58 @@ export class PerfilComponent {
       codigoPostal: datos.codigoPostal
     };
 
-    // ✅ Disparar el trigger para activar la petición HTTP
     this._triggerActualizacion.set(request);
+  }
+
+  /**
+   * Toggle del modo voluntario
+   */
+  toggleModoVoluntario(): void {
+    const perfil = this._perfil();
+    if (!perfil) return;
+
+    const nuevoEstado = !perfil.esVoluntario;
+
+    const mensaje = nuevoEstado
+      ? '¿Deseas activar el Modo Voluntario?\n\nPodrás aceptar solicitudes de ayuda en tu comunidad.'
+      : '¿Deseas desactivar el Modo Voluntario?\n\nNo podrás aceptar nuevas solicitudes hasta que lo reactives.';
+
+    if (!confirm(mensaje)) {
+      return;
+    }
+
+    this.cambiandoModoVoluntario.set(true);
+
+    // Llamar al endpoint del backend
+    this.restPortal.toggleVoluntario().subscribe({
+      next: (response) => {
+        this.cambiandoModoVoluntario.set(false);
+
+        if (response.codigo === 0) {
+          // Actualizar el perfil local
+          const perfilActualizado: IUsuario = {
+            ...perfil,
+            esVoluntario: nuevoEstado
+          };
+
+          this._perfil.set(perfilActualizado);
+          this.storage.actualizarUsuario(perfilActualizado);
+
+          const mensajeExito = nuevoEstado
+            ? 'Modo Voluntario activado correctamente'
+            : 'Modo Voluntario desactivado correctamente';
+
+          alert(mensajeExito);
+        } else {
+          alert('❌ ' + response.mensaje);
+        }
+      },
+      error: (error) => {
+        this.cambiandoModoVoluntario.set(false);
+        console.error('Error al cambiar modo voluntario:', error);
+        alert('❌ Error al cambiar el modo voluntario');
+      }
+    });
   }
 
   /**

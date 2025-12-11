@@ -9,10 +9,8 @@ import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component
 // Servicios
 import { MapService } from '../../../services/map.service';
 import { StorageGlobalService } from '../../../services/storage-global.service';
+import { AuthService } from '../../../services/auth.service';
 import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
-
-// Interfaces
-
 
 @Component({
   selector: 'app-voluntario',
@@ -27,6 +25,7 @@ export class VoluntarioComponent implements OnInit {
   private readonly mapService = inject(MapService);
   private readonly _router = inject(Router);
   private readonly _storage = inject(StorageGlobalService);
+  private readonly authService = inject(AuthService);  // ✅ NUEVO
 
   // ==================== SIGNALS - DATA ====================
 
@@ -38,6 +37,9 @@ export class VoluntarioComponent implements OnInit {
 
   private readonly _reminderSubject = signal<string>('');
   private readonly _reminderTime = signal<string>('');
+
+  // ✅ Signal para el modal de no voluntario
+  readonly mostrarModalNoVoluntario = signal<boolean>(false);
 
   // ==================== COMPUTED SIGNALS ====================
 
@@ -85,11 +87,45 @@ export class VoluntarioComponent implements OnInit {
   // ==================== LIFECYCLE ====================
 
   ngOnInit(): void {
+    // ✅ Verificar si es voluntario ANTES de cargar solicitudes
+    this.verificarEsVoluntario();
+
     this.cargarSolicitudes();
     this.escucharEventosGlobales();
   }
 
   // ==================== MÉTODOS PRIVADOS ====================
+
+  /**
+   * ✅ ACTUALIZADO: Verifica si el usuario es voluntario recargando desde el backend
+   */
+  private verificarEsVoluntario(): void {
+    console.log('🔍 Verificando estado de voluntario...');
+
+    // ✅ Recargar usuario desde backend para obtener datos frescos
+    this.authService.recargarUsuarioActual().subscribe({
+      next: (usuario) => {
+        console.log('📥 Usuario recargado:', usuario);
+
+        // Si NO es voluntario, mostrar modal
+        if (!usuario.esVoluntario) {
+          console.log('⚠️ Usuario NO es voluntario, mostrando modal');
+          this.mostrarModalNoVoluntario.set(true);
+        } else {
+          console.log('✅ Usuario SÍ es voluntario');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error recargando usuario:', err);
+
+        // Fallback: usar el usuario del storage (datos potencialmente viejos)
+        const usuario = this._storage.getUsuario();
+        if (usuario && !usuario.esVoluntario) {
+          this.mostrarModalNoVoluntario.set(true);
+        }
+      }
+    });
+  }
 
   /**
    * Carga solicitudes del backend
@@ -246,6 +282,13 @@ export class VoluntarioComponent implements OnInit {
 
   irAHistorial(): void {
     this._router.navigate(['/portal/historial']);
+  }
+
+  /**
+   * Redirige al perfil para activar modo voluntario
+   */
+  irAPerfil(): void {
+    this._router.navigate(['/portal/perfil']);
   }
 
   // ==================== HELPERS ====================

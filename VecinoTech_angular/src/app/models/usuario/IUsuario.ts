@@ -9,4 +9,9 @@ export interface IUsuario {
   activo: boolean;
   fechaCreacion?: string; // ISO (opcional)
   avatarUrl?: string
+  esVoluntario?: boolean;
+
+  // OPCIONAL: Coordenadas (si las usas)
+  latitud?: number;
+  longitud?: number;
 }

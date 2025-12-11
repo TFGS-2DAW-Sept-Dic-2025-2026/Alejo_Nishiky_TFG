@@ -327,6 +327,17 @@ export class RestPortalService {
     );
   }
 
+    /**
+   * Toggle modo voluntario
+   * POST /api/portal/volunteer
+   */
+  toggleVoluntario(): Observable<IRestMessage> {
+    return this.http.post<IRestMessage>(
+      `${this.BASE_URL}/volunteer`,
+      {}
+    );
+  }
+
   /**
    * Obtener mensajes de un chat
    * GET /api/chat/mensajes/{solicitudId}
