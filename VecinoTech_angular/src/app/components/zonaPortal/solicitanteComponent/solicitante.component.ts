@@ -1,13 +1,13 @@
 import { Component, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
 import { ChatService } from '../../../services/chat.service';
 
 // Interfaces
-
 import { IChatNotificacion } from '../../../models/chat/IChatNotificacion';
 import ISolicitudMapa from '../../../models/solicitud/ISolicitudMapa';
 
@@ -34,17 +34,30 @@ export class SolicitanteComponent implements OnDestroy {
 
   // ==================== COMPUTED SIGNALS ====================
 
+  /**
+   * Filtra solicitudes activas (abiertas o en proceso)
+   */
   readonly solicitudesActivas = computed(() => {
     return this._solicitudes().filter(s =>
       s.estado === 'ABIERTA' || s.estado === 'EN_PROCESO'
     );
   });
 
+  /**
+   * Filtra solicitudes cerradas/completadas
+   */
   readonly solicitudesCerradas = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'CERRADA');
   });
 
+  /**
+   * Cuenta total de solicitudes activas
+   */
   readonly totalActivas = computed(() => this.solicitudesActivas().length);
+
+  /**
+   * Cuenta total de solicitudes completadas
+   */
   readonly totalCompletadas = computed(() => this.solicitudesCerradas().length);
 
   readonly loading = computed(() => this._loading());
@@ -64,8 +77,11 @@ export class SolicitanteComponent implements OnDestroy {
     this.chatService.desconectarWebSocket();
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  // ==================== CARGA DE DATOS ====================
 
+  /**
+   * Carga todas las solicitudes del usuario actual
+   */
   private cargarMisSolicitudes(): void {
     this._loading.set(true);
     this._error.set('');
@@ -80,13 +96,18 @@ export class SolicitanteComponent implements OnDestroy {
         this._loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando solicitudes:', err);
+        console.error('❌ Error cargando solicitudes:', err);
         this._error.set('No se pudieron cargar tus solicitudes');
         this._loading.set(false);
       }
     });
   }
 
+  // ==================== NOTIFICACIONES ====================
+
+  /**
+   * Inicializa el sistema de notificaciones WebSocket
+   */
   private inicializarNotificaciones(): void {
     console.log('🔔 Inicializando notificaciones...');
     this.chatService.conectarWebSocket();
@@ -97,6 +118,10 @@ export class SolicitanteComponent implements OnDestroy {
     }, 1000);
   }
 
+  /**
+   * Escucha notificaciones entrantes cada 500ms
+   * Detecta cuando una solicitud es aceptada por un voluntario
+   */
   private escucharNotificaciones(): void {
     const notificaciones = this.chatService.notificaciones;
 
@@ -113,55 +138,111 @@ export class SolicitanteComponent implements OnDestroy {
     }, 500);
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  /**
+   * Cierra una notificación activa
+   * @param solicitudId - ID de la solicitud
+   */
+  cerrarNotificacion(solicitudId: number): void {
+    this.chatService.eliminarNotificacion(solicitudId);
+    this._notificacionActiva.set(null);
+  }
 
+  // ==================== GESTIÓN DE SOLICITUDES ====================
+
+  /**
+   * Navega al formulario de crear nueva solicitud
+   */
   crearNuevaSolicitud(): void {
     this._router.navigate(['/portal/crear-solicitud']);
   }
 
+  /**
+   * Navega a los detalles de una solicitud
+   * @param solicitudId - ID de la solicitud
+   */
   verDetalles(solicitudId: number): void {
     this._router.navigate(['/portal/solicitud', solicitudId]);
   }
 
+  /**
+   * Marca una solicitud como completada
+   * Pide confirmación antes de completar
+   * @param solicitudId - ID de la solicitud a completar
+   */
   completarSolicitud(solicitudId: number): void {
-    if (!confirm('¿Marcar esta solicitud como completada?')) {
-      return;
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Marcar como completada?',
+      text: 'Confirmas que la asistencia fue satisfactoria',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, completar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    this._loading.set(true);
+      this._loading.set(true);
 
-    this.mapService.completarSolicitud(solicitudId).subscribe({
-      next: (response) => {
-        this._loading.set(false);
+      this.mapService.completarSolicitud(solicitudId).subscribe({
+        next: (response) => {
+          this._loading.set(false);
 
-        if (response.codigo === 0) {
-          alert('✅ Solicitud completada exitosamente');
-          this.cargarMisSolicitudes();
-        } else {
-          alert(`❌ ${response.mensaje}`);
+          if (response.codigo === 0) {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Solicitud completada!',
+              text: 'La solicitud se ha marcado como completada',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#10b981',
+              timer: 2500,
+              timerProgressBar: true
+            });
+            this.cargarMisSolicitudes();
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al completar',
+              text: response.mensaje,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#3b82f6'
+            });
+          }
+        },
+        error: (err) => {
+          this._loading.set(false);
+          console.error('❌ Error completando solicitud:', err);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al completar la solicitud',
+            text: 'Por favor, inténtalo de nuevo',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
-      },
-      error: (err) => {
-        this._loading.set(false);
-        console.error('Error completando solicitud:', err);
-        alert('❌ Error al completar la solicitud');
-      }
+      });
     });
   }
 
+  /**
+   * Navega al chat de una solicitud
+   * Elimina la notificación activa antes de navegar
+   * @param solicitudId - ID de la solicitud
+   */
   irAlChat(solicitudId: number): void {
     this.chatService.eliminarNotificacion(solicitudId);
     this._notificacionActiva.set(null);
     this._router.navigate(['/portal/chat', solicitudId]);
   }
 
-  cerrarNotificacion(solicitudId: number): void {
-    this.chatService.eliminarNotificacion(solicitudId);
-    this._notificacionActiva.set(null);
-  }
+  // ==================== HELPERS DE UI ====================
 
-  // ==================== HELPERS ====================
-
+  /**
+   * Obtiene las clases CSS para el color del badge según el estado
+   * @param estado - Estado de la solicitud
+   * @returns String con clases Tailwind CSS
+   */
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -175,6 +256,11 @@ export class SolicitanteComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Obtiene el texto legible del estado
+   * @param estado - Estado de la solicitud
+   * @returns Texto formateado para mostrar
+   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'ABIERTA': return 'Pendiente';
@@ -184,6 +270,11 @@ export class SolicitanteComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Obtiene el icono emoji según la categoría
+   * @param categoria - Categoría de la solicitud
+   * @returns Emoji representativo
+   */
   getIconoCategoria(categoria: string): string {
     const iconos: Record<string, string> = {
       'ORDENADOR': '💻',
@@ -195,6 +286,11 @@ export class SolicitanteComponent implements OnDestroy {
     return iconos[categoria] || '🛠️';
   }
 
+  /**
+   * Calcula el tiempo transcurrido desde una fecha
+   * @param fecha - Fecha en formato string
+   * @returns Texto descriptivo del tiempo transcurrido
+   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -212,25 +308,57 @@ export class SolicitanteComponent implements OnDestroy {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
+  // ==================== NAVEGACIÓN ====================
+
+  /**
+   * Vuelve al portal principal
+   */
   volverPortal(): void {
     this._router.navigate(['/portal']);
   }
 
+  /**
+   * Navega al historial de solicitudes
+   */
   irAHistorial(): void {
     this._router.navigate(['/portal/historial']);
   }
 
+  /**
+   * Navega a la lista de voluntariados
+   */
   irAMisVoluntariados(): void {
     this._router.navigate(['/portal/mis-voluntariados']);
   }
 
+  /**
+   * Navega al mapa de voluntarios
+   */
   irAVoluntario(): void {
     this._router.navigate(['/portal/voluntario']);
   }
 
+  // ==================== AUTENTICACIÓN ====================
+
+  /**
+   * Cierra la sesión del usuario
+   * Pide confirmación antes de cerrar sesión
+   */
   logout(): void {
-    if (confirm('¿Deseas cerrar sesión?')) {
-      console.log('Logout');
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Logout');
+        // TODO: Implementar logout completo
+      }
+    });
   }
 }

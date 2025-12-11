@@ -2,13 +2,10 @@ import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 // Servicios
 import { MapService } from '../../../services/map.service';
-
-// Interfaces
-
-import { NavbarComponent } from '../portal-layout/portal-navbar/navbar.component';
 
 import { StorageGlobalService } from '../../../services/storage-global.service';
 import { ModalValoracionComponent } from '../modal-valoracion/modal-valoracion.component';
@@ -222,13 +219,25 @@ private readonly storage = inject(StorageGlobalService); // ✅ AÑADIR
   abrirModalValoracion(solicitud: ISolicitudMapa): void {
     // Validar que sea solicitante
     if (!this.esSolicitante(solicitud)) {
-      alert('⚠️ Solo el solicitante puede valorar');
+      Swal.fire({
+        icon: 'warning',
+        title: 'No permitido',
+        text: 'Solo el solicitante puede valorar',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
     // Validar que haya voluntario
     if (!solicitud.voluntario) {
-      alert('⚠️ Esta solicitud no tiene voluntario asignado');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin voluntario',
+        text: 'Esta solicitud no tiene voluntario asignado',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
@@ -241,7 +250,16 @@ private readonly storage = inject(StorageGlobalService); // ✅ AÑADIR
    */
   onValoracionSuccess(): void {
     console.log('✅ Valoración completada desde historial');
-    alert('✅ ¡Gracias por tu valoración!');
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Gracias por tu valoración!',
+      text: 'Tu opinión ayuda a mejorar la comunidad',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#10b981',
+      timer: 2500,
+      timerProgressBar: true
+    });
 
     // ✅ Añadir al Set de valoradas
     const solicitud = this.solicitudAValorar();
@@ -373,9 +391,20 @@ private readonly storage = inject(StorageGlobalService); // ✅ AÑADIR
    * Logout
    */
   logout(): void {
-    if (confirm('¿Deseas cerrar sesión?')) {
-      // TODO: Implementar logout
-      console.log('Logout');
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // TODO: Implementar logout
+        console.log('Logout');
+      }
+    });
   }
 }

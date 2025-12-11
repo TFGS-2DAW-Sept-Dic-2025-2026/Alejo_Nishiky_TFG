@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { filter, switchMap, tap } from 'rxjs';
+import Swal from 'sweetalert2';
 
 // Servicios
 import { AuthService } from '../../../services/auth.service';
@@ -134,7 +135,7 @@ export class PerfilComponent {
       this.actualizandoPerfil.set(false);
 
       if (resultado.codigo === 0) {
-        console.log(' Perfil actualizado correctamente!!');
+        console.log('✅ Perfil actualizado correctamente');
 
         const usuarioActualizado = resultado.datos as IUsuario;
 
@@ -148,11 +149,26 @@ export class PerfilComponent {
         this.mostrarModal.set(false);
         this._error.set('');
 
-        alert('Perfil actualizado correctamente ...');
+        Swal.fire({
+          icon: 'success',
+          title: '¡Perfil actualizado!',
+          text: 'Tus cambios se han guardado correctamente',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#10b981',
+          timer: 2500,
+          timerProgressBar: true
+        });
       } else {
         console.error('❌ Error del backend:', resultado.mensaje);
         this._error.set(resultado.mensaje || 'No se pudo actualizar el perfil');
-        alert('❌ ' + resultado.mensaje);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al actualizar',
+          text: resultado.mensaje || 'No se pudo actualizar el perfil',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
+        });
       }
     }, { injector: this.injector });
   }
@@ -239,44 +255,82 @@ export class PerfilComponent {
     const nuevoEstado = !perfil.esVoluntario;
 
     const mensaje = nuevoEstado
-      ? '¿Deseas activar el Modo Voluntario?\n\nPodrás aceptar solicitudes de ayuda en tu comunidad.'
-      : '¿Deseas desactivar el Modo Voluntario?\n\nNo podrás aceptar nuevas solicitudes hasta que lo reactives.';
+      ? 'Podrás aceptar solicitudes de ayuda en tu comunidad.'
+      : 'No podrás aceptar nuevas solicitudes hasta que lo reactives.';
 
-    if (!confirm(mensaje)) {
-      return;
-    }
+    const titulo = nuevoEstado
+      ? '¿Activar Modo Voluntario?'
+      : '¿Desactivar Modo Voluntario?';
 
-    this.cambiandoModoVoluntario.set(true);
+    Swal.fire({
+      icon: 'question',
+      title: titulo,
+      text: mensaje,
+      showCancelButton: true,
+      confirmButtonText: nuevoEstado ? 'Sí, activar' : 'Sí, desactivar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: nuevoEstado ? '#10b981' : '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    // Llamar al endpoint del backend
-    this.restPortal.toggleVoluntario().subscribe({
-      next: (response) => {
-        this.cambiandoModoVoluntario.set(false);
+      this.cambiandoModoVoluntario.set(true);
 
-        if (response.codigo === 0) {
-          // Actualizar el perfil local
-          const perfilActualizado: IUsuario = {
-            ...perfil,
-            esVoluntario: nuevoEstado
-          };
+      // Llamar al endpoint del backend
+      this.restPortal.toggleVoluntario().subscribe({
+        next: (response) => {
+          this.cambiandoModoVoluntario.set(false);
 
-          this._perfil.set(perfilActualizado);
-          this.storage.actualizarUsuario(perfilActualizado);
+          if (response.codigo === 0) {
+            // Actualizar el perfil local
+            const perfilActualizado: IUsuario = {
+              ...perfil,
+              esVoluntario: nuevoEstado
+            };
 
-          const mensajeExito = nuevoEstado
-            ? 'Modo Voluntario activado correctamente'
-            : 'Modo Voluntario desactivado correctamente';
+            this._perfil.set(perfilActualizado);
+            this.storage.actualizarUsuario(perfilActualizado);
 
-          alert(mensajeExito);
-        } else {
-          alert('❌ ' + response.mensaje);
+            const mensajeExito = nuevoEstado
+              ? 'Ahora puedes aceptar solicitudes de ayuda'
+              : 'Ya no recibirás nuevas solicitudes';
+
+            const tituloExito = nuevoEstado
+              ? '¡Modo Voluntario activado!'
+              : 'Modo Voluntario desactivado';
+
+            Swal.fire({
+              icon: 'success',
+              title: tituloExito,
+              text: mensajeExito,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#10b981',
+              timer: 3000,
+              timerProgressBar: true
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al cambiar modo',
+              text: response.mensaje,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#3b82f6'
+            });
+          }
+        },
+        error: (error) => {
+          this.cambiandoModoVoluntario.set(false);
+          console.error('❌ Error al cambiar modo voluntario:', error);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al cambiar el modo',
+            text: 'Por favor, inténtalo de nuevo',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
-      },
-      error: (error) => {
-        this.cambiandoModoVoluntario.set(false);
-        console.error('Error al cambiar modo voluntario:', error);
-        alert('❌ Error al cambiar el modo voluntario');
-      }
+      });
     });
   }
 
@@ -284,7 +338,13 @@ export class PerfilComponent {
    * Cambiar contraseña
    */
   cambiarContrasena(): void {
-    alert('🔒 Funcionalidad en desarrollo');
+    Swal.fire({
+      icon: 'info',
+      title: 'Funcionalidad en desarrollo',
+      text: 'Pronto podrás cambiar tu contraseña',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3b82f6'
+    });
   }
 
   /**
@@ -298,8 +358,19 @@ export class PerfilComponent {
    * Logout
    */
   logout(): void {
-    if (confirm('¿Deseas cerrar sesión?')) {
-      this.authService.logout();
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout();
+      }
+    });
   }
 }

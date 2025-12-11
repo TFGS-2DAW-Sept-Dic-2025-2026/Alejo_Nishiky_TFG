@@ -226,7 +226,8 @@ export class ChatComponent {
             icon: 'error',
             title: 'No se pudo crear la videollamada',
             text: response.mensaje,
-            confirmButtonText: 'Entendido'
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
           });
         }
         this.cargandoVideo.set(false);
@@ -237,7 +238,8 @@ export class ChatComponent {
           icon: 'error',
           title: 'Error al crear la videollamada',
           text: 'Inténtalo de nuevo en unos minutos.',
-          confirmButtonText: 'Entendido'
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
         });
         this.cargandoVideo.set(false);
       }
@@ -258,10 +260,11 @@ export class ChatComponent {
       this.mostrarVideoModal.set(true);
     } else {
       Swal.fire({
-          icon: 'error',
-          title: 'No se pudo abrir la videollamada',
-          text: 'No se recibió una URL válida de la sala.',
-          confirmButtonText: 'Entendido'
+        icon: 'error',
+        title: 'No se pudo abrir la videollamada',
+        text: 'No se recibió una URL válida de la sala.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3b82f6'
       });
     }
   }
@@ -282,14 +285,21 @@ export class ChatComponent {
    * Muestra notificación cuando llega invitación
    */
   private mostrarNotificacionVideo(nombreUsuario: string): void {
-    // Opcional: Puedes usar un toast o notificación más elegante
-    const unirse = confirm(
-      `📹 ${nombreUsuario} ha iniciado una videollamada\n\n¿Deseas unirte?`
-    );
-
-    if (unirse) {
-      this.unirseAVideollamada();
-    }
+    Swal.fire({
+      icon: 'info',
+      title: 'Videollamada entrante',
+      html: `<strong>${nombreUsuario}</strong> ha iniciado una videollamada`,
+      showCancelButton: true,
+      confirmButtonText: '📹 Unirme',
+      cancelButtonText: 'Ahora no',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      allowOutsideClick: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.unirseAVideollamada();
+      }
+    });
   }
 
   readonly puedeIniciarVideo = computed(() => {
@@ -331,13 +341,25 @@ export class ChatComponent {
           console.log('✅ Mensaje enviado');
           this.nuevoMensaje.set('');
         } else {
-          alert('❌ ' + response.mensaje);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al enviar',
+            text: response.mensaje,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
         this.enviando.set(false);
       },
       error: (err) => {
         console.error('❌ Error enviando mensaje:', err);
-        alert('❌ Error al enviar mensaje');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al enviar mensaje',
+          text: 'Por favor, inténtalo de nuevo',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
+        });
         this.enviando.set(false);
       }
     });
@@ -520,30 +542,61 @@ export class ChatComponent {
  * ✅ NUEVO: Finalizar el chat (solo solicitante)
  */
   finalizarChat(): void {
-    if (!confirm('¿Finalizar este chat?\n\nAl finalizar, confirmas que has recibido la asistencia satisfactoriamente.')) {
-      return;
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Finalizar este chat?',
+      text: 'Al finalizar, confirmas que has recibido la asistencia satisfactoriamente.',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.enviando.set(true);
 
-    this.enviando.set(true);
+        this.mapService.completarSolicitud(this._solicitudId()).subscribe({
+          next: (response) => {
+            if (response.codigo === 0) {
+              console.log('✅ Chat finalizado');
 
-    this.mapService.completarSolicitud(this._solicitudId()).subscribe({
-      next: (response) => {
-        if (response.codigo === 0) {
-          console.log('✅ Chat finalizado');
+              Swal.fire({
+                icon: 'success',
+                title: '¡Chat finalizado!',
+                text: 'Ahora puedes valorar al voluntario',
+                confirmButtonText: 'Continuar',
+                confirmButtonColor: '#10b981',
+                timer: 2000,
+                timerProgressBar: true
+              });
 
-          this.enviando.set(false);
-          this.mostrarModalValoracion.set(true);
+              this.enviando.set(false);
+              this.mostrarModalValoracion.set(true);
 
-        } else {
-          alert('❌ ' + response.mensaje);
-          this.enviando.set(false);
-        }
-        this.enviando.set(false);
-      },
-      error: (err) => {
-        console.error('❌ Error finalizando chat:', err);
-        alert('❌ Error al finalizar el chat');
-        this.enviando.set(false);
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error al finalizar',
+                text: response.mensaje,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3b82f6'
+              });
+              this.enviando.set(false);
+            }
+            this.enviando.set(false);
+          },
+          error: (err) => {
+            console.error('❌ Error finalizando chat:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al finalizar el chat',
+              text: 'Por favor, inténtalo de nuevo',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#3b82f6'
+            });
+            this.enviando.set(false);
+          }
+        });
       }
     });
   }
@@ -553,8 +606,17 @@ export class ChatComponent {
    */
   onValoracionSuccess(): void {
     console.log('✅ Valoración completada');
-    alert('✅ ¡Gracias por tu valoración!');
-    this.router.navigate(['/portal/solicitante']);
+    Swal.fire({
+      icon: 'success',
+      title: '¡Gracias por tu valoración!',
+      text: 'Tu opinión ayuda a mejorar la comunidad',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#10b981',
+      timer: 2500,
+      timerProgressBar: true
+    }).then(() => {
+      this.router.navigate(['/portal/solicitante']);
+    });
   }
 
   /**
@@ -579,12 +641,24 @@ export class ChatComponent {
    */
   mostrarModalConfirmacionVideo(): void {
     if (!this.conectado()) {
-      alert('⚠️ No estás conectado al chat');
+      Swal.fire({
+        icon: 'warning',
+        title: 'No conectado',
+        text: 'No estás conectado al chat',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
     if (!this.otroUsuarioEnLinea()) {
-      alert('⚠️ El otro usuario no está conectado');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no disponible',
+        text: 'El otro usuario no está conectado',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
@@ -606,7 +680,7 @@ export class ChatComponent {
   }
 
   /**
-   * ✅ NUEVO: Cerrar modal de chat finalizado (voluntario)
+   * Cerrar modal de chat finalizado (voluntario) 
    */
   cerrarModalFinalizado(): void {
     this.mostrarModalFinalizado.set(false);

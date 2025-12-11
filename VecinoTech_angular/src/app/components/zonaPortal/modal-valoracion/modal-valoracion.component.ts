@@ -98,7 +98,7 @@ export class ModalValoracionComponent {
     this.valoracionesService.crearValoracion(request).subscribe({
       next: (response) => {
         if (response.codigo === 0) {
-          console.log('Valoracion enviada!!!');
+          console.log('✅ Valoración enviada');
           this.success.emit();
           this.cerrar();
         } else {
@@ -106,18 +106,20 @@ export class ModalValoracionComponent {
             icon: 'error',
             title: 'No se pudo enviar tu valoración',
             text: response.mensaje,
-            confirmButtonText: 'Entendido'
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
           });
           this.enviando.set(false);
         }
       },
       error: (err) => {
-        console.error('Error enviando valoración ... ', err);
+        console.error('❌ Error enviando valoración:', err);
         Swal.fire({
           icon: 'error',
           title: 'Error al enviar la valoración',
           text: 'Inténtalo de nuevo en unos minutos.',
-          confirmButtonText: 'Entendido'
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
         });
         this.enviando.set(false);
       }
@@ -141,21 +143,22 @@ export class ModalValoracionComponent {
   /**
    * Omite la valoración
    */
-  async omitir(): Promise<void> {
-    const result = await Swal.fire({
+  omitir(): void {
+    Swal.fire({
+      icon: 'question',
       title: '¿Omitir valoración?',
       text: 'Podrás valorarla más tarde desde el historial.',
-      icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, omitir',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'No, quedarse',
+      confirmButtonColor: '#6b7280',
+      cancelButtonColor: '#3b82f6'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cerrar();
+      }
     });
-
-    if (result.isConfirmed) {
-      this.cerrar();
-    }
   }
-
 
   /**
    * Cierra el modal

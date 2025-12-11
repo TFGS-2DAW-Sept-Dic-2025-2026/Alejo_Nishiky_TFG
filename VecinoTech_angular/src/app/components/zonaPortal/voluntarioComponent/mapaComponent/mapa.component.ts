@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 import * as L from 'leaflet';
 import ICategoria from '../../../../models/ICategoria';
@@ -50,6 +51,9 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ==================== COMPUTED ====================
 
+  /**
+   * Verifica si hay solicitudes para mostrar
+   */
   readonly haySolicitudes = computed(() => this._solicitudesInternas().length > 0);
 
   // ==================== PROPIEDADES ====================
@@ -60,7 +64,8 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
   // ==================== EFFECTS ====================
 
   /**
-   * Detecta cambios en el @Input solicitudes
+   * Effect que detecta cambios en el @Input solicitudes
+   * Actualiza el signal interno y recarga marcadores si el mapa está listo
    */
   private readonly solicitudesEffect = effect(() => {
     // Sincronizar input con signal interno
@@ -91,10 +96,23 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  ngOnChanges(changes: SimpleChanges): void {
+    // Solo actualizar si:
+    // 1. Cambió el input 'solicitudes'
+    // 2. No es el primer cambio (primera carga)
+    // 3. El mapa ya está inicializado
+    if (changes['solicitudes'] && !changes['solicitudes'].firstChange && this.map) {
+      console.log('🔄 Solicitudes actualizadas, recargando marcadores...', this.solicitudes.length);
+      this.limpiarMarcadores();
+      this.agregarMarcadores();
+    }
+  }
+
+  // ==================== INICIALIZACIÓN DEL MAPA ====================
 
   /**
-   * Inicializa el mapa de Leaflet
+   * Inicializa el mapa de Leaflet con configuración base
+   * Centro: Madrid (40.4168, -3.7038)
    */
   private inicializarMapa(): void {
     try {
@@ -121,13 +139,16 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
     } catch (error) {
-      console.error('Error inicializando mapa:', error);
+      console.error('❌ Error inicializando mapa:', error);
       this.errorMapa.emit('Error al inicializar el mapa');
     }
   }
 
+  // ==================== GESTIÓN DE MARCADORES ====================
+
   /**
-   * Añade marcadores al mapa
+   * Añade marcadores al mapa para cada solicitud
+   * Ajusta automáticamente el zoom para mostrar todos los marcadores
    */
   private agregarMarcadores(): void {
     // Limpiar marcadores anteriores
@@ -166,7 +187,22 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Crea contenido del popup
+   * Limpia todos los marcadores del mapa
+   */
+  private limpiarMarcadores(): void {
+    this.markers.forEach(marker => {
+      marker.remove();
+    });
+    this.markers = [];
+    console.log('🗑️ Marcadores eliminados');
+  }
+
+  // ==================== CREACIÓN DE POPUPS ====================
+
+  /**
+   * Crea el contenido HTML del popup de una solicitud
+   * @param solicitud - Solicitud a mostrar en el popup
+   * @returns HTML string del popup
    */
   private crearPopupContent(solicitud: ISolicitudMapa): string {
     return `
@@ -198,7 +234,9 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Escapa HTML
+   * Escapa caracteres HTML para prevenir XSS
+   * @param texto - Texto a escapar
+   * @returns Texto escapado
    */
   private escaparHTML(texto: string): string {
     const div = document.createElement('div');
@@ -206,10 +244,10 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
     return div.innerHTML;
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  // ==================== CONTROLES DEL MAPA ====================
 
   /**
-   * Aumentar zoom
+   * Aumenta el nivel de zoom del mapa
    */
   zoomIn(): void {
     if (this.map) {
@@ -218,7 +256,7 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Disminuir zoom
+   * Disminuye el nivel de zoom del mapa
    */
   zoomOut(): void {
     if (this.map) {
@@ -227,7 +265,8 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Centrar en ubicación del usuario
+   * Centra el mapa en la ubicación actual del usuario
+   * Solicita permisos de geolocalización si es necesario
    */
   centrarEnMiUbicacion(): void {
     this.mapService.actualizarUbicacion().subscribe({
@@ -248,41 +287,27 @@ export class MapaComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error obteniendo ubicación:', err);
+        console.error('❌ Error obteniendo ubicación:', err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de ubicación',
+          text: 'No se pudo obtener tu ubicación. Verifica los permisos del navegador.',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
+        });
+
         this.errorMapa.emit('No se pudo obtener tu ubicación');
       }
     });
   }
 
   /**
-   * Centrar mapa en Madrid (reset)
+   * Resetea el mapa a la vista por defecto (Madrid)
    */
   centrarMapa(): void {
     if (this.map) {
       this.map.setView([40.4168, -3.7038], 12);
     }
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // Solo actualizar si:
-    // 1. Cambió el input 'solicitudes'
-    // 2. No es el primer cambio (primera carga)
-    // 3. El mapa ya está inicializado
-    if (changes['solicitudes'] && !changes['solicitudes'].firstChange && this.map) {
-      console.log('🔄 Solicitudes actualizadas, recargando marcadores...', this.solicitudes.length);
-      this.limpiarMarcadores();
-      this.agregarMarcadores();
-    }
-  }
-
-  /**
- * Limpia todos los marcadores del mapa
- */
-private limpiarMarcadores(): void {
-  this.markers.forEach(marker => {
-    marker.remove();
-  });
-  this.markers = [];
-  console.log('🗑️ Marcadores eliminados');
-}
 }

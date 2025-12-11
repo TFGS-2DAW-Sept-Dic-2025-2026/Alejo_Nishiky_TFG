@@ -1,16 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-// Componentes
-
+import Swal from 'sweetalert2';
 
 // Servicios
 import { MapService } from '../../../../services/map.service';
 
 // Interfaces
-
-import { NavbarComponent } from '../../portal-layout/portal-navbar/navbar.component';
 import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
 
 @Component({
@@ -35,6 +31,9 @@ export class MisVoluntariadosComponent implements OnInit {
 
   // ==================== COMPUTED SIGNALS ====================
 
+  /**
+   * Solicitudes filtradas según el filtro activo
+   */
   readonly solicitudesFiltradas = computed(() => {
     const filtro = this._filtroActivo();
     const todas = this._solicitudes();
@@ -49,16 +48,33 @@ export class MisVoluntariadosComponent implements OnInit {
     }
   });
 
+  /**
+   * Solicitudes en progreso
+   */
   readonly solicitudesEnProgreso = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'EN_PROCESO');
   });
 
+  /**
+   * Solicitudes completadas
+   */
   readonly solicitudesCompletadas = computed(() => {
     return this._solicitudes().filter(s => s.estado === 'CERRADA');
   });
 
+  /**
+   * Total de ayudas realizadas
+   */
   readonly totalAyudas = computed(() => this._solicitudes().length);
+
+  /**
+   * Total de ayudas en progreso
+   */
   readonly totalEnProgreso = computed(() => this.solicitudesEnProgreso().length);
+
+  /**
+   * Total de ayudas completadas
+   */
   readonly totalCompletadas = computed(() => this.solicitudesCompletadas().length);
 
   readonly loading = computed(() => this._loading());
@@ -71,8 +87,11 @@ export class MisVoluntariadosComponent implements OnInit {
     this.cargarMisVoluntariados();
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  // ==================== CARGA DE DATOS ====================
 
+  /**
+   * Carga todos los voluntariados del usuario actual
+   */
   private cargarMisVoluntariados(): void {
     this._loading.set(true);
     this._error.set('');
@@ -87,31 +106,54 @@ export class MisVoluntariadosComponent implements OnInit {
         this._loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando voluntariados:', err);
+        console.error('❌ Error cargando voluntariados:', err);
         this._error.set('No se pudieron cargar tus voluntariados');
         this._loading.set(false);
       }
     });
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  // ==================== FILTROS ====================
 
+  /**
+   * Cambia el filtro activo de solicitudes
+   * @param filtro - Tipo de filtro a aplicar
+   */
   cambiarFiltro(filtro: 'todas' | 'en_progreso' | 'completadas'): void {
     this._filtroActivo.set(filtro);
   }
 
+  // ==================== NAVEGACIÓN ====================
+
+  /**
+   * Navega a los detalles de una solicitud
+   * @param solicitudId - ID de la solicitud
+   */
   verDetalles(solicitudId: number): void {
     this.router.navigate(['/portal/solicitud', solicitudId]);
   }
 
+  /**
+   * Navega al mapa para buscar más solicitudes
+   */
   buscarMasSolicitudes(): void {
     this.router.navigate(['/portal/voluntario']);
   }
 
+  /**
+   * Vuelve al portal principal
+   */
   volverPortal(): void {
     this.router.navigate(['/portal']);
   }
 
+  // ==================== HELPERS DE UI ====================
+
+  /**
+   * Obtiene las clases CSS para el color del badge según el estado
+   * @param estado - Estado de la solicitud
+   * @returns String con clases Tailwind CSS
+   */
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -125,6 +167,11 @@ export class MisVoluntariadosComponent implements OnInit {
     }
   }
 
+  /**
+   * Obtiene el texto legible del estado
+   * @param estado - Estado de la solicitud
+   * @returns Texto formateado para mostrar
+   */
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case 'ABIERTA':
@@ -138,6 +185,11 @@ export class MisVoluntariadosComponent implements OnInit {
     }
   }
 
+  /**
+   * Obtiene el icono emoji según la categoría
+   * @param categoria - Categoría de la solicitud
+   * @returns Emoji representativo
+   */
   getIconoCategoria(categoria: string): string {
     const iconos: Record<string, string> = {
       'ORDENADOR': '💻',
@@ -149,6 +201,11 @@ export class MisVoluntariadosComponent implements OnInit {
     return iconos[categoria] || '🛠️';
   }
 
+  /**
+   * Calcula el tiempo transcurrido desde una fecha
+   * @param fecha - Fecha en formato string
+   * @returns Texto descriptivo del tiempo transcurrido
+   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -166,9 +223,27 @@ export class MisVoluntariadosComponent implements OnInit {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
+  // ==================== AUTENTICACIÓN ====================
+
+  /**
+   * Cierra la sesión del usuario
+   * Pide confirmación antes de cerrar sesión
+   */
   logout(): void {
-    if (confirm('¿Deseas cerrar sesión?')) {
-      console.log('Logout');
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Logout');
+        // TODO: Implementar logout completo
+      }
+    });
   }
 }

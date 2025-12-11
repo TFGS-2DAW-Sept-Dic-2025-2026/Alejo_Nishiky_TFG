@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, filter, switchMap, map } from 'rxjs';
+import Swal from 'sweetalert2';
+
 import { MapService } from '../../../../services/map.service';
 import ISolicitudMapa from '../../../../models/solicitud/ISolicitudMapa';
-
 
 @Component({
   selector: 'app-detalle-solicitud',
@@ -28,17 +29,21 @@ export class DetalleSolicitudComponent {
   private readonly _loading = signal<boolean>(true);
   private readonly _error = signal<string>('');
 
-  // ✅ NUEVO: Signal para trigger de completar solicitud
+  /**
+   * Signal trigger para completar solicitud
+   */
   private readonly _triggerCompletar = signal<number | null>(null);
 
-  // ✅ NUEVO: Signal para el ID de la ruta
+  /**
+   * Signal con el ID de la solicitud desde la ruta
+   */
   private readonly _solicitudId = signal<number | null>(null);
 
-  // ==================== toSignal para peticiones HTTP ====================
+  // ==================== toSignal - PETICIONES HTTP ====================
 
   /**
-   * ✅ Carga automática de solicitudes al inicializar
-   * Combina mis solicitudes + mis voluntariados
+   * Carga automática de todas las solicitudes al inicializar
+   * Combina mis solicitudes como solicitante + mis voluntariados
    */
   private readonly _todasLasSolicitudes = toSignal(
     combineLatest({
@@ -63,7 +68,7 @@ export class DetalleSolicitudComponent {
   );
 
   /**
-   * ✅ Resultado de completar solicitud
+   * Resultado de completar solicitud (reactivo)
    */
   private readonly _resultadoCompletar = toSignal(
     toObservable(this._triggerCompletar).pipe(
@@ -92,7 +97,7 @@ export class DetalleSolicitudComponent {
     }
 
     /**
-     * ✅ Effect que busca la solicitud cuando se cargan todas
+     * Effect: Busca la solicitud cuando se cargan todas
      */
     effect(() => {
       const todas = this._todasLasSolicitudes();
@@ -113,7 +118,7 @@ export class DetalleSolicitudComponent {
     }, { injector: this.injector });
 
     /**
-     * ✅ Effect que reacciona al resultado de completar
+     * Effect: Reacciona al resultado de completar solicitud
      */
     effect(() => {
       const resultado = this._resultadoCompletar();
@@ -123,17 +128,63 @@ export class DetalleSolicitudComponent {
 
         if (resultado.codigo === 0) {
           console.log('✅ Solicitud completada exitosamente');
-          alert('✅ Solicitud completada exitosamente');
-          this.volver();
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡Solicitud completada!',
+            text: 'La solicitud se ha marcado como completada',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#10b981',
+            timer: 2500,
+            timerProgressBar: true
+          }).then(() => {
+            this.volver();
+          });
         } else {
           console.error('❌ Error:', resultado.mensaje);
-          alert(`❌ ${resultado.mensaje}`);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al completar',
+            text: resultado.mensaje,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
       }
     }, { injector: this.injector });
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  // ==================== GESTIÓN DE SOLICITUD ====================
+
+  /**
+   * Completa la solicitud actual
+   * Pide confirmación antes de marcar como completada
+   */
+  completarSolicitud(): void {
+    const solicitud = this._solicitud();
+    if (!solicitud) return;
+
+    Swal.fire({
+      icon: 'question',
+      title: '¿Marcar como completada?',
+      text: 'Confirmas que la asistencia fue satisfactoria',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, completar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      this._loading.set(true);
+
+      // Actualizar el signal para triggear la petición HTTP
+      this._triggerCompletar.set(solicitud.id);
+    });
+  }
+
+  // ==================== NAVEGACIÓN ====================
 
   /**
    * Vuelve a la página anterior
@@ -142,26 +193,12 @@ export class DetalleSolicitudComponent {
     window.history.back();
   }
 
-  /**
-   * Completa la solicitud
-   * ✅ MEJORADO: Sin .subscribe(), solo actualiza el signal trigger
-   */
-  completarSolicitud(): void {
-    const solicitud = this._solicitud();
-    if (!solicitud) return;
-
-    if (!confirm('¿Marcar esta solicitud como completada?')) {
-      return;
-    }
-
-    this._loading.set(true);
-
-    // ✅ Actualizamos el signal para triggear la petición HTTP
-    this._triggerCompletar.set(solicitud.id);
-  }
+  // ==================== HELPERS DE UI ====================
 
   /**
-   * Obtiene el color del badge según el estado
+   * Obtiene las clases CSS para el color del badge según el estado
+   * @param estado - Estado de la solicitud
+   * @returns String con clases Tailwind CSS
    */
   getEstadoColor(estado: string): string {
     switch (estado) {
@@ -178,6 +215,8 @@ export class DetalleSolicitudComponent {
 
   /**
    * Obtiene el texto legible del estado
+   * @param estado - Estado de la solicitud
+   * @returns Texto formateado para mostrar
    */
   getEstadoTexto(estado: string): string {
     switch (estado) {
@@ -193,7 +232,9 @@ export class DetalleSolicitudComponent {
   }
 
   /**
-   * Calcula el tiempo transcurrido desde la fecha
+   * Calcula el tiempo transcurrido desde una fecha
+   * @param fecha - Fecha en formato string
+   * @returns Texto descriptivo del tiempo transcurrido
    */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';

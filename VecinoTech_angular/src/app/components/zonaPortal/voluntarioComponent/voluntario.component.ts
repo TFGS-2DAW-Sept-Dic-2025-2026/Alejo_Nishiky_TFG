@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 // Componentes
 import { MapaComponent } from './mapaComponent/mapa.component';
@@ -25,7 +26,7 @@ export class VoluntarioComponent implements OnInit {
   private readonly mapService = inject(MapService);
   private readonly _router = inject(Router);
   private readonly _storage = inject(StorageGlobalService);
-  private readonly authService = inject(AuthService);  // ✅ NUEVO
+  private readonly authService = inject(AuthService);
 
   // ==================== SIGNALS - DATA ====================
 
@@ -38,13 +39,15 @@ export class VoluntarioComponent implements OnInit {
   private readonly _reminderSubject = signal<string>('');
   private readonly _reminderTime = signal<string>('');
 
-  // ✅ Signal para el modal de no voluntario
+  /**
+   * Controla la visibilidad del modal de no voluntario
+   */
   readonly mostrarModalNoVoluntario = signal<boolean>(false);
 
   // ==================== COMPUTED SIGNALS ====================
 
   /**
-   * Top 5 solicitudes más recientes
+   * Top 5 solicitudes más recientes (abiertas)
    */
   readonly topSolicitudes = computed(() => {
     return this._solicitudes()
@@ -87,22 +90,23 @@ export class VoluntarioComponent implements OnInit {
   // ==================== LIFECYCLE ====================
 
   ngOnInit(): void {
-    // ✅ Verificar si es voluntario ANTES de cargar solicitudes
+    // Verificar si es voluntario ANTES de cargar solicitudes
     this.verificarEsVoluntario();
 
     this.cargarSolicitudes();
     this.escucharEventosGlobales();
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  // ==================== VERIFICACIÓN DE PERMISOS ====================
 
   /**
-   * ✅ ACTUALIZADO: Verifica si el usuario es voluntario recargando desde el backend
+   * Verifica si el usuario es voluntario recargando desde el backend
+   * Si no es voluntario, muestra modal para activar el modo
    */
   private verificarEsVoluntario(): void {
     console.log('🔍 Verificando estado de voluntario...');
 
-    // ✅ Recargar usuario desde backend para obtener datos frescos
+    // Recargar usuario desde backend para obtener datos frescos
     this.authService.recargarUsuarioActual().subscribe({
       next: (usuario) => {
         console.log('📥 Usuario recargado:', usuario);
@@ -127,8 +131,11 @@ export class VoluntarioComponent implements OnInit {
     });
   }
 
+  // ==================== CARGA DE DATOS ====================
+
   /**
-   * Carga solicitudes del backend
+   * Carga todas las solicitudes disponibles
+   * Primero carga solicitudes abiertas, luego chats activos
    */
   private cargarSolicitudes(): void {
     this._loading.set(true);
@@ -146,7 +153,7 @@ export class VoluntarioComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error cargando solicitudes:', err);
+        console.error('❌ Error cargando solicitudes:', err);
         this._error.set('No se pudieron cargar las solicitudes');
         this._loading.set(false);
       }
@@ -154,7 +161,8 @@ export class VoluntarioComponent implements OnInit {
   }
 
   /**
-   * Carga solicitudes EN_PROCESO donde soy voluntario
+   * Carga solicitudes EN_PROCESO donde el usuario es voluntario
+   * @param solicitudesAbiertas - Solicitudes abiertas ya cargadas
    */
   private cargarMisChatsActivos(solicitudesAbiertas: ISolicitudMapa[]): void {
     this.mapService.getSolicitudesComoVoluntario().subscribe({
@@ -167,15 +175,18 @@ export class VoluntarioComponent implements OnInit {
         this._loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando chats activos:', err);
+        console.error('❌ Error cargando chats activos:', err);
         this._solicitudes.set(solicitudesAbiertas);
         this._loading.set(false);
       }
     });
   }
 
+  // ==================== EVENTOS GLOBALES ====================
+
   /**
    * Escucha eventos globales desde popups de Leaflet
+   * Permite aceptar solicitudes desde el mapa
    */
   private escucharEventosGlobales(): void {
     document.addEventListener('aceptar-solicitud', (event: any) => {
@@ -184,102 +195,173 @@ export class VoluntarioComponent implements OnInit {
     });
   }
 
-  // ==================== MÉTODOS PÚBLICOS - SOLICITUDES ====================
+  // ==================== GESTIÓN DE SOLICITUDES ====================
 
   /**
-   * Acepta una solicitud
+   * Acepta una solicitud y navega al chat
+   * Pide confirmación antes de aceptar
+   * @param solicitudId - ID de la solicitud a aceptar
    */
   aceptarSolicitud(solicitudId: number): void {
-    if (!confirm('¿Deseas aceptar esta solicitud?')) {
-      return;
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Aceptar esta solicitud?',
+      text: 'Te comprometes a ayudar con esta solicitud',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, aceptar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    this._loading.set(true);
+      this._loading.set(true);
 
-    this.mapService.aceptarSolicitud(solicitudId).subscribe({
-      next: (response) => {
-        this._loading.set(false);
+      this.mapService.aceptarSolicitud(solicitudId).subscribe({
+        next: (response) => {
+          this._loading.set(false);
 
-        if (response.codigo === 0) {
-          alert('✅ Solicitud aceptada correctamente');
-          this.cargarSolicitudes();
-          this._router.navigate(['/portal/chat', solicitudId]);
-        } else {
-          alert(`❌ ${response.mensaje}`);
+          if (response.codigo === 0) {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Solicitud aceptada!',
+              text: 'Ahora puedes chatear con el solicitante',
+              confirmButtonText: 'Ir al chat',
+              confirmButtonColor: '#10b981',
+              timer: 2000,
+              timerProgressBar: true
+            }).then(() => {
+              this.cargarSolicitudes();
+              this._router.navigate(['/portal/chat', solicitudId]);
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al aceptar',
+              text: response.mensaje,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#3b82f6'
+            });
+          }
+        },
+        error: (err) => {
+          this._loading.set(false);
+          console.error('❌ Error aceptando solicitud:', err);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al aceptar la solicitud',
+            text: 'Por favor, inténtalo de nuevo',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
-      },
-      error: (err) => {
-        this._loading.set(false);
-        console.error('Error aceptando solicitud:', err);
-        alert('❌ Error al aceptar la solicitud');
-      }
+      });
     });
   }
 
   /**
-   * Handler cuando se hace click en el mapa
+   * Handler cuando se hace click en una solicitud del mapa
+   * @param solicitudId - ID de la solicitud clickeada
    */
   onSolicitudClickMapa(solicitudId: number): void {
-    console.log('Click en solicitud del mapa:', solicitudId);
+    console.log('📍 Click en solicitud del mapa:', solicitudId);
     this.aceptarSolicitud(solicitudId);
   }
 
   /**
    * Handler de errores del mapa
+   * @param error - Mensaje de error
    */
   onErrorMapa(error: string): void {
     this._error.set(error);
   }
 
   /**
-   * Continuar conversación en el chat
+   * Continúa una conversación existente en el chat
+   * @param solicitudId - ID de la solicitud
    */
   continuarChat(solicitudId: number): void {
     this._router.navigate(['/portal/chat', solicitudId]);
   }
 
-  // ==================== MÉTODOS PÚBLICOS - RECORDATORIOS ====================
+  // ==================== RECORDATORIOS ====================
 
+  /**
+   * Establece la materia del recordatorio
+   * @param subject - Materia seleccionada
+   */
   setReminderSubject(subject: string): void {
     this._reminderSubject.set(subject);
   }
 
+  /**
+   * Establece el tiempo del recordatorio
+   * @param time - Tiempo seleccionado
+   */
   setReminderTime(time: string): void {
     this._reminderTime.set(time);
   }
 
+  /**
+   * Crea un recordatorio
+   * Valida que se hayan seleccionado materia y tiempo
+   */
   setReminder(): void {
     const subject = this._reminderSubject();
     const time = this._reminderTime();
 
     if (!subject || !time) {
-      alert('⚠️ Por favor selecciona una materia y un horario');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Recordatorio incompleto',
+        text: 'Por favor selecciona una materia y un horario',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
-    alert(`✅ Recordatorio establecido:\n${subject} - ${time}`);
+    Swal.fire({
+      icon: 'success',
+      title: '¡Recordatorio establecido!',
+      html: `<strong>${subject}</strong><br>${time}`,
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#10b981',
+      timer: 2500,
+      timerProgressBar: true
+    });
 
     this._reminderSubject.set('');
     this._reminderTime.set('');
   }
 
-  // ==================== MÉTODOS PÚBLICOS - NAVEGACIÓN ====================
+  // ==================== NAVEGACIÓN ====================
 
   /**
-   * Navega al mapa (mismo componente, scroll top)
+   * Navega al mapa (scroll suave al inicio)
    */
   irAlMapa(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /**
+   * Vuelve al portal principal
+   */
   volverPortal(): void {
     this._router.navigate(['/portal']);
   }
 
+  /**
+   * Navega a la lista de voluntariados
+   */
   irAMisVoluntariados(): void {
     this._router.navigate(['/portal/mis-voluntariados']);
   }
 
+  /**
+   * Navega al historial de solicitudes
+   */
   irAHistorial(): void {
     this._router.navigate(['/portal/historial']);
   }
@@ -293,6 +375,11 @@ export class VoluntarioComponent implements OnInit {
 
   // ==================== HELPERS ====================
 
+  /**
+   * Calcula el tiempo transcurrido desde una fecha
+   * @param fecha - Fecha en formato string
+   * @returns Texto descriptivo del tiempo transcurrido
+   */
   calcularTiempoTranscurrido(fecha: string): string {
     if (!fecha) return 'Fecha desconocida';
 
@@ -310,6 +397,11 @@ export class VoluntarioComponent implements OnInit {
     return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
   }
 
+  /**
+   * Obtiene las iniciales de un nombre
+   * @param nombre - Nombre completo
+   * @returns Iniciales (máximo 2 caracteres)
+   */
   obtenerIniciales(nombre: string): string {
     return nombre
       .split(' ')
@@ -319,9 +411,27 @@ export class VoluntarioComponent implements OnInit {
       .substring(0, 2);
   }
 
+  // ==================== AUTENTICACIÓN ====================
+
+  /**
+   * Cierra la sesión del usuario
+   * Pide confirmación antes de cerrar sesión
+   */
   logout(): void {
-    if (confirm('¿Deseas cerrar sesión?')) {
-      console.log('Logout');
-    }
+    Swal.fire({
+      icon: 'question',
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Logout');
+        // TODO: Implementar logout completo
+      }
+    });
   }
 }

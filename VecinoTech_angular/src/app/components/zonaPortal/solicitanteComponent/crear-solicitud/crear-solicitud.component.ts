@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MapService } from '../../../../services/map.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
+
+import { MapService } from '../../../../services/map.service';
 
 @Component({
   selector: 'app-crear-solicitud',
@@ -44,10 +46,10 @@ export class CrearSolicitudComponent {
     this.initForm();
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  // ==================== INICIALIZACIÓN ====================
 
   /**
-   * Inicializa el formulario con validaciones
+   * Inicializa el formulario reactivo con validaciones
    */
   private initForm(): void {
     this.solicitudForm = this.fb.group({
@@ -65,16 +67,24 @@ export class CrearSolicitudComponent {
     });
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  // ==================== ENVÍO DE FORMULARIO ====================
 
   /**
-   * Envía el formulario
+   * Envía el formulario de creación de solicitud
+   * Valida campos antes de enviar al backend
    */
   onSubmit(): void {
     // Validar formulario
     if (this.solicitudForm.invalid) {
       this.markFormGroupTouched(this.solicitudForm);
-      this.error.set('Por favor, completa todos los campos correctamente');
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor, completa todos los campos correctamente',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
       return;
     }
 
@@ -91,24 +101,48 @@ export class CrearSolicitudComponent {
         if (response.codigo === 0) {
           this.success.set(true);
 
-          // Mostrar mensaje de éxito
-          setTimeout(() => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Solicitud creada!',
+            text: 'Tu solicitud ha sido publicada correctamente',
+            confirmButtonText: 'Ver mis solicitudes',
+            confirmButtonColor: '#10b981',
+            timer: 2500,
+            timerProgressBar: true
+          }).then(() => {
             this.router.navigate(['/portal/solicitante']);
-          }, 1500);
+          });
         } else {
-          this.error.set(response.mensaje || 'Error al crear la solicitud');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear solicitud',
+            text: response.mensaje || 'No se pudo crear la solicitud',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6'
+          });
         }
       },
       error: (err) => {
         this.loading.set(false);
-        console.error('Error creando solicitud:', err);
-        this.error.set('No se pudo crear la solicitud. Intenta de nuevo.');
+        console.error('❌ Error creando solicitud:', err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear solicitud',
+          text: 'No se pudo crear la solicitud. Intenta de nuevo.',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3b82f6'
+        });
       }
     });
   }
 
+  // ==================== VALIDACIÓN DE FORMULARIO ====================
+
   /**
-   * Marca todos los campos como tocados para mostrar errores
+   * Marca todos los campos del formulario como tocados
+   * Útil para mostrar errores al intentar enviar con campos inválidos
+   * @param formGroup - FormGroup a marcar
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -122,7 +156,10 @@ export class CrearSolicitudComponent {
   }
 
   /**
-   * Verifica si un campo tiene error
+   * Verifica si un campo tiene un error específico
+   * @param field - Nombre del campo
+   * @param error - Tipo de error a verificar
+   * @returns true si el campo tiene ese error y ha sido tocado
    */
   hasError(field: string, error: string): boolean {
     const control = this.solicitudForm.get(field);
@@ -130,7 +167,9 @@ export class CrearSolicitudComponent {
   }
 
   /**
-   * Obtiene el mensaje de error de un campo
+   * Obtiene el mensaje de error apropiado para un campo
+   * @param field - Nombre del campo
+   * @returns Mensaje de error descriptivo
    */
   getErrorMessage(field: string): string {
     const control = this.solicitudForm.get(field);
@@ -155,7 +194,9 @@ export class CrearSolicitudComponent {
   }
 
   /**
-   * Obtiene el contador de caracteres
+   * Obtiene el contador de caracteres para un campo
+   * @param field - Nombre del campo
+   * @returns String con formato "actual/máximo"
    */
   getCharCount(field: string): string {
     const control = this.solicitudForm.get(field);
@@ -164,21 +205,35 @@ export class CrearSolicitudComponent {
     return `${value.length}/${maxLength}`;
   }
 
+  // ==================== NAVEGACIÓN Y ACCIONES ====================
+
   /**
-   * Cancela y vuelve atrás
+   * Cancela la creación y vuelve atrás
+   * Si hay cambios sin guardar, pide confirmación
    */
   cancelar(): void {
     if (this.solicitudForm.dirty) {
-      if (confirm('¿Descartar los cambios?')) {
-        this.router.navigate(['/portal/solicitante']);
-      }
+      Swal.fire({
+        icon: 'question',
+        title: '¿Descartar los cambios?',
+        text: 'Los cambios no guardados se perderán',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, descartar',
+        cancelButtonText: 'Seguir editando',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/portal/solicitante']);
+        }
+      });
     } else {
       this.router.navigate(['/portal/solicitante']);
     }
   }
 
   /**
-   * Resetea el formulario
+   * Resetea el formulario a su estado inicial
    */
   resetForm(): void {
     this.solicitudForm.reset();

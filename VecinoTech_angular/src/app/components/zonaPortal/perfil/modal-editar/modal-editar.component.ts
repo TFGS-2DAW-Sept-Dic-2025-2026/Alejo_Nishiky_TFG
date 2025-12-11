@@ -1,6 +1,7 @@
 import { Component, signal, input, output, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 // Services
 import { RestPortalService } from '../../../../services/rest-portal.service';
@@ -43,7 +44,7 @@ export class ModalEditarComponent {
   constructor() {
     this.initForm();
 
-    // Recargar formulario cuando cambia el usuario
+    // Effect: Recargar formulario cuando cambia el usuario
     effect(() => {
       const user = this.usuario();
       if (user) {
@@ -58,7 +59,7 @@ export class ModalEditarComponent {
       }
     });
 
-    // ✅ NUEVO: Effect que detecta cuando se cierra el modal para resetear
+    // Effect: Resetear estado cuando se cierra el modal
     effect(() => {
       const abierto = this.isOpen();
 
@@ -69,10 +70,10 @@ export class ModalEditarComponent {
     });
   }
 
-  // ==================== MÉTODOS PRIVADOS ====================
+  // ==================== INICIALIZACIÓN ====================
 
   /**
-   * Inicializa el formulario
+   * Inicializa el formulario reactivo con validaciones
    */
   private initForm(): void {
     this.perfilForm = this.fb.group({
@@ -101,10 +102,11 @@ export class ModalEditarComponent {
     });
   }
 
-  // ==================== MÉTODOS PÚBLICOS ====================
+  // ==================== GESTIÓN DE IMAGEN ====================
 
   /**
-   * Maneja la selección de archivo
+   * Maneja la selección de archivo de imagen
+   * Valida tipo y tamaño antes de aceptar
    */
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -113,13 +115,25 @@ export class ModalEditarComponent {
 
       // Validar tipo
       if (!archivo.type.startsWith('image/')) {
-        this.error.set('Solo se permiten imágenes (JPG, PNG)');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Formato no válido',
+          text: 'Solo se permiten imágenes (JPG, PNG, GIF)',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#f59e0b'
+        });
         return;
       }
 
       // Validar tamaño (5MB)
       if (archivo.size > 5 * 1024 * 1024) {
-        this.error.set('La imagen no puede superar 5MB');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Archivo muy grande',
+          text: 'La imagen no puede superar 5MB',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#f59e0b'
+        });
         return;
       }
 
@@ -139,7 +153,7 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Elimina la imagen seleccionada
+   * Elimina la imagen seleccionada y resetea la previsualización
    */
   eliminarImagen(): void {
     this.archivoSeleccionado.set(null);
@@ -147,56 +161,9 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Envía el formulario
-   * ✅ CORREGIDO: Maneja mejor los errores y el loading
-   */
-  async onSubmit(): Promise<void> {
-    if (this.perfilForm.invalid) {
-      this.markFormGroupTouched(this.perfilForm);
-      this.error.set('Por favor, completa todos los campos correctamente');
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set('');
-
-    try {
-      let avatarUrl = this.perfilForm.value.avatarUrl;
-
-      // Si hay archivo seleccionado, subirlo primero
-      if (this.archivoSeleccionado()) {
-        console.log('📤 Subiendo imagen...');
-        avatarUrl = await this.subirImagen(this.archivoSeleccionado()!);
-        console.log('✅ Imagen subida:', avatarUrl);
-      }
-
-      // Preparar datos del perfil
-      const formData = {
-        nombre: this.perfilForm.value.nombre,
-        avatarUrl: avatarUrl || '',
-        telefono: this.perfilForm.value.telefono || '',
-        direccion: this.perfilForm.value.direccion || '',
-        codigoPostal: this.perfilForm.value.codigoPostal || ''
-      };
-
-      console.log('📤 Enviando perfil al padre:', formData);
-
-      // ✅ Emitir datos al padre
-      this.save.emit(formData);
-
-      // ✅ Resetear loading DESPUÉS de emitir
-      // (el padre se encargará de cerrar el modal)
-      this.loading.set(false);
-
-    } catch (error) {
-      console.error('❌ Error:', error);
-      this.error.set('Error al subir la imagen');
-      this.loading.set(false);
-    }
-  }
-
-  /**
-   * Sube la imagen usando RestPortalService
+   * Sube la imagen al servidor usando RestPortalService
+   * @param archivo - Archivo de imagen a subir
+   * @returns Promise con la URL del avatar subido
    */
   private async subirImagen(archivo: File): Promise<string> {
     const formData = new FormData();
@@ -220,8 +187,78 @@ export class ModalEditarComponent {
     });
   }
 
+  // ==================== ENVÍO DE FORMULARIO ====================
+
   /**
-   * Marca todos los campos como tocados
+   * Envía el formulario de edición de perfil
+   * Valida campos, sube imagen si es necesaria y emite datos al componente padre
+   */
+  async onSubmit(): Promise<void> {
+    if (this.perfilForm.invalid) {
+      this.markFormGroupTouched(this.perfilForm);
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor, completa todos los campos correctamente',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#f59e0b'
+      });
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set('');
+
+    try {
+      let avatarUrl = this.perfilForm.value.avatarUrl;
+
+      // Si hay archivo seleccionado, subirlo primero
+      if (this.archivoSeleccionado()) {
+        console.log('Subiendo imagen...');
+        avatarUrl = await this.subirImagen(this.archivoSeleccionado()!);
+        console.log('Imagen subida:', avatarUrl);
+      }
+
+      // Preparar datos del perfil
+      const formData = {
+        nombre: this.perfilForm.value.nombre,
+        avatarUrl: avatarUrl || '',
+        telefono: this.perfilForm.value.telefono || '',
+        direccion: this.perfilForm.value.direccion || '',
+        codigoPostal: this.perfilForm.value.codigoPostal || ''
+      };
+
+      console.log('📤 Enviando perfil al padre:', formData);
+
+      // Emitir datos al padre
+      this.save.emit(formData);
+
+      // Resetear loading DESPUÉS de emitir
+      // (el padre se encargará de cerrar el modal)
+      this.loading.set(false);
+
+    } catch (error) {
+      console.error('Error:', error);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al subir la imagen',
+        text: 'Por favor, inténtalo de nuevo con otra imagen',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3b82f6'
+      });
+
+      this.loading.set(false);
+    }
+  }
+
+  // ==================== VALIDACIÓN DE FORMULARIO ====================
+
+  /**
+   * Marca todos los campos del formulario como tocados
+   * Útil para mostrar errores al intentar enviar con campos inválidos
+   * @param formGroup - FormGroup a marcar
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -235,7 +272,10 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Verifica si un campo tiene error
+   * Verifica si un campo tiene un error específico
+   * @param field - Nombre del campo
+   * @param error - Tipo de error a verificar
+   * @returns true si el campo tiene ese error y ha sido tocado
    */
   hasError(field: string, error: string): boolean {
     const control = this.perfilForm.get(field);
@@ -243,7 +283,9 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Obtiene el mensaje de error
+   * Obtiene el mensaje de error apropiado para un campo
+   * @param field - Nombre del campo
+   * @returns Mensaje de error descriptivo
    */
   getErrorMessage(field: string): string {
     const control = this.perfilForm.get(field);
@@ -280,15 +322,29 @@ export class ModalEditarComponent {
     return '';
   }
 
+  // ==================== GESTIÓN DEL MODAL ====================
+
   /**
    * Cierra el modal
+   * Si hay cambios sin guardar, pide confirmación
    */
   onClose(): void {
     if (this.perfilForm.dirty || this.archivoSeleccionado()) {
-      if (confirm('¿Descartar los cambios?')) {
-        this.close.emit();
-        // El resetState se ejecutará automáticamente por el effect
-      }
+      Swal.fire({
+        icon: 'question',
+        title: '¿Descartar los cambios?',
+        text: 'Los cambios no guardados se perderán',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, descartar',
+        cancelButtonText: 'Seguir editando',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.close.emit();
+          // El resetState se ejecutará automáticamente por el effect
+        }
+      });
     } else {
       this.close.emit();
       // El resetState se ejecutará automáticamente por el effect
@@ -296,7 +352,8 @@ export class ModalEditarComponent {
   }
 
   /**
-   * Cierra el modal haciendo clic en el backdrop
+   * Cierra el modal al hacer clic en el backdrop (fondo oscuro)
+   * @param event - MouseEvent del click
    */
   onBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
@@ -305,9 +362,10 @@ export class ModalEditarComponent {
   }
 
   /**
-   * ✅ NUEVO: Resetea el estado del modal
+   * Resetea el estado del modal a valores iniciales
+   * Se ejecuta automáticamente cuando el modal se cierra
    */
-  resetState(): void {
+  private resetState(): void {
     this.loading.set(false);
     this.error.set('');
     this.archivoSeleccionado.set(null);
@@ -315,4 +373,3 @@ export class ModalEditarComponent {
     this.perfilForm.markAsPristine();
   }
 }
-
