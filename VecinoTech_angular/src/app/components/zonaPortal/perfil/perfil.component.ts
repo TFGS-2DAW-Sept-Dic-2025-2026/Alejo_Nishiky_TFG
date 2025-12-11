@@ -12,6 +12,7 @@ import { StorageGlobalService } from '../../../services/storage-global.service';
 // Componentes
 import { ModalEditarComponent } from './modal-editar/modal-editar.component';
 import { IUsuario } from '../../../models/usuario/IUsuario';
+import { AvatarUrlPipe } from '../../../pipes/avatar-url.pipe';
 
 interface EstadisticasUsuario {
   solicitudes_creadas: number;
@@ -31,7 +32,7 @@ interface ActualizarPerfilRequest {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, ModalEditarComponent],
+  imports: [CommonModule, ModalEditarComponent, AvatarUrlPipe],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
 })
@@ -89,23 +90,6 @@ export class PerfilComponent {
   readonly estadisticas = computed(() => this._estadisticas());
   readonly loading = computed(() => this._loading());
   readonly error = computed(() => this._error());
-
-  /**
-   * URL del avatar
-   */
-  readonly avatarUrl = computed(() => {
-    const perfil = this._perfil();
-    if (!perfil) return 'https://ui-avatars.com/api/?name=Usuario&background=random&size=128';
-
-    if (perfil.avatarUrl) {
-      if (perfil.avatarUrl.startsWith('/avatars/')) {
-        return `http://localhost:8080${perfil.avatarUrl}`;
-      }
-      return perfil.avatarUrl;
-    }
-
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(perfil.nombre)}&background=random&size=128`;
-  });
 
   /**
    * Iniciales del usuario

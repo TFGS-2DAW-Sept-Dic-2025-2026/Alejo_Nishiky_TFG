@@ -55,7 +55,7 @@
                     <!-- Avatar -->
                     <div class="relative mb-4">
                       <img
-                        [src]="avatarUrl()"
+                        [src]="user.avatarUrl | avatarUrl: user.nombre"
                         [alt]="user.nombre"
                         class="size-32 rounded-full border-4 border-slate-200 dark:border-slate-700 object-cover"
                       />

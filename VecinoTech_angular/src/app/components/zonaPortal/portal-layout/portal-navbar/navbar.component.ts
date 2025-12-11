@@ -2,6 +2,7 @@ import { Component, computed, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StorageGlobalService } from '../../../../services/storage-global.service';
+import { AvatarUrlPipe } from '../../../../pipes/avatar-url.pipe';
 
 type NavbarMode = 'portal' | 'solicitante' | 'voluntario';
 
@@ -17,6 +18,7 @@ export class NavbarComponent {
 
   private readonly storage = inject(StorageGlobalService);
   private readonly router = inject(Router);
+  private readonly avatarPipe = new AvatarUrlPipe();
 
   // ==================== INPUTS ====================
 
@@ -32,7 +34,9 @@ export class NavbarComponent {
   readonly avatarUrlSig = computed(() => {
     const u = this.usuarioSig();
     if (!u) return 'https://i.pravatar.cc/80';
-    return u.avatarUrl ?? `https://i.pravatar.cc/80?u=${u.id}`;
+
+    // Usa la pipe para transformar la URL
+    return this.avatarPipe.transform(u.avatarUrl, u.nombre);
   });
 
   readonly nombreUsuario = computed(() => {
@@ -41,7 +45,7 @@ export class NavbarComponent {
   });
 
   // ==================== COMPUTED - BOTONES DINÁMICOS ====================
-  
+
   /**
    * Determina si se muestra el botón "Volver al Portal"
    */
