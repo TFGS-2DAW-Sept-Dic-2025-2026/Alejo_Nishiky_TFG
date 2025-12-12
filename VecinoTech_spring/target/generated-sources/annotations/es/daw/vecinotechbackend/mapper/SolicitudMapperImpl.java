@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-09T21:47:40+0100",
+    date = "2025-12-12T14:31:42+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -28,12 +28,12 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         solicitudDTO.setVoluntarioId( entityVoluntarioId( entity ) );
         solicitudDTO.setVoluntarioNombre( entityVoluntarioNombre( entity ) );
         solicitudDTO.setUbicacion( pointToUbicacionDTO( entity.getUbicacion() ) );
-        solicitudDTO.setCategoria( entity.getCategoria() );
-        solicitudDTO.setDescripcion( entity.getDescripcion() );
-        solicitudDTO.setEstado( entity.getEstado() );
-        solicitudDTO.setFechaCreacion( entity.getFechaCreacion() );
         solicitudDTO.setId( entity.getId() );
         solicitudDTO.setTitulo( entity.getTitulo() );
+        solicitudDTO.setDescripcion( entity.getDescripcion() );
+        solicitudDTO.setCategoria( entity.getCategoria() );
+        solicitudDTO.setEstado( entity.getEstado() );
+        solicitudDTO.setFechaCreacion( entity.getFechaCreacion() );
 
         return solicitudDTO;
     }
@@ -47,12 +47,12 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         Solicitud solicitud = new Solicitud();
 
         solicitud.setUbicacion( ubicacionDTOToPoint( dto.getUbicacion() ) );
-        solicitud.setCategoria( dto.getCategoria() );
-        solicitud.setDescripcion( dto.getDescripcion() );
-        solicitud.setEstado( dto.getEstado() );
-        solicitud.setFechaCreacion( dto.getFechaCreacion() );
         solicitud.setId( dto.getId() );
         solicitud.setTitulo( dto.getTitulo() );
+        solicitud.setDescripcion( dto.getDescripcion() );
+        solicitud.setCategoria( dto.getCategoria() );
+        solicitud.setEstado( dto.getEstado() );
+        solicitud.setFechaCreacion( dto.getFechaCreacion() );
 
         return solicitud;
     }
@@ -68,11 +68,11 @@ public class SolicitudMapperImpl implements SolicitudMapper {
         iSolicitudMapaDTO.setUbicacion( pointToMapaUbicacionDTO( entity.getUbicacion() ) );
         iSolicitudMapaDTO.setSolicitante( toSolicitanteDTO( entity.getSolicitante() ) );
         iSolicitudMapaDTO.setFechaCreacion( localDateTimeToString( entity.getFechaCreacion() ) );
-        iSolicitudMapaDTO.setCategoria( entity.getCategoria() );
-        iSolicitudMapaDTO.setDescripcion( entity.getDescripcion() );
-        iSolicitudMapaDTO.setEstado( entity.getEstado() );
         iSolicitudMapaDTO.setId( entity.getId() );
         iSolicitudMapaDTO.setTitulo( entity.getTitulo() );
+        iSolicitudMapaDTO.setDescripcion( entity.getDescripcion() );
+        iSolicitudMapaDTO.setCategoria( entity.getCategoria() );
+        iSolicitudMapaDTO.setEstado( entity.getEstado() );
         iSolicitudMapaDTO.setVoluntario( usuarioToVoluntarioDTO( entity.getVoluntario() ) );
 
         return iSolicitudMapaDTO;

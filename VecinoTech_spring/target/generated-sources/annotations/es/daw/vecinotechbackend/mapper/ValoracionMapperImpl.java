@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-09T21:47:40+0100",
+    date = "2025-12-12T14:31:42+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -28,10 +28,10 @@ public class ValoracionMapperImpl implements ValoracionMapper {
         valoracionDTO.setVoluntarioId( entityVoluntarioId( entity ) );
         valoracionDTO.setVoluntarioNombre( entityVoluntarioNombre( entity ) );
         valoracionDTO.setSolicitudId( entitySolicitudId( entity ) );
-        valoracionDTO.setComentario( entity.getComentario() );
-        valoracionDTO.setFechaCreacion( entity.getFechaCreacion() );
         valoracionDTO.setId( entity.getId() );
         valoracionDTO.setPuntuacion( entity.getPuntuacion() );
+        valoracionDTO.setComentario( entity.getComentario() );
+        valoracionDTO.setFechaCreacion( entity.getFechaCreacion() );
 
         return valoracionDTO;
     }
@@ -60,17 +60,17 @@ public class ValoracionMapperImpl implements ValoracionMapper {
             return;
         }
 
-        if ( dto.getComentario() != null ) {
-            entity.setComentario( dto.getComentario() );
-        }
-        if ( dto.getFechaCreacion() != null ) {
-            entity.setFechaCreacion( dto.getFechaCreacion() );
-        }
         if ( dto.getId() != null ) {
             entity.setId( dto.getId() );
         }
         if ( dto.getPuntuacion() != null ) {
             entity.setPuntuacion( dto.getPuntuacion() );
+        }
+        if ( dto.getComentario() != null ) {
+            entity.setComentario( dto.getComentario() );
+        }
+        if ( dto.getFechaCreacion() != null ) {
+            entity.setFechaCreacion( dto.getFechaCreacion() );
         }
     }
 

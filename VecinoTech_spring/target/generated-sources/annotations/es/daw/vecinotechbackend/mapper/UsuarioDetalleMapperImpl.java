@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-09T21:47:40+0100",
+    date = "2025-12-12T14:31:42+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -23,13 +23,13 @@ public class UsuarioDetalleMapperImpl implements UsuarioDetalleMapper {
         UsuarioDetalleDTO usuarioDetalleDTO = new UsuarioDetalleDTO();
 
         usuarioDetalleDTO.setId( entity.getId() );
-        usuarioDetalleDTO.setBio( entity.getBio() );
-        usuarioDetalleDTO.setCiudad( entity.getCiudad() );
-        usuarioDetalleDTO.setCodigoPostal( entity.getCodigoPostal() );
-        usuarioDetalleDTO.setDireccion( entity.getDireccion() );
-        usuarioDetalleDTO.setEsVoluntario( entity.isEsVoluntario() );
-        usuarioDetalleDTO.setPais( entity.getPais() );
         usuarioDetalleDTO.setTelefono( entity.getTelefono() );
+        usuarioDetalleDTO.setDireccion( entity.getDireccion() );
+        usuarioDetalleDTO.setCiudad( entity.getCiudad() );
+        usuarioDetalleDTO.setPais( entity.getPais() );
+        usuarioDetalleDTO.setCodigoPostal( entity.getCodigoPostal() );
+        usuarioDetalleDTO.setBio( entity.getBio() );
+        usuarioDetalleDTO.setEsVoluntario( entity.isEsVoluntario() );
 
         return usuarioDetalleDTO;
     }
@@ -81,27 +81,27 @@ public class UsuarioDetalleMapperImpl implements UsuarioDetalleMapper {
             return;
         }
 
-        if ( dto.getBio() != null ) {
-            entity.setBio( dto.getBio() );
-        }
-        if ( dto.getCiudad() != null ) {
-            entity.setCiudad( dto.getCiudad() );
-        }
-        if ( dto.getCodigoPostal() != null ) {
-            entity.setCodigoPostal( dto.getCodigoPostal() );
-        }
-        if ( dto.getDireccion() != null ) {
-            entity.setDireccion( dto.getDireccion() );
-        }
-        entity.setEsVoluntario( dto.isEsVoluntario() );
         if ( dto.getId() != null ) {
             entity.setId( dto.getId() );
-        }
-        if ( dto.getPais() != null ) {
-            entity.setPais( dto.getPais() );
         }
         if ( dto.getTelefono() != null ) {
             entity.setTelefono( dto.getTelefono() );
         }
+        if ( dto.getDireccion() != null ) {
+            entity.setDireccion( dto.getDireccion() );
+        }
+        if ( dto.getCiudad() != null ) {
+            entity.setCiudad( dto.getCiudad() );
+        }
+        if ( dto.getPais() != null ) {
+            entity.setPais( dto.getPais() );
+        }
+        if ( dto.getCodigoPostal() != null ) {
+            entity.setCodigoPostal( dto.getCodigoPostal() );
+        }
+        if ( dto.getBio() != null ) {
+            entity.setBio( dto.getBio() );
+        }
+        entity.setEsVoluntario( dto.isEsVoluntario() );
     }
 }

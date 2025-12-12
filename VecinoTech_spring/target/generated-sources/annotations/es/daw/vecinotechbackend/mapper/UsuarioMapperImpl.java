@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-09T21:47:40+0100",
+    date = "2025-12-12T14:31:42+0100",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -29,13 +29,13 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         usuarioDTO.setPais( entityDetallePais( entity ) );
         usuarioDTO.setCodigoPostal( entityDetalleCodigoPostal( entity ) );
         usuarioDTO.setBio( entityDetalleBio( entity ) );
-        usuarioDTO.setActivo( entity.isActivo() );
-        usuarioDTO.setAvatarUrl( entity.getAvatarUrl() );
-        usuarioDTO.setEmail( entity.getEmail() );
         usuarioDTO.setId( entity.getId() );
         usuarioDTO.setNombre( entity.getNombre() );
+        usuarioDTO.setEmail( entity.getEmail() );
+        usuarioDTO.setAvatarUrl( entity.getAvatarUrl() );
         usuarioDTO.setRatingPromedio( entity.getRatingPromedio() );
         usuarioDTO.setRatingTotal( entity.getRatingTotal() );
+        usuarioDTO.setActivo( entity.isActivo() );
 
         return usuarioDTO;
     }
@@ -70,29 +70,29 @@ public class UsuarioMapperImpl implements UsuarioMapper {
             return;
         }
 
-        if ( dto.getActivo() != null ) {
-            entity.setActivo( dto.getActivo() );
-        }
-        if ( dto.getAvatarUrl() != null ) {
-            entity.setAvatarUrl( dto.getAvatarUrl() );
-        }
-        if ( dto.getEmail() != null ) {
-            entity.setEmail( dto.getEmail() );
-        }
         if ( dto.getId() != null ) {
             entity.setId( dto.getId() );
         }
         if ( dto.getNombre() != null ) {
             entity.setNombre( dto.getNombre() );
         }
+        if ( dto.getEmail() != null ) {
+            entity.setEmail( dto.getEmail() );
+        }
         if ( dto.getPasswordHash() != null ) {
             entity.setPasswordHash( dto.getPasswordHash() );
+        }
+        if ( dto.getAvatarUrl() != null ) {
+            entity.setAvatarUrl( dto.getAvatarUrl() );
         }
         if ( dto.getRatingPromedio() != null ) {
             entity.setRatingPromedio( dto.getRatingPromedio() );
         }
         if ( dto.getRatingTotal() != null ) {
             entity.setRatingTotal( dto.getRatingTotal() );
+        }
+        if ( dto.getActivo() != null ) {
+            entity.setActivo( dto.getActivo() );
         }
 
         linkDetalle( dto, entity );

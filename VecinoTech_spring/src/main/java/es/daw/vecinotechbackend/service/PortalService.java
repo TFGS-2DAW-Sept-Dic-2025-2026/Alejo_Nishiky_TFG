@@ -347,6 +347,7 @@ public class PortalService {
 
     /**
      * Actualiza los datos del perfil del usuario
+     * Geocodifica automáticamente si cambia dirección o CP
      */
     @Transactional
     public UsuarioDetalleDTO actualizarPerfil(Long userId, ActualizarPerfilRequest request) {
@@ -358,7 +359,7 @@ public class PortalService {
         // ========== ACTUALIZAR TABLA USUARIO ==========
         usuario.setNombre(request.getNombre());
 
-        // Solo actualizar avatar si viene en el request (puede ser null)
+        // Solo actualizar avatar si viene en el request
         if (request.getAvatarUrl() != null) {
             usuario.setAvatarUrl(request.getAvatarUrl());
         }
@@ -371,42 +372,82 @@ public class PortalService {
             detalle.setUsuario(usuario);
             usuario.setDetalle(detalle);
         }
-        // Guardar la dirección anterior para comparar
+
+        // ✅ NUEVO: Guardar valores anteriores para comparar
         String direccionAnterior = detalle.getDireccion();
         String codigoPostalAnterior = detalle.getCodigoPostal();
 
-        // Actualizar campos de detalle (pueden ser null/vacíos)
+        // Actualizar campos de detalle
         detalle.setTelefono(request.getTelefono());
         detalle.setDireccion(request.getDireccion());
         detalle.setCodigoPostal(request.getCodigoPostal());
 
-        // ========== GEOCODIFICAR SI CAMBIÓ LA DIRECCIÓN ==========
+        // ========== DETECTAR SI CAMBIÓ LA UBICACIÓN ==========
         boolean direccionCambio = false;
+        StringBuilder cambiosLog = new StringBuilder();
 
-        // Verificar si cambió la dirección o código postal
+        // Verificar cambio en dirección
         if (request.getDireccion() != null && !request.getDireccion().isBlank()) {
-            if (!request.getDireccion().equals(direccionAnterior) ||
-                    !request.getCodigoPostal().equals(codigoPostalAnterior)) {
+            if (direccionAnterior == null || !request.getDireccion().equals(direccionAnterior)) {
                 direccionCambio = true;
+                cambiosLog.append(String.format(
+                        "Dirección: '%s' → '%s'",
+                        direccionAnterior != null ? direccionAnterior : "(vacío)",
+                        request.getDireccion()
+                ));
             }
         }
 
-        // Guardar cambios primero
+        //  Verificar cambio en código postal (con null-safe)
+        if (request.getCodigoPostal() != null && !request.getCodigoPostal().isBlank()) {
+            boolean cpCambio = codigoPostalAnterior == null ||
+                    !request.getCodigoPostal().equals(codigoPostalAnterior);
+
+            if (cpCambio) {
+                direccionCambio = true;
+                if (cambiosLog.length() > 0) cambiosLog.append(", ");
+                cambiosLog.append(String.format(
+                        "CP: '%s' → '%s'",
+                        codigoPostalAnterior != null ? codigoPostalAnterior : "(vacío)",
+                        request.getCodigoPostal()
+                ));
+            }
+        }
+
+        // ========== GUARDAR CAMBIOS PRIMERO ==========
         usuarioRepository.save(usuario);
 
-        // Si cambió la dirección, geocodificar en segundo plano
+        // ========== GEOCODIFICAR SI CAMBIÓ ==========
         if (direccionCambio) {
+            System.out.println("🗺️ Cambios detectados en ubicación para usuario #" + userId);
+            System.out.println("   " + cambiosLog.toString());
+            System.out.println("   Iniciando geocodificación automática...");
+
             try {
-                // Reutilizar el método que ya tienes
-                actualizarUbicacionUsuario(userId);
-                System.out.println("✅ Ubicación geocodificada automáticamente para usuario: " + userId);
+                // Reutilizar el método existente
+                Point ubicacion = actualizarUbicacionUsuario(userId);
+
+                System.out.println(String.format(
+                        "   ✅ Geocodificación exitosa: [lat=%.6f, lng=%.6f]",
+                        ubicacion.getY(),
+                        ubicacion.getX()
+                ));
+
+            } catch (IllegalStateException e) {
+                //Limpiar ubicación anterior si la nueva dirección no se geocodifica
+                // detalle.setUbicacion(null);
+                // usuarioDetalleRepository.save(detalle);
+
             } catch (Exception e) {
-                // No fallar la actualización del perfil si falla la geocodificación
-                System.err.println("⚠️ No se pudo geocodificar la dirección: " + e.getMessage());
-                // Opcional: podrías lanzar una advertencia al frontend
+                // Error inesperado (red, timeout, etc.)
+                System.err.println("Error geocodificando: " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("ℹ️ Usuario #" + userId + " - Perfil actualizado sin cambios en ubicación");
         }
-        // Retornar DTO actualizado
+
+        // ========== RETORNAR DTO ACTUALIZADO ==========
         return usuarioDetalleMapper.toDTO(detalle);
     }
 

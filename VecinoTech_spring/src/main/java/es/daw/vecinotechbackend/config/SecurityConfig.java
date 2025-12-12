@@ -62,7 +62,8 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/health",
                                 "/v3/api-docs/**",
-                                "/swagger-ui/**")
+                                "/swagger-ui/**",
+                                "/api/portal/diplomas/verify/**")
                         .permitAll() //De momento permitimos todos, ya después lo cerramos a roles y JWT
                         .requestMatchers("/api/portal/**").authenticated()
                         .anyRequest().permitAll() //<--- Después tengo que cambiar a requerir auth
