@@ -1,0 +1,18 @@
+/* Estilos específicos para el componente de verificación pública */
+
+/* Animación suave para la aparición del diploma */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aplicar animación al contenedor principal */
+.space-y-6 {
+  animation: fadeIn 0.5s ease-out;
+}

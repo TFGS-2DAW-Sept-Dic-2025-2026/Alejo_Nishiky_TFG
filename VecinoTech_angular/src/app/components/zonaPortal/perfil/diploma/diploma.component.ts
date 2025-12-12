@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, effect, Injector, ElementRef, viewChild } from '@angular/core';
+import { Component, signal, computed, inject, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -7,11 +7,6 @@ import { DiplomaService } from '../../../../services/diploma.service';
 import { AuthService } from '../../../../services/auth.service';
 import { IDiploma, IDiplomaElegibilidad } from '../../../../models/diploma/IDiploma';
 import IRestMessage from '../../../../models/IRestMessage';
-
-// Servicios
-
-
-// Models
 
 
 @Component({
@@ -29,17 +24,12 @@ export class DiplomaComponent {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
-  // ==================== VIEW CHILD ====================
-
-  readonly diplomaElementRef = viewChild<ElementRef>('diplomaElement');
-
   // ==================== SIGNALS ====================
 
   private readonly _elegibilidad = signal<IDiplomaElegibilidad | null>(null);
   private readonly _diploma = signal<IDiploma | null>(null);
   private readonly _loading = signal<boolean>(true);
   private readonly _generando = signal<boolean>(false);
-  private readonly _descargando = signal<boolean>(false);
 
   // ==================== COMPUTED SIGNALS ====================
 
@@ -47,7 +37,6 @@ export class DiplomaComponent {
   readonly diploma = computed(() => this._diploma());
   readonly loading = computed(() => this._loading());
   readonly generando = computed(() => this._generando());
-  readonly descargando = computed(() => this._descargando());
 
   /**
    * Usuario actual
@@ -247,108 +236,6 @@ export class DiplomaComponent {
         }
       });
     });
-  }
-
-  /**
-   * Descarga el diploma como PDF
-   */
-  async descargarPDF(): Promise<void> {
-    const elemento = this.diplomaElementRef()?.nativeElement;
-    if (!elemento) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo encontrar el elemento del diploma',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#3b82f6'
-      });
-      return;
-    }
-
-    const diploma = this._diploma();
-    if (!diploma) return;
-
-    this._descargando.set(true);
-
-    try {
-      await this.diplomaService.descargarComoPDF(
-        elemento,
-        `diploma-${diploma.numeroCertificado}`
-      );
-
-      Swal.fire({
-        icon: 'success',
-        title: '¡Descarga exitosa!',
-        text: 'Tu diploma se ha descargado como PDF',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#10b981',
-        timer: 2000,
-        timerProgressBar: true
-      });
-    } catch (error) {
-      console.error('❌ Error descargando PDF:', error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al descargar',
-        text: 'No se pudo descargar el PDF',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#3b82f6'
-      });
-    } finally {
-      this._descargando.set(false);
-    }
-  }
-
-  /**
-   * Descarga el diploma como imagen PNG
-   */
-  async descargarImagen(): Promise<void> {
-    const elemento = this.diplomaElementRef()?.nativeElement;
-    if (!elemento) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo encontrar el elemento del diploma',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#3b82f6'
-      });
-      return;
-    }
-
-    const diploma = this._diploma();
-    if (!diploma) return;
-
-    this._descargando.set(true);
-
-    try {
-      await this.diplomaService.descargarComoImagen(
-        elemento,
-        `diploma-${diploma.numeroCertificado}`
-      );
-
-      Swal.fire({
-        icon: 'success',
-        title: '¡Descarga exitosa!',
-        text: 'Tu diploma se ha descargado como imagen',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#10b981',
-        timer: 2000,
-        timerProgressBar: true
-      });
-    } catch (error) {
-      console.error('❌ Error descargando imagen:', error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al descargar',
-        text: 'No se pudo descargar la imagen',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#3b82f6'
-      });
-    } finally {
-      this._descargando.set(false);
-    }
   }
 
   /**

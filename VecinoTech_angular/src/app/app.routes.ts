@@ -17,6 +17,7 @@ import { PerfilComponent } from './components/zonaPortal/perfil/perfil.component
 import { ChatComponent } from './components/zonaPortal/chat/chat.component';
 import { PortalLayoutComponent } from './components/zonaPortal/portal-layout/portal-layout.component';
 import { DiplomaComponent } from './components/zonaPortal/perfil/diploma/diploma.component';
+import { DiplomaPublicoComponent } from './components/zonaPortal/perfil/diploma-publico/diploma-publico.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -37,6 +38,11 @@ export const routes: Routes = [
       {path: 'recuperarPassword', component: RecuPasswordComponent},
       {path: 'activar', component: ActivarCuentaComponent }
     ]
+  },
+  // ==================== VERIFICACIÓN PÚBLICA DE DIPLOMAS ====================
+  {
+    path: 'diplomas/verify/:codigo',  // SIN authGuard
+    component: DiplomaPublicoComponent
   },
   // ==================== ZONA PORTAL (autenticado, osea authGuard) ====================
   {
