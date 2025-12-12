@@ -211,11 +211,6 @@ El proyecto está dividido en:
 
 ---
 
----
-
-
----
-
 ### 🗄️ Base de Datos
 
 ```bash
@@ -250,33 +245,6 @@ El proyecto usa **Flyway** para versionado de la base de datos:
 
 ---
 
-## 🔑 Configuración (application.properties)
-
-```properties
-# Base de datos
-spring.datasource.url=jdbc:postgresql://localhost:5432/vecinotech
-spring.datasource.username=postgres
-spring.datasource.password=tu_password
-
-# JWT
-jwt.access.secret=tu_secret_key_access
-jwt.refresh.secret=tu_secret_key_refresh
-
-# Mailjet (emails)
-mailjet.api.key=tu_mailjet_key
-mailjet.api.secret=tu_mailjet_secret
-mailjet.sender.email=tu_email@example.com
-
-# Google Geocoding (opcional, tiene fallback a Nominatim)
-google.geocoding.api.key=tu_google_api_key
-
-# Archivos
-app.upload.dir=src/main/resources/static/avatars
-spring.servlet.multipart.max-file-size=5MB
-```
-
----
-
 ## 🌐 URLs y Endpoints Importantes
 
 ### Frontend
@@ -289,63 +257,7 @@ spring.servlet.multipart.max-file-size=5MB
 - **Health Check**: `http://localhost:8080/api/health`
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html` *(si está habilitado)*
 
----
-
-## 🎓 Características Destacadas
-
-### ✨ Innovaciones Técnicas
-- **PostGIS** para búsquedas espaciales eficientes
-- **WebSockets** con STOMP para comunicación bidireccional
-- **Signals** de Angular 19 para reactividad óptima
-- **Geocodificación dual** (Nominatim + Google) con fallback
-- **JWT dual** (access + refresh tokens)
-- **SweetAlert2** para UX consistente
-- **Tailwind CSS** para diseño responsive
-
-### 🎯 Accesibilidad
-- Interfaz simplificada para usuarios mayores
-- Tipografía clara y de alto contraste
-- Diseño responsive (mobile-first)
-- Modo oscuro integrado
-- Instrucciones claras y guiadas
-
----
-
-## 📊 Estadísticas del Proyecto
-
-- **Líneas de código backend**: ~8,000+
-- **Líneas de código frontend**: ~12,000+
-- **Componentes Angular**: 20+
-- **Endpoints REST**: 40+
-- **Tablas de base de datos**: 7
-- **Migraciones Flyway**: 8
-
----
-
-## 🔮 Futuras Mejoras
-
-- [ ] Notificaciones push en navegador
-- [ ] App móvil nativa (React Native / Flutter)
-- [ ] Sistema de badges y logros
-- [ ] Estadísticas avanzadas con gráficos
-- [ ] Traducción multi-idioma (i18n)
-- [ ] Integración con redes sociales
-- [ ] Panel de administración completo
-- [ ] Sistema de reportes y moderación
-
----
-
-## 📸 Capturas de Pantalla
-
-*(Añadir capturas en una carpeta `/docs/screenshots/`)*
-
-- Dashboard principal
-- Mapa de solicitudes
-- Chat en tiempo real
-- Sistema de diplomas
-- Perfil de usuario
-
----
+--
 
 ## 📄 Licencia
 
