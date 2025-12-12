@@ -50,7 +50,7 @@ El proyecto está dividido en:
 ## 🎯 Funcionalidades Principales
 
 ### 🔐 Autenticación y Seguridad
-- Registro con **verificación por email (2FA)**
+- Registro con **verificación por email**
 - Login con JWT (access + refresh tokens)
 - Recuperación de contraseña
 - Protección de endpoints REST y WebSocket
