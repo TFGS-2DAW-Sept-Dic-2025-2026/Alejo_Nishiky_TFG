@@ -1,0 +1,14 @@
+/* Estilos adicionales para impresión */
+@media print {
+  body {
+    background-color: white !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  button {
+    display: none !important;
+  }
+}

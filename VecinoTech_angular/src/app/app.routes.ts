@@ -16,6 +16,7 @@ import { HistorialComponent } from './components/zonaPortal/historial/historial.
 import { PerfilComponent } from './components/zonaPortal/perfil/perfil.component';
 import { ChatComponent } from './components/zonaPortal/chat/chat.component';
 import { PortalLayoutComponent } from './components/zonaPortal/portal-layout/portal-layout.component';
+import { DiplomaComponent } from './components/zonaPortal/perfil/diploma/diploma.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -81,6 +82,10 @@ export const routes: Routes = [
       {
         path: 'perfil',
         component: PerfilComponent
+      },
+      {
+        path: 'diplomas',
+        component: DiplomaComponent
       },
       {
         path: 'chat/:id',

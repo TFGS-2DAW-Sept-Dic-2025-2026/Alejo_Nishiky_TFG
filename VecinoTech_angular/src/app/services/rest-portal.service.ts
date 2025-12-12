@@ -347,4 +347,40 @@ export class RestPortalService {
       `http://localhost:8080/api/chat/mensajes/${solicitudId}`
     );
   }
+
+  // ==================== DIPLOMAS ====================
+
+  /**
+   * Verifica la elegibilidad del usuario actual para obtener diploma
+   * GET /api/portal/diplomas/elegibilidad
+   */
+  public verificarElegibilidadDiploma(): Observable<IRestMessage> {
+    return this.http.get<IRestMessage>(`${this.BASE_URL}/diplomas/elegibilidad`);
+  }
+
+  /**
+   * Genera un diploma para el usuario actual
+   * POST /api/portal/diplomas/generar
+   */
+  public generarDiploma(): Observable<IRestMessage> {
+    return this.http.post<IRestMessage>(`${this.BASE_URL}/diplomas/generar`, {}, { headers: this.headers });
+  }
+
+  /**
+   * Obtiene el diploma del usuario actual
+   * GET /api/portal/diplomas/mi-diploma
+   */
+  public obtenerMiDiploma(): Observable<IRestMessage> {
+    return this.http.get<IRestMessage>(`${this.BASE_URL}/diplomas/mi-diploma`);
+  }
+
+  /**
+   * Verifica un diploma público por código (SIN AUTENTICACIÓN)
+   * GET /api/portal/diplomas/verify/{codigo}
+   *
+   * @param codigoVerificacion UUID del diploma
+   */
+  public verificarDiplomaPublico(codigoVerificacion: string): Observable<IRestMessage> {
+    return this.http.get<IRestMessage>(`${this.BASE_URL}/diplomas/verify/${codigoVerificacion}`);
+  }
 }

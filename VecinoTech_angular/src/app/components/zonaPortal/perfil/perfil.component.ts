@@ -348,6 +348,13 @@ export class PerfilComponent {
   }
 
   /**
+   * Navega a la página de diplomas
+   */
+  verDiploma(): void {
+    this.router.navigate(['/portal/diplomas']);
+  }
+
+  /**
    * Volver al portal
    */
   volverPortal(): void {
