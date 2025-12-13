@@ -428,7 +428,6 @@ src/main/java/es/daw/vecinotechbackend/
 | **RxJS** | 7.8.0 | Programación reactiva con Observables |
 | **Font Awesome** | 7.0.0 | Iconos vectoriales |
 | **html2canvas** | 1.4.1 | Captura de elementos HTML para diplomas |
-| **jsPDF** | 3.0.4 | Generación de PDFs en cliente |
 | **CountUp.js** | 2.9.0 | Animaciones de contadores numéricos |
 
 #### Backend
@@ -536,4 +535,574 @@ src/main/java/es/daw/vecinotechbackend/
        - Jitsi Meet (Video)
        - Mailjet (Email)
 ```
+
+### 3.3. Análisis de Usuarios (Perfiles de Usuario)
+
+VecinoTech diferencia dos perfiles de usuario con necesidades y capacidades tecnológicas distintas, adaptando la interfaz según el rol.
+
+#### 1. Solicitante (Requester)
+
+**Perfil:** Personas con conocimientos tecnológicos básicos o limitados. Pueden navegar por internet pero encuentran barreras con tareas más complejas. Incluye adultos mayores con experiencia mínima en tecnología.
+
+**Funcionalidades:**
+- Crear solicitudes de ayuda (título, descripción, ubicación)
+- Ver voluntarios disponibles en mapa
+- Chat en tiempo real con voluntario asignado
+- Videollamadas mediante enlace simple
+- Historial de solicitudes
+
+**Interfaz:** Diseño minimalista, botones grandes, navegación simplificada (3-4 opciones), formularios básicos con validación clara.
+
+---
+
+#### 2. Voluntario (Volunteer)
+
+**Perfil:** Personas con conocimientos tecnológicos medios-avanzados, cualquier edad, con vocación de servicio y tiempo disponible para ayudar a su comunidad.
+
+**Funcionalidades:**
+- Ver mapa interactivo de solicitudes activas
+- Aceptar y gestionar solicitudes por proximidad
+- Chat y videollamadas con solicitantes
+- Marcar solicitudes como completadas
+- Generar diplomas automáticos (enlace público para LinkedIn)
+- Dashboard con estadísticas personales
+- Leaderboard de voluntarios más activos
+
+**Interfaz:** Completa y funcional, dashboard con métricas, mapa central con marcadores, más opciones de navegación (6-8 opciones).
+
+---
+
+#### Diferenciación de Experiencia
+
+| Característica | Solicitante | Voluntario |
+|----------------|-------------|------------|
+| **Complejidad UI** | Minimalista | Completa |
+| **Navegación** | 3-4 opciones | 6-8 opciones |
+| **Dashboard** | No | Sí (estadísticas) |
+| **Mapa** | Vista simple | Vista completa con gestión |
+| **Diplomas** | No | Sí (generación y visualización) |
+| **Leaderboard** | No | Sí |
+
+**Diseño UX:** Para solicitantes se evita jerga técnica, se minimiza pasos y se usa lenguaje empático. Para voluntarios se facilita descubrimiento rápido de solicitudes y se incorpora gamificación moderada (diplomas, ranking).
+
+---
+
+### 3.4. Requisitos Funcionales y No Funcionales
+
+#### Requisitos Funcionales
+
+**Autenticación y Gestión de Usuarios:**
+- RF1: Registro de usuarios con rol (Solicitante/Voluntario)
+- RF2: Verificación de cuenta por email (2FA)
+- RF3: Login con JWT y sesión persistente
+- RF4: Gestión de perfil (editar datos, cambiar avatar)
+
+**Gestión de Solicitudes:**
+- RF5: Crear solicitudes con título, descripción y ubicación
+- RF6: Geocodificación automática de direcciones (Nominatim API)
+- RF7: Visualización de solicitudes en mapa interactivo (Leaflet)
+- RF8: Filtrado por proximidad geográfica (PostGIS)
+- RF9: Aceptar solicitudes (solo voluntarios)
+- RF10: Marcar solicitudes como completadas
+- RF11: Ver historial de solicitudes (propias o aceptadas)
+
+**Comunicación:**
+- RF12: Chat en tiempo real mediante WebSocket/STOMP
+- RF13: Historial de mensajes persistente
+- RF14: Notificaciones de conexión/desconexión de usuarios
+- RF15: Videollamadas integradas (Jitsi Meet)
+
+**Sistema de Diplomas:**
+- RF16: Generación automática de diplomas al completar ayuda
+- RF17: Visualización de diplomas obtenidos
+- RF18: Enlace público de diploma para compartir (LinkedIn)
+- RF19: Opción de impresión de diplomas
+
+**Estadísticas y Gamificación:**
+- RF20: Dashboard con métricas personales (voluntarios)
+- RF21: Leaderboard de voluntarios más activos
+- RF22: Contador de ayudas prestadas/recibidas
+
+#### Requisitos No Funcionales
+
+**Rendimiento:**
+- RNF1: Tiempo de respuesta de API REST < 2 segundos
+- RNF2: Carga de mapa con marcadores < 3 segundos
+- RNF3: Latencia de chat en tiempo real < 500ms
+
+**Usabilidad:**
+- RNF4: Interfaz responsive (móvil, tablet, desktop)
+- RNF5: Navegación intuitiva diferenciada por perfil de usuario
+- RNF6: Mensajes de error claros y comprensibles
+- RNF7: Confirmaciones visuales de acciones importantes (SweetAlert2)
+
+**Seguridad:**
+- RNF8: Contraseñas hasheadas con BCrypt
+- RNF9: Autenticación mediante tokens JWT
+- RNF10: Protección CORS configurada
+- RNF11: Validación de entrada en backend (Spring Validation)
+- RNF12: HTTPS obligatorio en producción
+
+**Compatibilidad:**
+- RNF13: Navegadores modernos (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- RNF14: Responsive design para pantallas desde 320px hasta 1920px
+
+**Escalabilidad:**
+- RNF15: Arquitectura preparada para crecimiento horizontal
+- RNF16: Base de datos PostgreSQL optimizada con índices
+- RNF17: Consultas geoespaciales eficientes con PostGIS
+
+**Disponibilidad:**
+- RNF18: Sistema de migraciones Flyway para actualizaciones sin downtime
+- RNF19: Manejo de errores con mensajes al usuario (sin crashes)
+
+---
+
+## 3.6. Organización de la Lógica de Negocio
+
+### Arquitectura Backend (Spring Boot)
+
+VecinoTech sigue una **arquitectura en capas (Layered Architecture)** que separa responsabilidades:
+
+#### Capas del Backend
+
+**1. Controller (Presentación):**
+- `ZonaUsuarioController`: Autenticación (registro, login, activación)
+- `ZonaPortalController`: Gestión de solicitudes, perfiles, imágenes
+- `ChatController`: WebSocket endpoints para chat en tiempo real
+- `DiplomaController`: Generación y visualización de diplomas
+- `ValoracionController`: Sistema de valoraciones
+
+**2. Service (Lógica de Negocio):**
+- `PortalService`: Gestión de solicitudes, búsqueda geoespacial (PostGIS)
+- `ChatService`: Persistencia de mensajes, notificaciones
+- `GeocodeService`: Geocodificación con Nominatim API
+- `MailService`: Envío de emails de verificación (Mailjet)
+- `DiplomaService`: Generación automática de diplomas
+- `FileStorageService`: Almacenamiento local de imágenes de perfil
+- `ValoracionService`: Sistema de valoraciones entre usuarios
+
+**3. Repository (Acceso a Datos):**
+- `UsuarioRepository`: Consultas sobre usuarios
+- `UsuarioDetalleRepository`: Datos extendidos de usuario
+- `SolicitudRepository`: Queries geoespaciales con PostGIS (ST_Distance)
+- `MensajeRepository`: Persistencia de mensajes de chat
+- `DiplomaRepository`: Gestión de diplomas generados
+- `ValoracionRepository`: Sistema de valoraciones
+
+**4. Entity (Modelo de Dominio):**
+- `Usuario`: Autenticación, email, password, rol, habilitado
+- `UsuarioDetalle`: Información extendida (nombre, dirección, Point PostGIS para ubicación, avatar)
+- `Solicitud`: Solicitudes de ayuda (título, descripción, Point PostGIS, estado, fechas)
+- `Mensaje`: Mensajes del chat (contenido, remitente, destinatario, solicitud)
+- `Diploma`: Certificados generados (código único, voluntario, solicitud)
+- `Valoracion`: Ratings entre usuarios
+- `Rol`: Enum (USUARIO Y ADMIN para gestión de moderadores a futuro)
+
+**5. DTO (Transferencia de Datos):**
+
+DTOs organizados por dominio en subcarpetas:
+- `dto/auth/`: LoginRequest, RegisterRequest, LoginResponse, VerifyAccountDTO
+- `dto/usuario/`: UsuarioPerfilDTO, UsuarioInfoDTO, UsuarioDetalleDTO
+- `dto/solicitud/`: CrearSolicitudRequest, SolicitudDTO, SolicitudMapaDTO
+- `dto/chat/`: MensajeDTO, EnviarMensajeRequest, ChatNotificationDTO
+- `dto/diploma/`: DiplomaDTO, DiplomaPublicoDTO
+- `dto/valoracion/`: ValoracionDTO, CrearValoracionRequest
+- `dto/`: ApiResponse, TicketResponse, VideoCallInviteDTO
+
+**6. Mapper (Transformación Entity ↔ DTO):**
+- `UsuarioMapper`
+- `UsuarioDetalleMapper`
+- `SolicitudMapper`
+- `DiplomaMapper`
+- `ValoracionMapper`
+- `MensajeMapper`
+
+Utiliza **MapStruct** para conversiones automáticas.
+
+**7. Security (Autenticación/Autorización):**
+- `JwtUtils`: Generación y validación de tokens JWT
+- `JwtAuthenticationFilter`: Interceptor que valida tokens en cada petición
+- `SecurityUtils`: Utilidades para obtener usuario autenticado del contexto
+- `SecurityConfig`: Configuración de Spring Security (endpoints públicos/privados, CORS)
+
+**8. Config (Configuración):**
+- `SecurityConfig`: Spring Security + JWT
+- `WebSocketConfig`: Configuración STOMP para chat
+- `WebConfig`: Configuración CORS
+- `GeometryConfig`: Configuración PostGIS para tipos geométricos
+
+### Conexión con APIs y Servicios Externos
+
+#### 1. Nominatim (OpenStreetMap API)
+- **Propósito:** Geocodificación de direcciones españolas
+- **URL:** `https://nominatim.openstreetmap.org/search`
+- **Implementación:** `GeocodeService` con `HttpURLConnection`
+- **Uso:** Convertir dirección textual → coordenadas (latitud, longitud)
+- **Retorno:** JSON con campos `lat` y `lon`
+
+#### 2. Jitsi Meet (meet.guifi.net)
+- **Propósito:** Videollamadas sin autenticación externa
+- **URL:** `https://meet.guifi.net/{roomName}`
+- **Implementación:** Frontend (Angular) genera URL única basada en `solicitudId`
+- **Integración:** Iframe embebido en componente de chat
+- **Ventaja:** Acceso directo sin registro ni configuración adicional
+
+#### 3. Mailjet API
+- **Propósito:** Envío de emails de verificación (2FA)
+- **Implementación:** `MailService` con librería `mailjet-client` (Java)
+- **Configuración:** API Key y Secret en `application.properties`
+- **Plan:** Gratuito (6000 emails/mes)
+- **Uso:** Envío de enlaces de activación de cuenta
+
+#### 4. PostgreSQL + PostGIS
+- **Propósito:** Consultas geoespaciales para búsqueda por proximidad
+- **Función clave:** `ST_Distance` para calcular distancias entre coordenadas
+- **Tipo de dato:** `Point` (geometría PostGIS) en campos `ubicacion`
+- **SRID:** 4326 (sistema de coordenadas WGS 84)
+- **Implementación:** Queries nativas en `SolicitudRepository` con anotación `@Query`
+
+**Ejemplo de query geoespacial:**
+```sql
+SELECT * FROM solicitud 
+WHERE ST_Distance(ubicacion, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)) < :radioMetros
+ORDER BY ST_Distance(ubicacion, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326))
+```
+
+---
+
+## 3.7. Modelo de Datos Simplificado
+
+VecinoTech utiliza una **base de datos relacional PostgreSQL 17** con extensión **PostGIS** para datos geoespaciales.
+
+### Entidades Principales
+
+#### Usuario
+Información de autenticación y rol.
+
+**Atributos clave:**
+- `id` (PK)
+- `email` (único)
+- `password` (hasheado con BCrypt)
+- `rol` (SOLICITANTE | VOLUNTARIO)
+- `habilitado` (Boolean - activación por email)
+- `fecha_registro`
+
+**Relaciones:**
+- 1:1 con `UsuarioDetalle`
+- 1:N con `Solicitud` (como solicitante)
+- 1:N con `Solicitud` (como voluntario)
+- 1:N con `Mensaje`
+- 1:N con `Diploma`
+- 1:N con `Valoracion`
+
+---
+
+#### UsuarioDetalle
+Información extendida del perfil.
+
+**Atributos clave:**
+- `id` (PK)
+- `usuario_id` (FK → Usuario)
+- `nombre`, `apellidos`
+- `direccion`, `codigo_postal`
+- `ubicacion` (**Point PostGIS** - coordenadas)
+- `avatar` (ruta de imagen)
+- `telefono`
+
+---
+
+#### Solicitud
+Peticiones de ayuda tecnológica.
+
+**Atributos clave:**
+- `id` (PK)
+- `titulo`, `descripcion`
+- `ubicacion` (**Point PostGIS** - coordenadas)
+- `direccion` (texto)
+- `estado` (PENDIENTE | EN_PROGRESO | COMPLETADA | CANCELADA)
+- `fecha_creacion`, `fecha_asignacion`, `fecha_completada`
+- `solicitante_id` (FK → Usuario)
+- `voluntario_id` (FK → Usuario, nullable)
+
+**Relaciones:**
+- N:1 con `Usuario` (solicitante)
+- N:1 con `Usuario` (voluntario, opcional)
+- 1:N con `Mensaje`
+- 1:1 con `Diploma`
+- 1:1 con `Valoracion`
+
+---
+
+#### Mensaje
+Chat en tiempo real.
+
+**Atributos clave:**
+- `id` (PK)
+- `contenido`
+- `fecha_envio`
+- `remitente_id` (FK → Usuario)
+- `destinatario_id` (FK → Usuario)
+- `solicitud_id` (FK → Solicitud)
+- `leido` (Boolean)
+
+---
+
+#### Diploma
+Certificados automáticos al completar ayuda.
+
+**Atributos clave:**
+- `id` (PK)
+- `codigo_diploma` (String único - para enlace público)
+- `fecha_emision`
+- `voluntario_id` (FK → Usuario)
+- `solicitud_id` (FK → Solicitud)
+- `nombre_solicitante`
+- `titulo_solicitud`
+
+---
+
+#### Valoracion
+Sistema de valoraciones entre usuarios.
+
+**Atributos clave:**
+- `id` (PK)
+- `puntuacion` (1-5)
+- `comentario`
+- `fecha_valoracion`
+- `valorador_id` (FK → Usuario)
+- `valorado_id` (FK → Usuario)
+- `solicitud_id` (FK → Solicitud)
+
+---
+
+### Diagrama de Relaciones
+
+```
+Usuario (1) ←→ (1) UsuarioDetalle
+   |
+   ├─ (1:N) Solicitud (como solicitante)
+   ├─ (1:N) Solicitud (como voluntario)
+   ├─ (1:N) Mensaje
+   ├─ (1:N) Diploma
+   └─ (1:N) Valoracion
+
+Solicitud
+   ├─ (N:1) Usuario (solicitante)
+   ├─ (N:1) Usuario (voluntario, nullable)
+   ├─ (1:N) Mensaje
+   ├─ (1:1) Diploma
+   └─ (1:1) Valoracion
+```
+
+### Características PostGIS
+
+**Tipo geométrico:** `Point` (SRID 4326 - WGS 84)
+
+**Entidades con geolocalización:**
+- `UsuarioDetalle.ubicacion` → Ubicación del usuario
+- `Solicitud.ubicacion` → Ubicación donde se requiere ayuda
+
+**Consultas geoespaciales:**
+- `ST_Distance`: Calcular distancia entre puntos
+- `ST_SetSRID`: Establecer sistema de coordenadas
+- `ST_MakePoint`: Crear punto desde coordenadas
+
+**Ventaja:** Búsqueda eficiente de solicitudes por proximidad al voluntario.
+
+### Migraciones con Flyway
+
+Las migraciones están en `src/main/resources/db/migration/`:
+- Versionadas (V1, V2, V3...)
+- Se ejecutan automáticamente al iniciar Spring Boot
+- Garantizan consistencia de esquema entre entornos
+
+---
+
+## 4. Conclusiones
+
+### 4.1. Resultados Obtenidos y Cumplimiento de Objetivos
+
+VecinoTech ha cumplido satisfactoriamente los objetivos planteados, logrando crear una **plataforma funcional y completa** que conecta personas con diferentes niveles de conocimiento tecnológico.
+
+**Objetivos técnicos alcanzados:**
+- Arquitectura full-stack con Angular 19 y Spring Boot
+- Autenticación segura JWT + verificación email (2FA)
+- Geolocalización con Leaflet y PostGIS
+- Chat en tiempo real (WebSocket/STOMP)
+- Videollamadas integradas (Jitsi Meet)
+- Sistema automático de diplomas
+- Interfaz responsive diferenciada por perfil
+
+**Objetivos de impacto social:**
+
+VecinoTech representa una **contribución real al problema de la brecha digital**. La plataforma está diseñada con interfaces simples para personas con conocimientos básicos, demostrando que la tecnología puede ser una herramienta de inclusión social cuando se diseña pensando en las personas.
+
+**Funcionalidades descartadas** (por tiempo):
+- Notificaciones push, panel de administración, sistema de reportes/denuncias, estadísticas avanzadas, integración con redes sociales
+
+---
+
+### 4.2. Retos Encontrados y Soluciones Implementadas
+
+#### Integración de WebSocket/STOMP para Chat en Tiempo Real
+**Reto:** Configuración de STOMP en Spring Boot, conexión del cliente Angular con WebSocket y **sincronización de mensajes en tiempo real** entre usuarios. El manejo de usuarios conectados/desconectados añadió complejidad adicional.
+
+**Solución:** Arquitectura robusta con `ChatController` manejando endpoints WebSocket (`/app/chat.send`) y topics (`/topic/chat/{solicitudId}`). `ChatService` persiste mensajes mientras se transmiten en tiempo real, garantizando que no se pierdan datos. Configuración CORS específica para WebSocket fue crucial.
+
+**Tiempo:** +100% sobre estimación inicial (2 semanas vs 1 semana)
+
+---
+
+#### PostGIS y Consultas Geoespaciales
+**Reto:** Tecnología **completamente nueva no vista en el ciclo**. Comprender sistemas de referencia espacial (SRID), tipos geométricos (`Point`), y funciones espaciales (`ST_Distance`) requirió aprendizaje autodidacta. La complejidad de bases de datos relacionales combinada con operaciones geoespaciales supuso un reto doble.
+
+**Solución:** Estudio de documentación oficial de PostGIS y ejemplos prácticos. Implementación de queries nativas en `SolicitudRepository` usando `ST_Distance` para búsquedas por proximidad. Configuración de `GeometryConfig` para que Hibernate reconociera tipos geométricos.
+
+**Tiempo:** +250% sobre estimación (1.5 semanas vs 3 días)
+
+---
+
+#### Geocodificación con Nominatim API
+**Reto:** Inicialmente se usaron métodos básicos de Java (`URL.openStream()`) que solo retornan `InputStream` sin manejar HTTP correctamente, resultando en **timeouts constantes**. Tras investigación en foros, se descubrió la necesidad de usar `HttpURLConnection` para gestionar headers, códigos de respuesta y parsear JSON. El formato de direcciones españolas requirió ajustes adicionales.
+
+**Solución:** Implementación de `GeocodeService` con `HttpURLConnection` correctamente configurado, manejando códigos HTTP y parseando respuestas JSON manualmente. Lógica de fallback para casos sin resultados precisos.
+
+**Tiempo:** +250% sobre estimación (1 semana vs 2 días)
+
+---
+
+#### Gestión del Tiempo y Presión de Plazos
+**Reto no técnico:** Desarrollo individual con **plazos ajustados**, generando momentos de frustración. Tomar todas las decisiones técnicas sin equipo añadió presión adicional.
+
+**Solución:** Metodología organizada con **Notion (Kanban)**, dividiendo el proyecto en sprints. Documentación continua (JSDoc) facilitó la memoria final. El compromiso con el impacto social fue la motivación principal.
+
+---
+
+### 4.3. Aprendizajes y Mejoras Futuras
+
+#### Aprendizajes Técnicos
+
+**Tecnologías aprendidas desde cero:**
+- PostGIS y bases de datos geoespaciales
+- WebSocket/STOMP para comunicación en tiempo real
+- MapStruct para mapeo Entity ↔ DTO
+- Leaflet para mapas interactivos
+- Flyway para migraciones de base de datos
+
+**Tecnologías reforzadas a nivel profesional:**
+- Spring Boot 3: Arquitectura en capas, Spring Security, WebSocket
+- Angular 19: Standalone components, signals, guards, interceptors
+- PostgreSQL: Queries complejas, optimización, índices
+
+#### Aprendizajes No Técnicos
+
+Competencias desarrolladas más allá de lo técnico:
+- **Planificación:** Organización de proyecto complejo en fases manejables
+- **Autodisciplina:** Trabajo autónomo manteniendo motivación durante meses
+- **Resolución de problemas:** Investigación profunda sin soluciones inmediatas
+- **Toma de decisiones técnicas:** Selección de tecnologías y patrones sin equipo
+
+**Mayor aprendizaje:** Descubrir que es posible llevar una idea desde cero hasta un producto funcional completo, superando obstáculos técnicos mediante investigación, persistencia y creatividad.
+
+#### Mejoras Futuras
+
+**Despliegue y producción:**
+- Hosting en VPS (Railway, Render, DigitalOcean)
+- Dominio propio (.es o .com)
+- Certificado SSL (Let's Encrypt)
+- Documentación legal completa (RGPD, Privacidad, Términos)
+
+**Funcionalidades adicionales:**
+- Sistema de valoraciones completo (ratings bidireccionales, reputación)
+- Aplicación móvil nativa (React Native / Flutter)
+- Multiidioma (español, catalán, inglés)
+- Historial de chat persistente
+- Aprendizaje en línea (cursos interactivos, tutoriales)
+- Notificaciones push en tiempo real
+- Panel de administración para moderación
+- Sistema de reportes/denuncias
+- Gamificación avanzada (badges, niveles, logros)
+- Accesibilidad WCAG
+
+**Optimizaciones técnicas:**
+- Tests unitarios y de integración (JUnit, Jest, Cypress)
+- Caché con Redis
+- CI/CD con GitHub Actions
+- Monitorización (Prometheus/Grafana)
+
+---
+## 5. Bibliografía y Fuentes de Información
+
+### Documentación Oficial
+
+**Frontend:**
+- [Angular 19 - 20 Documentation(2025)](https://angular.dev)
+- [Tailwind CSS Documentation. (2024)](https://tailwindcss.com/docs)
+- [Leaflet Documentation. (2024)](https://leafletjs.com/reference.html)
+- [SweetAlert2 Documentation. (2024)](https://sweetalert2.github.io)
+- [STOMP.js Documentation. (2024)](https://stomp-js.github.io/stomp-websocket/)
+
+**Backend:**
+- [Spring Boot Documentation. (2024)](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [Spring Security Documentation. (2024)](https://docs.spring.io/spring-security/reference/)
+- [Spring Data JPA Documentation. (2024)](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
+- [Hibernate Documentation. (2024)](https://hibernate.org/orm/documentation/)
+- [MapStruct Documentation. (2024)](https://mapstruct.org/documentation/stable/reference/html/)
+
+**Base de Datos:**
+- [PostgreSQL Documentation.](https://www.postgresql.org/docs/17/)
+- [PostGIS Documentation. (2024)](https://postgis.net/documentation/)
+- [Flyway Documentation. (2024)](https://flywaydb.org/documentation/)
+
+**APIs Externas:**
+- [Nominatim API Documentation. (2024)](https://nominatim.org/release-docs/develop/api/Overview/)
+- [OpenStreetMap Documentation. (2024)](https://wiki.openstreetmap.org/)
+- [Jitsi Meet Documentation. (2024)](https://jitsi.github.io/handbook/)
+- [Mailjet API Documentation. (2024)](https://dev.mailjet.com/)
+
+### Recursos de Aprendizaje
+
+**Tutoriales y Guías:**
+- [Real time Notification System: WebSocket | Spring Boot | Angular 2024](https://www.youtube.com/watch?v=Pulk8JrPPoA)
+- [Javascript - Geolocation with Leaflet, Nominatim and Openstreetmap](https://www.youtube.com/watch?v=vOPr5k_SGVA)
+- [Querying nominatim from Java class](https://help.openstreetmap.org/questions/67517/querying-nominatim-from-java-class/)
+- [Leaflet - Docs](https://leafletjs.com/reference.html)
+- [CountUp.js  2.9.0](https://inorganik.github.io/countUp.js/)
+
+
+**Herramientas y Recursos:**
+- [GitHub](https://github.com)
+- [Notion. (2024)](https://www.notion.so)
+- [Figma. (2024)](https://www.figma.com)
+- [Canva. (2024)](https://www.canva.com)
+
+### Recursos Visuales
+
+- [Pexels](https://www.pexels.com)
+- [Pixabay (2024)](https://pixabay.com)
+- [Font Awesome](https://fontawesome.com)
+- [Stitch AI powered by Google](stitch.withgoogle.com)
+
+
+**Nota:** Todas las URLs fueron consultadas durante el periodo de desarrollo del proyecto (Agosto - Diciembre 2024). Las versiones específicas de las tecnologías utilizadas están documentadas en la sección 3.2.
+
+---
+
+## 6. Anexos
+
+### 6.1. Guía de Instalación, Configuración y Despliegue
+
+[Arquitectura del sistema](docs/guia_manual_vecinoTech.md)
+
+---
+### Reflexión Final
+
+VecinoTech no es solo un proyecto académico, es una **herramienta con propósito social real**. La convicción de que la tecnología debe servir para incluir, no para excluir, fue el motor que impulsó este proyecto.
+
+El camino no fue fácil: hubo bugs frustrantes, tecnologías desconocidas que aprender, y momentos de duda. Pero cada desafío superado reforzó la certeza de que **la programación es una herramienta poderosa para transformar ideas en realidad**.
+
+VecinoTech está listo para su próxima fase: salir del entorno local y llegar a usuarios reales que puedan beneficiarse de él. El proyecto queda como testimonio de que la tecnología, cuando se diseña con empatía y vocación de servicio, puede tender puentes entre generaciones y democratizar el acceso al conocimiento digital.
+
+---
 
