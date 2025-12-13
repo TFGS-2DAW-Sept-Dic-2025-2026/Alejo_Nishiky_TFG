@@ -1,289 +1,125 @@
-# **VecinoTech**
-### *Plataforma colaborativa que conecta vecinos con diferentes niveles de conocimiento tecnológico*
+![This is an alt text.](./Images/VecinoTech_readme.png "This is a sample image.")
+---
+## 📋 Información del Proyecto
+
+
+- **Autor:** Alejandro Nishiky
+- **Año académico:** 2025/2026
+- **Ciclo:** Desarrollo de Aplicaciones Web (DAW)
+- **Centro:** IES Alonso de Avellaneda
+- **Licencia:** MIT
 
 ---
+## 📖 Tabla de Contenidos
 
-## 🧭 Descripción del Proyecto
+1. [Introducción y Justificación](#1-introducción-y-justificación)
+2. [Estudio de Viabilidad](#2-estudio-de-viabilidad)
+3. [Análisis y Diseño](#3-análisis-y-diseño)
+4. [Conclusiones](#4-conclusiones)
+5. [Bibliografía](#5-bibliografía)
+6. [Anexos](#6-anexos)
 
-**VecinoTech** es una plataforma web que facilita la ayuda mutua entre vecinos en temas tecnológicos. La aplicación conecta a personas que necesitan asistencia técnica con voluntarios dispuestos a ayudar, creando una red de apoyo comunitario digital.
+## 1. Introducción y Justificación
 
-Los usuarios pueden:
+### 1.1. Descripción del Proyecto
 
-- 🙋 **Solicitar ayuda** para resolver problemas tecnológicos
-- 💪 **Ofrecer ayuda** como voluntario en su comunidad
-- 💬 **Comunicarse en tiempo real** mediante chat integrado
-- 📹 **Realizar videollamadas** para asistencia remota
-- 🎓 **Obtener diplomas** al completar 50 ayudas como voluntario
-- ⭐ **Valorar** la experiencia después de cada ayuda
+**VecinoTech** es una plataforma web colaborativa que conecta a personas con diferentes niveles de conocimiento tecnológico, facilitando el intercambio de ayuda en el ámbito digital. Los usuarios con dificultades tecnológicas (solicitantes) reciben asistencia gratuita de voluntarios de su comunidad para resolver problemas cotidianos relacionados con la tecnología.
 
-El proyecto está dividido en:
+**Finalidad:** Reducir la brecha digital creando un puente entre generaciones y niveles de alfabetización digital, democratizando el acceso al conocimiento tecnológico sin barreras económicas ni desplazamientos.
 
-- **Backend**: Spring Boot 3 + WebSockets + PostgreSQL + PostGIS
-- **Frontend**: Angular 19 + Tailwind CSS + Signals + RxJS
+**Objetivos principales:**
+- **Sociales:** Facilitar la inclusión digital, fomentar la solidaridad entre vecinos y proporcionar asesoramiento tecnológico gratuito
+- **Técnicos:** Desarrollar una aplicación full-stack con geolocalización, comunicación en tiempo real (chat/videollamadas) e interfaces diferenciadas por perfil
+- **Educativos:** Demostrar competencias avanzadas en desarrollo web, bases de datos geoespaciales e integración de múltiples tecnologías
 
----
+### 1.2. Motivación
 
-## 🚀 Tecnologías Principales
+Este proyecto nace de una **vocación de servicio** y el deseo de contribuir a la sociedad mediante la tecnología. Inspirado en **BeMyEyes** (aplicación que conecta personas con discapacidad visual con voluntarios) adapté este modelo de ayuda persona a persona al ámbito tecnológico.
 
-### 🛠 Backend
-- **Java 17**
-- **Spring Boot 3**
-- Spring Security + JWT
-- Spring WebSocket (STOMP)
-- Spring Data JPA
-- PostgreSQL + PostGIS (geolocalización)
-- Mailjet API (envío de emails)
-- Lombok
+**El problema:** La tecnología avanza a pasos agigantados, convirtiéndose en imprescindible para gestiones bancarias, citas médicas o comunicación familiar. Sin embargo, lo que para algunos es trivial (configurar email, instalar aplicaciones, usar videollamadas), para otros representa una barrera significativa. Muchas personas se sienten excluidas, frustradas o terminan pagando por resolver dudas simples.
 
-### 🎨 Frontend
-- **Angular 19**
-- Angular Signals
-- RxJS
-- Tailwind CSS
-- SweetAlert2
-- STOMP + SockJS
-- Leaflet (mapas interactivos)
-- Jitsi Meet (videollamadas)
+**La solución:** VecinoTech ofrece asesoramiento gratuito, inmediato y sin desplazamientos. Un voluntario puede dedicar 10 minutos a ayudar con una configuración, y para esa persona puede significar la diferencia entre comunicarse con sus nietos o sentirse aislada.
+
+Este proyecto refleja la convicción de que **la tecnología debe incluir, no excluir**. VecinoTech no es solo un ejercicio académico, es un compromiso con la inclusión digital y la solidaridad comunitaria.
 
 ---
+## 2. Estudio de la Viabilidad del Proyecto
 
-## 🎯 Funcionalidades Principales
+### 2.1. Viabilidad Económica
 
-### 🔐 Autenticación y Seguridad
-- Registro con **verificación por email**
-- Login con JWT (access + refresh tokens)
-- Recuperación de contraseña
-- Protección de endpoints REST y WebSocket
+#### Estimación de Costos
 
----
+**Estado actual (Desarrollo - TFG):**
 
-### 👤 Gestión de Perfil
-- Información personal editable
-- Avatar personalizable (subida de imágenes)
-- Modo voluntario activable/desactivable
-- Estadísticas de actividad
-- Rating promedio como voluntario
-- Historial completo de solicitudes
+El desarrollo del proyecto se ha realizado completamente en entorno local sin costes asociados:
 
----
+| Recurso | Coste |
+|---------|-------|
+| Herramientas de desarrollo (VS Code, IntelliJ IDEA, Git) | 0€ |
+| PostgreSQL + PostGIS | 0€ |
+| Node.js, Angular CLI, Maven | 0€ |
+| APIs externas (Nominatim, Jitsi Meet) | 0€ |
+| Almacenamiento local de imágenes | 0€ |
+| **Total inversión actual** | **0€** |
 
-### 📍 Sistema de Geolocalización
-- Búsqueda de solicitudes cercanas con **PostGIS**
-- Mapa interactivo con **Leaflet + OpenStreetMap**
-- Geocodificación de direcciones (Nominatim)
-- Radio de búsqueda configurable
-- Visualización de solicitudes en tiempo real
+**Costos estimados para producción:**
 
----
+Para un despliegue en producción con capacidad inicial de hasta 1000 usuarios activos:
 
-### 🤝 Solicitudes de Ayuda
+| Recurso | Coste mensual | Coste anual |
+|---------|---------------|-------------|
+| Hosting VPS (2GB RAM, 50GB SSD) | 5-10€ | 60-120€ |
+| Dominio (.es o .com) | - | 10-15€ |
+| Certificado SSL | 0€ (Let's Encrypt) | 0€ |
+| Mailjet (plan gratuito: 6000 emails/mes) | 0€ | 0€ |
+| Base de datos PostgreSQL (incluida en VPS) | 0€ | 0€ |
+| Backup y mantenimiento | 2-5€ | 24-60€ |
+| **Total estimado** | **7-15€/mes** | **94-195€/año** |
 
-#### Como Solicitante:
-- Crear solicitudes con ubicación
-- Ver estado en tiempo real
-- Comunicarse con el voluntario asignado
-- Valorar la ayuda recibida (1-5 estrellas)
-- Cerrar solicitudes completadas
+**Costos escalables (>1000 usuarios):**
 
-#### Como Voluntario:
-- Ver solicitudes abiertas en el mapa
-- Aceptar solicitudes cercanas
-- Establecer recordatorios
-- Completar ayudas y recibir valoraciones
-- Progresar hacia el diploma de reconocimiento + enlace público para anexarlo en LinkedIn
+- VPS de mayor capacidad: 15-30€/mes
+- CDN para imágenes (Cloudinary, plan gratuito inicial): 0-20€/mes
+- Plan de emails superior: 10-25€/mes
+- **Total escalado:** 25-75€/mes (300-900€/año)
 
----
+#### Retorno de la Inversión (ROI)
 
-### 💬 Sistema de Chat en Tiempo Real
-- Mensajería instantánea con WebSockets (STOMP)
-- Chat por cada solicitud activa
-- Notificaciones de nuevos mensajes
-- Invitaciones a videollamadas
-- Finalización colaborativa del chat
+**Modelo de negocio:** VecinoTech está concebido como un proyecto **100% gratuito y sin ánimo de lucro**, orientado al impacto social más que al beneficio económico.
 
----
+**Posibles fuentes de financiación futura:**
 
-### 📹 Videollamadas Integradas
-- Integración con **Jitsi Meet** (meet.guifi.net) (Servicio en España)
-- Invitaciones desde el chat
-- Salas temporales únicas por solicitud
-- Sin instalación adicional requerida
+1. **Donaciones voluntarias**
+   - Sistema de donaciones opcionales de usuarios satisfechos
+   - Crowdfunding (Kickstarter, Patreon, GoFundMe)
+   - Estimación conservadora: 50-200€/año
 
----
+2. **Subvenciones y ayudas públicas**
+   - Ayuntamientos interesados en inclusión digital
+   - Programas de innovación social
+   - Fondos europeos para brecha digital
+   - Potencial: 1000-5000€ (puntual)
 
-### ⭐ Sistema de Valoraciones
-- Valoración de 1 a 5 estrellas
-- Comentarios opcionales
-- Cálculo automático de rating promedio
-- Restricción: una valoración por solicitud
-- Visualización en perfil del voluntario
+3. **Patrocinios corporativos**
+   - Empresas tecnológicas con programas de RSC
+   - Operadoras de telecomunicaciones
+   - Organizaciones sin ánimo de lucro
+   - Potencial: 500-2000€/año
 
----
+**Análisis de ROI:**
 
-### 🎓 Sistema de Diplomas
-- **Requisito**: completar 50 ayudas como voluntario
-- Generación automática de certificado
-- Número único de diploma (VTCH-YYYY-NNNNN)
-- URL pública verificable (para LinkedIn)
-- Impresión directa del diploma
+Dado el **carácter social del proyecto**, el retorno de inversión no se mide en términos puramente económicos:
+
+| Tipo de ROI | Descripción |
+|-------------|-------------|
+| **ROI Económico** | Recuperación de costes básicos (100-200€/año) mediante donaciones: **12-24 meses** |
+| **ROI Social** | Impacto en reducción de brecha digital: **Inmediato** desde el primer usuario ayudado |
+| **ROI Educativo** | Valor del aprendizaje técnico adquirido: **Incalculable** para desarrollo profesional |
+
+**Conclusión de viabilidad económica:**
+
+El proyecto es **económicamente viable** con una inversión mínima (<200€/año) que puede ser cubierta mediante donaciones voluntarias o microfinanciación. El verdadero valor de VecinoTech reside en su **impacto social**, generando un retorno intangible pero significativo en forma de inclusión digital y fortalecimiento comunitario.
+
+La sostenibilidad a largo plazo no depende de generar beneficios, sino de mantener costes controlados y construir una comunidad comprometida con la misión del proyecto.
 
 ---
-
-### 🏆 Portal Principal (Dashboard)
-- Resumen de actividad del usuario
-- Leaderboard de mejores voluntarios
-- Actividad reciente de la comunidad
-- Banners aleatorios motivacionales
-- Navegación rápida a funcionalidades
-
----
-
-## 🗃️ Base de Datos
-
-### 📦 Tablas PostgreSQL
-
-| Tabla | Contenido |
-|-------|-----------|
-| **usuario** | Credenciales, email, rating, avatar |
-| **usuario_detalle** | Teléfono, dirección, ubicación (Point), es_voluntario |
-| **solicitud** | Título, descripción, categoría, estado, ubicación |
-| **mensaje** | Contenido, timestamp, chat de solicitud |
-| **valoracion** | Puntuación, comentario, fecha |
-| **diploma** | Certificado, estadísticas, URL pública |
-
-### 📍 Extensión PostGIS
-- Tipo de dato: `geography(Point, 4326)`
-- Consultas espaciales: `ST_Distance`, `ST_DWithin`
-- Sistema de referencia: WGS84
-
----
-
-## 🧩 Arquitectura del Backend
-
-### Controladores REST Principales
-
-| Controlador | Endpoints |
-|-------------|-----------|
-| `/api/zonaUsuario` | Registro, login, 2FA, activación, recuperación |
-| `/api/portal` | Funcionalidades autenticadas |
-| `/api/portal/solicitudes` | CRUD de solicitudes, búsqueda por proximidad |
-| `/api/portal/valoraciones` | Crear, obtener valoraciones |
-| `/api/portal/diplomas` | Elegibilidad, generación, verificación pública |
-| `/api/portal/perfil` | Actualizar datos, avatar, modo voluntario |
-
-### 📡 WebSocket Topics
-- `/topic/chat/{solicitudId}` - Mensajes de chat
-- `/topic/invitacion-video/{solicitudId}` - Invitaciones a videollamada
-
----
-
-## 🎨 Arquitectura del Frontend
-
-### Componentes Principales
-
-| Componente | Funcionalidad |
-|------------|---------------|
-| **Bienvenida** | Landing page, información del proyecto |
-| **Portal** | Dashboard principal, estadísticas |
-| **Solicitante** | Crear y gestionar solicitudes propias |
-| **Voluntario** | Ver mapa, aceptar solicitudes |
-| **Chat** | Mensajería en tiempo real con videollamadas |
-| **Historial** | Solicitudes completadas, valoraciones |
-| **Perfil** | Gestión de cuenta, modo voluntario |
-| **Diplomas** | Progreso y generación de certificado |
-
-### 🎨 Patrones de Diseño
-- **Signals** para reactividad
-- **Computed Signals** para valores derivados
-- **Effects** para side-effects
-- **toSignal** para integración con Observables
-- **Sintaxis moderna**: `@if`, `@for`, `@switch`
-
----
-
-## 🖥️ Instalación y Uso
-
-### 📌 Requisitos Previos
-- Node.js 18+
-- Java 17+
-- PostgreSQL 14+ con extensión PostGIS
-- Maven 3.8+
-
----
-
-### 🗄️ Base de Datos
-
-```bash
-# Crear base de datos PostgreSQL
-psql -U postgres
-CREATE DATABASE vecinotech;
-
-# Habilitar extensión PostGIS
-\c vecinotech
-CREATE EXTENSION IF NOT EXISTS postgis;
-
-# Las migraciones se ejecutan automáticamente con Flyway
-# Archivos en: src/main/resources/db/migration/
-```
-
----
-
-## 📋 Migraciones de Base de Datos
-
-El proyecto usa **Flyway** para versionado de la base de datos:
-
-| Migración | Descripción |
-|-----------|-------------|
-| `V1__init.sql` | Tablas iniciales: usuario, rol, solicitud |
-| `V2__fechas_alter.sql` | Ajustes de campos fecha |
-| `V3__usuariodetalle_alter.sql` | Tabla usuario_detalle con ubicación |
-| `V4__add_geolocation_support.sql` | Soporte completo PostGIS |
-| `V5__fix_timestamp_defaults.sql` | Corrección de timestamps |
-| `V6__add_chat_messages.sql` | Sistema de mensajería |
-| `V7__add_ratings_system.sql` | Sistema de valoraciones |
-| `V8__add_diplomas_table.sql` | Sistema de diplomas |
-
----
-
-## 🌐 URLs y Endpoints Importantes
-
-### Frontend
-- **Landing**: `http://localhost:4200/vecinotech/home`
-- **Portal**: `http://localhost:4200/portal`
-- **Diplomas**: `http://localhost:4200/portal/diplomas`
-- **Verificación pública**: `http://localhost:4200/diplomas/verify/{uuid}`
-
-### Backend
-- **Health Check**: `http://localhost:8080/api/health`
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html` *(si está habilitado)*
-
---
-
-## 📄 Licencia
-
-Este proyecto es un **Trabajo de Fin de Grado (TFG)** desarrollado con fines académicos.
-
-Todos los derechos reservados © 2025 Alejandro Nishiky
-
----
-
-## 💙 ¡Gracias por usar VecinoTech!
-
-*Conectando comunidades, un vecino a la vez.*
-
----
-
-## 👨‍💻 Autor
-
-**Alejandro Nishiky**  
-Desarrollador Full Stack Junior
-
-### 🔗 Contacto
-
-📧 Email: alejo.nishiky@gmail.com  
-💼 LinkedIn: [linkedin.com/in/alejandro-nishiky](https://www.linkedin.com/in/alejandro-nishiky)  
-🐙 GitHub: [github.com/alejandro-nishiky](https://github.com/alejandro-nishiky)
-
----
-
-*Versión 1.0.0 - Diciembre 2025*
