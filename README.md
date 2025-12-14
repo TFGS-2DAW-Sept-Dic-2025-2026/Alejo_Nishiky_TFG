@@ -13,7 +13,7 @@
 ## 📖 Tabla de Contenidos
 
 1. [Introducción y Justificación](#1-introducción-y-justificación)
-2. [Estudio de Viabilidad](#2-estudio-de-viabilidad)
+2. [Estudio de Viabilidad](#2-estudio-de-la-viabilidad)
 3. [Análisis y Diseño](#3-análisis-y-diseño)
 4. [Conclusiones](#4-conclusiones)
 5. [Bibliografía](#5-bibliografía)
@@ -256,7 +256,7 @@ Por limitaciones de tiempo y priorización de funcionalidades core, se descartar
 
 Estas funcionalidades quedan documentadas como **mejoras futuras** del proyecto.
 ---
-## 3. Análisis y Diseño del Proyecto
+## 3. Análisis y Diseño
 
 ### 3.1. Descripción de la Arquitectura Web
 
@@ -1029,10 +1029,9 @@ Competencias desarrolladas más allá de lo técnico:
 - Tests unitarios y de integración (JUnit, Jest, Cypress)
 - Caché con Redis
 - CI/CD con GitHub Actions
-- Monitorización (Prometheus/Grafana)
 
 ---
-## 5. Bibliografía y Fuentes de Información
+## 5. Bibliografía
 
 ### Documentación Oficial
 
@@ -1082,7 +1081,7 @@ Competencias desarrolladas más allá de lo técnico:
 - [Pexels](https://www.pexels.com)
 - [Pixabay (2024)](https://pixabay.com)
 - [Font Awesome](https://fontawesome.com)
-- [Stitch AI powered by Google](stitch.withgoogle.com)
+- [Stitch AI powered by Google](https://stitch.withgoogle.com/)
 
 
 **Nota:** Todas las URLs fueron consultadas durante el periodo de desarrollo del proyecto (Agosto - Diciembre 2024). Las versiones específicas de las tecnologías utilizadas están documentadas en la sección 3.2.
@@ -1094,6 +1093,10 @@ Competencias desarrolladas más allá de lo técnico:
 ### 6.1. Guía de Instalación, Configuración y Despliegue
 
 [Arquitectura del sistema](docs/guia_manual_vecinoTech.md)
+
+### 6.2.Vistas y demos de la aplicación.
+
+[Vistas de la aplicación](docs/vitas_app.md)
 
 ---
 ### Reflexión Final
