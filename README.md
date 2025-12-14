@@ -17,7 +17,7 @@
 3. [Análisis y Diseño](#3-análisis-y-diseño)
 4. [Conclusiones](#4-conclusiones)
 5. [Bibliografía](#5-bibliografía)
-6. [Anexos](#6-anexos)
+6. [Anexos](#6-anexos-y-vistas)
 
 ## 1. Introducción y Justificación
 
@@ -1088,7 +1088,7 @@ Competencias desarrolladas más allá de lo técnico:
 
 ---
 
-## 6. Anexos
+## 6. Anexos y Vistas
 
 ### 6.1. Guía de Instalación, Configuración y Despliegue
 
