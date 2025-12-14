@@ -7,13 +7,16 @@ import es.daw.vecinotechbackend.dto.auth.AuthRequest;
 import es.daw.vecinotechbackend.dto.auth.RefreshRequest;
 import es.daw.vecinotechbackend.dto.usuario.UsuarioDTO;
 import es.daw.vecinotechbackend.entity.Usuario;
+import es.daw.vecinotechbackend.entity.UsuarioDetalle;
 import es.daw.vecinotechbackend.mapper.UsuarioMapper;
 import es.daw.vecinotechbackend.repository.UsuarioDetalleRepository;
 import es.daw.vecinotechbackend.repository.UsuarioRepository;
+import es.daw.vecinotechbackend.service.GeocodeService;
 import es.daw.vecinotechbackend.service.MailService;
 import es.daw.vecinotechbackend.security.JwtUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +37,7 @@ public class ZonaUsuarioController {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final JwtUtils jwtUtils;
+    private final GeocodeService geocodeService;
 
 
     @Value("${app.frontend.base-url}")
@@ -47,13 +51,15 @@ public class ZonaUsuarioController {
                                  PasswordEncoder passwordEncoder,
                                  MailService mailService,
                                  JwtUtils jwtUtils,
-                                 UsuarioDetalleRepository usuarioDetalleRepository) {
+                                 UsuarioDetalleRepository usuarioDetalleRepository,
+                                 GeocodeService geocodeService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
         this.jwtUtils = jwtUtils;
         this.usuarioDetalleRepository = usuarioDetalleRepository;
+        this.geocodeService = geocodeService;
     }
 
     // ============= REGISTRO DE USUARIO ==========
@@ -78,6 +84,7 @@ public class ZonaUsuarioController {
         entity.setActivo(false);
 
         Usuario saved = usuarioRepository.save(entity);
+        geocodificarDireccionUsuario(saved);
 
         // Generar token de activación (24h)
         String token = jwtUtils.createActivationToken(saved.getId(), saved.getEmail(), 86400);
@@ -95,6 +102,50 @@ public class ZonaUsuarioController {
 
         // No devolvemos el usuario por seguridad
         return ResponseEntity.ok(ApiResponse.ok("Registro recibido. Revisa tu email para activar tu cuenta.", null));
+    }
+
+    /**
+     * ✅ NUEVO: Método privado para geocodificar usuario después del registro
+     * No falla el registro si la geocodificación falla
+     */
+    private void geocodificarDireccionUsuario(Usuario usuario) {
+        try {
+            UsuarioDetalle detalle = usuario.getDetalle();
+
+            // Verificar que tenga datos mínimos
+            if (detalle == null) {
+                System.out.println("ℹ️ Usuario sin detalle, no se geocodifica");
+                return;
+            }
+
+            boolean tieneDireccion = detalle.getDireccion() != null && !detalle.getDireccion().isBlank();
+            boolean tieneCP = detalle.getCodigoPostal() != null && !detalle.getCodigoPostal().isBlank();
+
+            if (!tieneDireccion && !tieneCP) {
+                System.out.println("ℹ️ Usuario sin dirección ni CP, no se geocodifica");
+                return;
+            }
+
+            // Llamar al servicio de geocodificación
+            Point ubicacion = geocodeService.geocodificar(
+                    detalle.getDireccion(),
+                    detalle.getCiudad(),
+                    detalle.getCodigoPostal(),
+                    detalle.getPais()
+            );
+
+            if (ubicacion != null) {
+                detalle.setUbicacion(ubicacion);
+                usuarioDetalleRepository.save(detalle);
+                System.out.println("✅ Usuario geocodificado exitosamente");
+            } else {
+                System.out.println("⚠️ No se pudo geocodificar");
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error geocodificando: " + e.getMessage());
+            // NO lanzamos excepción - el registro debe completarse igual
+        }
     }
 
     // ============== ACTIVACIÓN VIA ENLACE ==============
@@ -236,6 +287,79 @@ public class ZonaUsuarioController {
         String newRefresh = jwtUtils.createRefreshToken(user.getId());
         var payload = new AuthPayload(newAccess, newRefresh, dto);
         return ResponseEntity.ok(ApiResponse.ok("OK", payload));
+    }
+
+    // ==================== RECUPERACIÓN DE CONTRASEÑA ====================
+
+    /**
+     * Solicita recuperación de contraseña. Envía un correo con un enlace/token.
+     * Siempre responde OK para no revelar si el email existe.
+     */
+    @PostMapping("/solicitar-recuperacion")
+    public ResponseEntity<ApiResponse<Void>> solicitarRecuperacion(@Valid @RequestBody es.daw.vecinotechbackend.dto.auth.RecuperarPasswordRequest req) {
+        String email = req.email().trim().toLowerCase();
+
+        // Buscar usuario
+        Optional<Usuario> opt = usuarioRepository.findByEmail(email);
+
+        // Si no existe, respuesta neutra (no revelamos existencia)
+        if (opt.isEmpty()) {
+            return ResponseEntity.ok(ApiResponse.ok("Si el email existe, hemos enviado las instrucciones.", null));
+        }
+
+        Usuario u = opt.get();
+
+        // Si no está activo, respuesta neutra
+        if (!Boolean.TRUE.equals(u.isActivo())) {
+            return ResponseEntity.ok(ApiResponse.ok("Si el email existe, hemos enviado las instrucciones.", null));
+        }
+
+        // Generar token de reset (1 hora de validez)
+        try {
+            String token = jwtUtils.createPasswordResetToken(u.getEmail(), 3600); // 1 hora
+            String resetUrl = frontBaseUrl + "/usuario/restablecer?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+
+            String nombre = (u.getNombre() != null && !u.getNombre().isBlank()) ? u.getNombre() : u.getEmail();
+            mailService.enviarRecuperacion(u.getEmail(), nombre, resetUrl);
+
+            return ResponseEntity.ok(ApiResponse.ok("Si el email existe, hemos enviado las instrucciones.", null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error(2002, "No se pudo enviar el correo de recuperación."));
+        }
+    }
+
+    /**
+     * Restablece la contraseña usando el token recibido por correo
+     */
+    @PostMapping("/restablecer-password")
+    public ResponseEntity<ApiResponse<Void>> restablecerPassword(@Valid @RequestBody es.daw.vecinotechbackend.dto.auth.RestablecerPasswordRequest req) {
+        try {
+            // Validar token y extraer email
+            Claims claims = jwtUtils.validateAndRequirePurpose(req.token(), "password_reset");
+            String email = jwtUtils.extractSubject(claims);
+
+            if (email == null || email.isBlank()) {
+                return ResponseEntity.status(400).body(ApiResponse.error(1, "Token inválido"));
+            }
+
+            // Buscar usuario
+            Optional<Usuario> opt = usuarioRepository.findByEmail(email);
+            if (opt.isEmpty()) {
+                return ResponseEntity.status(404).body(ApiResponse.error(1, "Usuario no encontrado"));
+            }
+
+            Usuario u = opt.get();
+
+            // Actualizar contraseña
+            u.setPasswordHash(passwordEncoder.encode(req.nuevaPassword()));
+            usuarioRepository.save(u);
+
+            return ResponseEntity.ok(ApiResponse.ok("Contraseña restablecida exitosamente.", null));
+
+        } catch (Exception ex) {
+            return ResponseEntity.status(400).body(ApiResponse.error(1, "Token inválido o expirado"));
+        }
     }
 
 }

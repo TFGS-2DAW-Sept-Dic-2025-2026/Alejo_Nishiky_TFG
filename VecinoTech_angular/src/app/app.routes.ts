@@ -18,6 +18,7 @@ import { ChatComponent } from './components/zonaPortal/chat/chat.component';
 import { PortalLayoutComponent } from './components/zonaPortal/portal-layout/portal-layout.component';
 import { DiplomaComponent } from './components/zonaPortal/perfil/diploma/diploma.component';
 import { DiplomaPublicoComponent } from './components/zonaPortal/perfil/diploma-publico/diploma-publico.component';
+import { RestablecerPasswordComponent } from './components/zonaUsuario/recuPasswordComponent/restablecer-password/restablecer-password.component';
 
 export const routes: Routes = [
   { path:'', redirectTo: '/vecinotech/home', pathMatch: 'full'},
@@ -35,7 +36,8 @@ export const routes: Routes = [
     children: [
       {path: 'registro', component: RegistroComponent},
       {path: 'login', component: LoginComponent},
-      {path: 'recuperarPassword', component: RecuPasswordComponent},
+      {path: 'recuperar', component: RecuPasswordComponent},
+      {path: 'restablecer', component: RestablecerPasswordComponent},
       {path: 'activar', component: ActivarCuentaComponent }
     ]
   },
