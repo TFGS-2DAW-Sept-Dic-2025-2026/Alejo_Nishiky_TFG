@@ -17,7 +17,7 @@
 3. [Análisis y Diseño](#3-análisis-y-diseño)
 4. [Conclusiones](#4-conclusiones)
 5. [Bibliografía](#5-bibliografía)
-6. [Anexos](#6-anexos-y-vistas)
+6. [Anexos y Vistas](#6-anexos-y-vistas)
 
 ## 1. Introducción y Justificación
 
